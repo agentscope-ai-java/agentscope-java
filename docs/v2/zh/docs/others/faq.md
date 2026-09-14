@@ -17,6 +17,71 @@ AgentScope Java 2.0 版本尽量保持了对 1.x 版本的兼容，确保大部�
 会。`io.agentscope.core.rag` 与 `io.agentscope.core.memory.LongTermMemory` 模块已在仓库中存在，但 knowledge base、document reader 等组件正在持续完善，具体进度请关注 [Release Notes](release-notes.md) 与 GitHub 发版。
 :::
 
+  :::{dropdown} 如何切换模型 provider？
+把传给 `.model(...)` 的 `<provider>:<model-name>` 字符串换掉，加上对应的
+`agentscope-extensions-model-*` 依赖，并设置该 provider 的 API key 环境变量。不需要改其他代码——
+`ModelRegistry` 在运行时解析 provider：
+
+```java
+ReActAgent agent =
+        ReActAgent.builder()
+                .name("assistant")
+                .model("openai:gpt-4.1")   // 原来是 "dashscope:qwen-plus"
+                .build();
+```
+
+```bash
+# 设置上面选的那一行对应的环境变量
+export OPENAI_API_KEY=sk-your-key-here
+```
+
+| Provider | 模型字符串前缀 | 环境变量 |
+|---|---|---|
+| DashScope | `dashscope:qwen-plus` | `DASHSCOPE_API_KEY` |
+| OpenAI | `openai:gpt-4.1` | `OPENAI_API_KEY` |
+| Anthropic | `anthropic:claude-sonnet-4-7` | `ANTHROPIC_API_KEY` |
+| Gemini | `gemini:gemini-2.0-flash` | `GEMINI_API_KEY` |
+| Ollama（本地） | `ollama:llama3` | 无（可选 `OLLAMA_BASE_URL`） |
+
+完整 provider 列表和显式 builder 配置见 [Model](../building-blocks/model.md)。
+:::
+
+  :::{dropdown} 为什么 `.model("...")` 抛出 "model not found"？
+这说明 `ModelRegistry` 没能解析 `<provider>:<model-name>` 字符串——几乎总是因为对应的
+`agentscope-extensions-model-*` 模块还没加到 classpath。加上它：
+
+```xml
+<dependency>
+    <groupId>io.agentscope</groupId>
+    <artifactId>agentscope-extensions-model-dashscope</artifactId>
+    <version>${agentscope.version}</version>
+</dependency>
+```
+
+再确认 id 是否符合 `provider:model-name` 的约定（例如 `"openai:gpt-5.5"`、
+`"dashscope:qwen-max"`、`"gemini:gemini-2.0-flash"`）——provider 前缀拼错了，即使依赖已加上也会
+报同样的错。
+:::
+
+  :::{dropdown} 怎么查看 agent 在做什么（追踪推理和工具调用）？
+挂上内置的 `AgentTraceMiddleware`——它在 `ReActAgent` 和 `HarnessAgent` 上都能用，会把每一步推理、
+工具调用及其结果实时打印出来：
+
+```java
+import io.agentscope.harness.agent.middleware.AgentTraceMiddleware;
+
+ReActAgent agent =
+        ReActAgent.builder()
+                .name("assistant")
+                .model("dashscope:qwen-plus")
+                .middleware(new AgentTraceMiddleware())
+                .build();
+```
+
+如果想要自己的逻辑（替代或叠加追踪），实现 `MiddlewareBase` 并挂上 `onAgent` / `onReasoning` /
+`onActing` / `onModelCall`——详见 [Middleware](../building-blocks/middleware.md)。
+:::
+
   :::{dropdown} 除了 Java 还有其他语言版本吗？
 有。AgentScope 目前提供三种语言实现，各自独立仓库：
 

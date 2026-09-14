@@ -322,7 +322,10 @@ model.stream(
 
 A `ChatResponse` carries a list of content blocks (`TextBlock`, `ThinkingBlock`, `ToolUseBlock`, `DataBlock`) and a `ChatUsage` recording token counts and timing.
 
-In practice you usually call models indirectly via `ReActAgent`. For lightweight direct invocation, see `agentscope-examples/documentation/.../model/ModelRegistryExample.java`.
+In practice you usually call models indirectly via `ReActAgent`, or via
+[`HarnessAgent`](../harness/architecture.md#building-a-harnessagent) when you also need a workspace,
+session persistence, or subagents — both builders' `.model(...)` accept the same `ChatModelBase`
+instance built above. For lightweight direct invocation, see `agentscope-examples/documentation/.../model/ModelRegistryExample.java`.
 
 ### Generating structured output
 

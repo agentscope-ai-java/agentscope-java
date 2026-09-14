@@ -130,8 +130,52 @@ Default users and development secrets are for local use only.
 5. In **Dashboard**, inspect online status, events, and runtime state.
 6. For collaboration, open **Agent Teams**, create a team, and watch tasks and member state.
 
-To try BYO Agent registration, use the sample at `agentscope-samples/agents/agentscope-paw` in the repository. After it starts, you should see the agent registered successfully in the Dashboard.
+To try BYO Agent registration, use the sample at [`agentscope-examples/agents/agentscope-paw`](../agentscope-examples/agents/agentscope-paw) in the repository. After it starts, you should see the agent registered successfully in the Dashboard.
 
+### 2b. The same flow via the REST API
+
+Everything the console does in step 2 is also a plain REST call through the Gateway
+(`http://localhost:8080`, bearer-token auth). This is the programmatic equivalent — useful for
+scripting or a BYO integration that doesn't go through the web UI:
+
+```bash
+BASE=http://localhost:8080
+
+# Log in as one of the seeded local users (admin/admin — dev only)
+TOKEN=$(curl -s -X POST "$BASE/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin"}' | jq -r '.token')
+
+# Create an Agent
+AGENT_ID=$(curl -s -X POST "$BASE/api/agents" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"my-agent","system":"You are a helpful assistant.","model":"dashscope:qwen-plus"}' \
+  | jq -r '.id')
+
+# Create a local Environment
+ENV_ID=$(curl -s -X POST "$BASE/api/environments" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"local-env","type":"local"}' \
+  | jq -r '.id')
+
+# Create a Session bound to the Agent + Environment
+SESSION_ID=$(curl -s -X POST "$BASE/api/sessions" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d "{\"agent\":\"$AGENT_ID\",\"environmentId\":\"$ENV_ID\"}" \
+  | jq -r '.id')
+
+# Send the first message (payload.text — the API also accepts "message" / "content")
+curl -s -X POST "$BASE/api/sessions/$SESSION_ID/events" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"events":[{"type":"user.message","payload":{"text":"Hello!"}}]}'
+
+# Stream the agent's reply as it's generated (SSE)
+curl -N -H "Authorization: Bearer $TOKEN" "$BASE/api/sessions/$SESSION_ID/events/stream"
+```
+
+`agent` on session creation also accepts `{"type": "...", "id": "...", "version": N}` to pin a
+specific agent version, and `environmentId` can be omitted if the agent has a
+`defaultEnvironmentId`. Full request/response schemas: [`docs/managed_agents/openapi/managed-agents.yaml`](./docs/managed_agents/openapi/managed-agents.yaml).
 
 ### 3. Stop the stack
 

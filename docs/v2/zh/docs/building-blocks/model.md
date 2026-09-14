@@ -320,7 +320,9 @@ model.stream(
 
 `ChatResponse` 包含若干 content block（`TextBlock`、`ThinkingBlock`、`ToolUseBlock`、`DataBlock`）以及记录 token 数与耗时的 `ChatUsage`。
 
-实际开发中通常不需要直接调模型，而是通过 `ReActAgent` 调度；要直连模型做轻量调用时，推荐参考 `agentscope-examples/documentation/.../model/ModelRegistryExample.java`。
+实际开发中通常不需要直接调模型，而是通过 `ReActAgent` 调度；需要工作区、会话持久化或子 agent 时则通过
+[`HarnessAgent`](../harness/architecture.md#构建一个-harnessagent) 调度——两个 builder 的
+`.model(...)` 接受同一个 `ChatModelBase` 实例。要直连模型做轻量调用时，推荐参考 `agentscope-examples/documentation/.../model/ModelRegistryExample.java`。
 
 ### 生成结构化输出
 

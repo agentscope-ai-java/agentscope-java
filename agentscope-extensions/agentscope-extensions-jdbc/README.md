@@ -5,10 +5,25 @@ deprecated `agentscope-extensions-mysql` and `agentscope-extensions-postgresql`
 modules with a single module that supports MySQL, PostgreSQL, H2, and SQLite
 through one aggregated `AbstractJdbcDialect` abstract class.
 
+## Installation
+
+```xml
+<dependency>
+    <groupId>io.agentscope</groupId>
+    <artifactId>agentscope-extensions-jdbc</artifactId>
+    <version>${agentscope.version}</version>
+</dependency>
+```
+
 ## Quick Start
 
 ```java
-DataSource dataSource = ... // HikariCP, Druid, etc.
+import io.agentscope.extensions.jdbc.JdbcDistributedStore;
+import io.agentscope.harness.agent.HarnessAgent;
+import io.agentscope.harness.agent.sandbox.impl.docker.DockerFilesystemSpec;
+import javax.sql.DataSource;
+
+DataSource dataSource = ...; // HikariCP, Druid, etc.
 
 HarnessAgent agent = HarnessAgent.builder()
     .name("my-agent")
@@ -20,6 +35,30 @@ HarnessAgent agent = HarnessAgent.builder()
 
 The dialect is auto-detected from the `DataSource` via JDK SPI. No manual dialect
 selection required.
+
+### Using only the state store
+
+If you just need cross-replica `AgentStateStore` persistence (no distributed sandbox
+locking or snapshots), construct `JdbcAgentStateStore` directly instead of the full
+`JdbcDistributedStore` facade:
+
+```java
+import io.agentscope.extensions.jdbc.dialect.AbstractJdbcDialect;
+import io.agentscope.extensions.jdbc.state.JdbcAgentStateStore;
+import io.agentscope.harness.agent.HarnessAgent;
+import javax.sql.DataSource;
+
+DataSource dataSource = ...;
+
+JdbcAgentStateStore stateStore =
+        new JdbcAgentStateStore(dataSource, AbstractJdbcDialect.from(dataSource).build());
+
+HarnessAgent agent = HarnessAgent.builder()
+    .name("my-agent")
+    .model("dashscope:qwen-plus")
+    .stateStore(stateStore)
+    .build();
+```
 
 ## Architecture
 

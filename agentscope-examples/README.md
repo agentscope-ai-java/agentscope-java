@@ -13,12 +13,11 @@ This directory contains examples demonstrating core features of AgentScope Java 
 ### Build Examples
 
 ```bash
-# From project root, build and install the main library
-cd agentscope-core-java
-mvn clean install
+# From the repository root, build and install every module (core, harness, extensions...)
+mvn clean install -DskipTests
 
-# Build examples
-cd examples
+# Then cd into this example module — every command below assumes you're here
+cd agentscope-examples/documentation
 mvn compile
 ```
 
@@ -30,6 +29,10 @@ Set your API key (optional - examples will prompt for it if not set):
 export DASHSCOPE_API_KEY=your_api_key_here
 ```
 
+> **Note:** Every `mvn exec:java ...` command below must run from `agentscope-examples/documentation/`
+> (or add `-pl agentscope-examples/documentation` when running from the repository root) —
+> `exec:java` needs that module's compiled classpath.
+
 ## 📚 Examples Overview
 
 | Example | Description | Core Concepts | Run Command |
@@ -38,6 +41,7 @@ export DASHSCOPE_API_KEY=your_api_key_here
 | **ToolCallingExample** | Equipping agents with tools | @Tool, Toolkit, Tool calling | `mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.tool.ToolCallingExample"` |
 | **StructuredOutputExample** | Generate typed structured output | Structured output, Schema validation | `mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.structuredoutput.StructuredOutputExample"` |
 | **ToolGroupExample** | Autonomous tool group management | Meta-tool, Tool groups, Self-activation | `mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.tool.ToolGroupExample"` |
+| **PermissionHITLExample** | Gating tool calls with allow/ask/deny rules | PermissionMode, PermissionContextState, HITL | `mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.hitl.PermissionHITLExample"` |
 | **McpStdioExample** | Local MCP server integration | MCP, StdIO transport | `mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.mcp.McpStdioExample"` |
 | **McpSseExample** | Remote MCP server integration | MCP, SSE transport | `mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.mcp.McpSseExample"` |
 | **McpStreamableHttpExample** | Remote MCP server integration | MCP, Streamable HTTP | `mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.mcp.McpStreamableHttpExample"` |
@@ -50,7 +54,34 @@ export DASHSCOPE_API_KEY=your_api_key_here
 
 ### 1. BasicChatExample
 
-The simplest way to create and chat with an agent.
+The simplest way to create and chat with an agent — a bare `ReActAgent` with no workspace,
+memory backend, or tools required:
+
+```java
+import io.agentscope.core.ReActAgent;
+import io.agentscope.core.event.TextBlockDeltaEvent;
+import io.agentscope.core.message.UserMessage;
+import io.agentscope.core.tool.Toolkit;
+
+ReActAgent agent = ReActAgent.builder()
+        .name("Assistant")
+        .sysPrompt("You are a helpful AI assistant. Be friendly and concise.")
+        // ModelRegistry resolves "dashscope:qwen-plus" and reads DASHSCOPE_API_KEY from the env
+        .model("dashscope:qwen-plus")
+        .toolkit(new Toolkit())
+        .build();
+
+// Stream incremental text deltas as they arrive
+agent.streamEvents(new UserMessage("Hello, introduce yourself"))
+        .doOnNext(event -> {
+            if (event instanceof TextBlockDeltaEvent delta) {
+                System.out.print(delta.getDelta());
+            }
+        })
+        .blockLast();
+```
+
+Run the full interactive version (a REPL loop around the same agent):
 
 ```bash
 mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.quickstart.BasicChatExample"
@@ -69,7 +100,42 @@ mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.quickstart
 
 ### 2. ToolCallingExample
 
-Learn how to give agents access to tools.
+Learn how to give agents access to tools. Annotate a plain method with `@Tool` /
+`@ToolParam`, register the containing object on a `Toolkit`, and attach the toolkit to the agent —
+the model decides when to call it:
+
+```java
+import io.agentscope.core.ReActAgent;
+import io.agentscope.core.message.UserMessage;
+import io.agentscope.core.tool.Tool;
+import io.agentscope.core.tool.ToolParam;
+import io.agentscope.core.tool.Toolkit;
+
+public class SimpleTools {
+    @Tool(name = "calculate", description = "Calculate simple math expressions")
+    public String calculate(
+            @ToolParam(name = "expression", description = "Math expression, e.g., '123 + 456'")
+            String expression) {
+        // ... evaluate and return the result as a string
+        return expression + " = 579";
+    }
+}
+
+Toolkit toolkit = new Toolkit();
+toolkit.registerTool(new SimpleTools());
+
+ReActAgent agent = ReActAgent.builder()
+        .name("ToolAgent")
+        .sysPrompt("You are a helpful assistant with access to tools. Use tools when needed.")
+        .model("dashscope:qwen-max")
+        .toolkit(toolkit)
+        .build();
+
+agent.call(new UserMessage("Calculate 123 * 456")).block();
+```
+
+For tools that need permission checks, async execution, or `RuntimeContext` injection, extend
+`ToolBase` and register with `toolkit.registerAgentTool(...)` instead — see [PermissionHITLExample](#5-permissionhitlexample) below.
 
 ```bash
 mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.tool.ToolCallingExample"
@@ -89,7 +155,34 @@ mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.tool.ToolC
 
 ### 3. StructuredOutputExample
 
-Generate structured, typed output from natural language queries.
+Generate structured, typed output from natural language queries. Pass a plain Java class as the
+schema to `agent.call(msg, SchemaClass.class)`, then read it back with `getStructuredData(...)`
+— no manual JSON parsing:
+
+```java
+import io.agentscope.core.ReActAgent;
+import io.agentscope.core.message.Msg;
+import io.agentscope.core.message.UserMessage;
+import java.util.List;
+
+public class ProductRequirements {
+    public String productType;
+    public String brand;
+    public Integer minRam;
+    public Double maxBudget;
+    public List<String> features;
+    public ProductRequirements() {}
+}
+
+Msg userMsg = new UserMessage(
+        "Extract the product requirements from this query: I need a laptop with "
+                + "at least 16GB RAM, Apple brand, budget around $2000.");
+
+Msg reply = agent.call(userMsg, ProductRequirements.class).block();
+ProductRequirements result = reply.getStructuredData(ProductRequirements.class);
+
+System.out.println("Brand: " + result.brand + ", Min RAM: " + result.minRam + " GB");
+```
 
 ```bash
 mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.structuredoutput.StructuredOutputExample"
@@ -116,7 +209,7 @@ This example demonstrates three use cases:
    - Output: Structured `SentimentAnalysis` object with sentiment, scores, topics, summary
 
 **Example output:**
-```
+```text
 === Example 1: Product Information ===
 Query: I'm looking for a laptop. I need at least 16GB RAM, prefer Apple brand...
 
@@ -160,31 +253,31 @@ mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.tool.ToolG
 **Example prompts to try:**
 
 1. **Single tool group activation:**
-   ```
+   ```text
    You> Calculate the factorial of 5
    ```
    Watch: Agent activates `math_ops`, then uses `factorial` tool
 
 2. **Different tool group:**
-   ```
+   ```text
    You> Ping google.com
    ```
    Watch: Agent activates `network_ops`, then uses `ping` tool
 
 3. **Another tool group:**
-   ```
+   ```text
    You> List files in /tmp
    ```
    Watch: Agent activates `file_ops`, then uses `list_files` tool
 
 4. **Multiple tool groups in one task:**
-   ```
+   ```text
    You> Calculate factorial of 7 and then ping github.com
    ```
    Watch: Agent activates both `math_ops` and `network_ops`
 
 5. **Complex multi-group task:**
-   ```
+   ```text
    You> Check if 17 is prime, then list files in /tmp
    ```
    Watch: Agent activates `math_ops` and `file_ops`
@@ -193,7 +286,56 @@ This example demonstrates **autonomous tool management** - the agent intelligent
 
 ---
 
-### 4. MCP Examples
+### 5. PermissionHITLExample
+
+Gate tool calls behind allow / ask / deny rules, and pause for human approval on sensitive
+actions. Build a `PermissionContextState` with named rules and attach it to the agent:
+
+```java
+import io.agentscope.core.ReActAgent;
+import io.agentscope.core.message.UserMessage;
+import io.agentscope.core.permission.PermissionBehavior;
+import io.agentscope.core.permission.PermissionContextState;
+import io.agentscope.core.permission.PermissionMode;
+import io.agentscope.core.permission.PermissionRule;
+
+PermissionContextState permissionContext = PermissionContextState.builder()
+        .mode(PermissionMode.DEFAULT)
+        .addAllowRule("safe_read",
+                new PermissionRule("safe_read", null, PermissionBehavior.ALLOW, "policy"))
+        .addAskRule("dangerous_delete",
+                new PermissionRule("dangerous_delete", null, PermissionBehavior.ASK, "policy"))
+        .build();
+
+ReActAgent agent = ReActAgent.builder()
+        .name("GuardedAgent")
+        .sysPrompt("You are a file assistant. You have safe_read and dangerous_delete tools.")
+        .model("dashscope:qwen-max")
+        .toolkit(toolkit)
+        .permissionContext(permissionContext)
+        .build();
+
+// If the model calls a tool matched by an ASK rule, the agent returns early with
+// Msg.getGenerateReason() == GenerateReason.PERMISSION_ASKING — inspect the reply and
+// resume (or cancel) the call once the human has decided.
+agent.call(new UserMessage("Delete the temp file")).block();
+```
+
+`PermissionMode` also has `ACCEPT_EDITS`, `EXPLORE`, `BYPASS`, and `DONT_ASK` for non-interactive
+runs (e.g. CI, headless batch jobs).
+
+```bash
+mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.hitl.PermissionHITLExample"
+```
+
+**What you'll learn:**
+- Declaring `ALLOW` / `ASK` / `DENY` rules per tool name with `PermissionContextState`
+- Switching between interactive (`DEFAULT`) and headless (`DONT_ASK`) permission modes
+- Detecting and resuming a tool call paused for human approval
+
+---
+
+### 6. MCP Examples
 
 Connect to external tool servers using Model Context Protocol (MCP).
 
@@ -228,7 +370,7 @@ example. Optional credentials can be provided with `MCP_SSE_TOKEN` or `MCP_HTTP_
 
 ---
 
-### 5. CustomizedMiddlewareExample (formerly HookExample)
+### 7. CustomizedMiddlewareExample (formerly HookExample)
 
 Monitor and intercept agent execution in real-time.
 
@@ -254,7 +396,7 @@ You'll see detailed logs of:
 
 ---
 
-### 6. StreamingWebExample
+### 8. StreamingWebExample
 
 Spring Boot web application with Server-Sent Events (SSE) streaming.
 
@@ -286,7 +428,7 @@ You'll see the agent's response streaming in real-time, character by character.
 
 ---
 
-### 7. StateExample
+### 9. StateExample
 
 Maintain persistent conversation history across runs.
 
@@ -300,7 +442,7 @@ mvn exec:java -Dexec.mainClass="io.agentscope.examples.documentation2.state.Stat
 - Resuming a conversation with the same session ID
 
 **Try this flow:**
-```
+```text
 # First run
 Enter session ID: alice_session
 You> My name is Alice and I love pizza
@@ -313,7 +455,7 @@ Agent> Your name is Alice and you love pizza!
 
 ---
 
-### 8. InterruptionExample
+### 10. InterruptionExample
 
 Gracefully interrupt long-running agent tasks.
 
@@ -390,17 +532,17 @@ npm install -g @modelcontextprotocol/server-git
 
 ### Compilation Errors
 
-Make sure you've built the main library first:
+Make sure you've built the main library first, from the repository root:
 ```bash
-cd /path/to/agentscope-core-java
-mvn clean install
+cd /path/to/agentscope-java
+mvn clean install -DskipTests
 ```
 
 ## 📚 Additional Resources
 
-- [AgentScope Documentation](https://github.com/modelscope/agentscope)
-- [API Reference](../docs/)
-- [CLAUDE.md](../CLAUDE.md) - Development guidelines
+- [AgentScope Java Documentation](https://java.agentscope.io/) — full docs site (quickstart, building blocks, harness, integrations)
+- [Main README](../README.md) — project overview, installation, and architecture
+- [CONTRIBUTING.md](../CONTRIBUTING.md) - Development guidelines
 
 ## 💡 Contributing
 

@@ -164,6 +164,143 @@ public class FirstAgent {
 }
 ```
 
+## Common Operations
+
+### Equip an agent with tools
+
+Annotate a plain method with `@Tool` / `@ToolParam`, register it on a `Toolkit`, and attach the
+toolkit to the builder — the model decides when to call it:
+
+```java
+import io.agentscope.core.ReActAgent;
+import io.agentscope.core.message.UserMessage;
+import io.agentscope.core.tool.Tool;
+import io.agentscope.core.tool.ToolParam;
+import io.agentscope.core.tool.Toolkit;
+
+public class MathTools {
+    @Tool(name = "calculate", description = "Evaluate a simple math expression")
+    public String calculate(
+            @ToolParam(name = "expression", description = "e.g. '123 * 456'") String expression) {
+        return expression + " = " + /* evaluate */ 56088;
+    }
+}
+
+Toolkit toolkit = new Toolkit();
+toolkit.registerTool(new MathTools());
+
+ReActAgent agent = ReActAgent.builder()
+        .name("ToolAgent")
+        .sysPrompt("You are a helpful assistant with access to tools.")
+        .model("dashscope:qwen-max")
+        .toolkit(toolkit)
+        .build();
+
+agent.call(new UserMessage("What is 123 * 456?")).block();
+```
+
+For tools that need permission checks, async execution, or `RuntimeContext` injection, extend
+`ToolBase` and register with `toolkit.registerAgentTool(...)` instead of `@Tool`.
+
+### Gate tool calls with the Permission System
+
+Attach a `PermissionContextState` to require human approval before sensitive tools run:
+
+```java
+import io.agentscope.core.permission.PermissionBehavior;
+import io.agentscope.core.permission.PermissionContextState;
+import io.agentscope.core.permission.PermissionMode;
+import io.agentscope.core.permission.PermissionRule;
+
+PermissionContextState permissionContext = PermissionContextState.builder()
+        .mode(PermissionMode.DEFAULT) // ACCEPT_EDITS / EXPLORE / BYPASS / DONT_ASK also available
+        .addAllowRule("calculate", new PermissionRule("calculate", null, PermissionBehavior.ALLOW, "policy"))
+        .addAskRule("delete_file", new PermissionRule("delete_file", null, PermissionBehavior.ASK, "policy"))
+        .build();
+
+ReActAgent agent = ReActAgent.builder()
+        .name("GuardedAgent")
+        .model("dashscope:qwen-max")
+        .toolkit(toolkit) // the Toolkit from "Equip an agent with tools" above
+        .permissionContext(permissionContext)
+        .build();
+
+// A call to a tool matched by an ASK rule returns early with
+// Msg.getGenerateReason() == GenerateReason.PERMISSION_ASKING for you to resume or cancel.
+```
+
+### Handle errors
+
+Both `call()` (`Mono<Msg>`) and `streamEvents()` (`Flux<AgentEvent>`) are Reactor-based — use
+`onErrorResume` to recover reactively, or wrap a blocking `.block()` in try/catch:
+
+```java
+import reactor.core.publisher.Mono;
+
+// Reactive recovery
+agent.call(new UserMessage("Hello"))
+        .onErrorResume(error -> Mono.just(new UserMessage("Sorry, something went wrong.")))
+        .block();
+
+// try/catch around a blocking call
+try {
+    agent.call(new UserMessage("Hello")).block();
+} catch (Exception e) {
+    System.err.println("Error: " + e.getMessage());
+}
+```
+
+### Spawn a subagent
+
+Declare a subagent on a `HarnessAgent`, then let the model call it at runtime via the built-in
+`agent_spawn` / `agent_send` tools:
+
+```java
+import io.agentscope.harness.agent.HarnessAgent;
+import io.agentscope.harness.agent.subagent.SubagentDeclaration;
+import io.agentscope.harness.agent.subagent.WorkspaceMode;
+import java.nio.file.Path;
+
+SubagentDeclaration reviewer = SubagentDeclaration.builder()
+        .name("code-reviewer")
+        .description("Reviews code for security, performance, and readability issues.")
+        .workspace(Path.of("./defs/code-reviewer"))
+        .workspaceMode(WorkspaceMode.ISOLATED)
+        .model("qwen3-max")
+        .tools(java.util.List.of("read_file", "grep_files", "edit_file"))
+        .build();
+
+HarnessAgent agent = HarnessAgent.builder()
+        .name("lead")
+        .model("dashscope:qwen-plus")
+        .workspace(Path.of(".agentscope/workspace"))
+        .subagent(reviewer)
+        .build();
+// The lead agent can now call agent_spawn("code-reviewer", ...) / agent_send(...) at runtime.
+```
+
+### Configure model provider API keys
+
+`.model("<provider>:<model-name>")` resolves through `ModelRegistry`, which reads the matching
+environment variable automatically — no explicit credential wiring needed:
+
+| Provider | Model string prefix | Environment variable |
+|---|---|---|
+| DashScope | `dashscope:qwen-plus` | `DASHSCOPE_API_KEY` |
+| OpenAI | `openai:gpt-4.1` | `OPENAI_API_KEY` |
+| Anthropic | `anthropic:claude-sonnet-4-7` | `ANTHROPIC_API_KEY` |
+| Gemini | `gemini:gemini-2.0-flash` | `GEMINI_API_KEY` |
+| Ollama (local) | `ollama:llama3` | none (optional `OLLAMA_BASE_URL`, defaults to `http://localhost:11434`) |
+
+```bash
+# Pick the row matching your provider from the table above
+export DASHSCOPE_API_KEY=sk-your-key-here
+export OPENAI_API_KEY=sk-your-key-here
+```
+
+To set timeouts or a custom endpoint explicitly, build the provider model directly and pass the
+object instead of a string, e.g. `.model(DashScopeChatModel.builder().apiKey("...").modelName("qwen-max").build())`.
+
 ## AgentScope Service
 **[AgentScope Service](./agentscope-service)** — an Agent Control Plane built on AgentScope Harness that provides:
 + **Control Plane.** It provides agent registration, discovery, and distributed coordination services for every agent in the enterprise. It works with mainstream agent runtimes including AgentScope, LangChain, ADK, and Claude / Qoder, giving you a single place to inspect agent metrics and operate on live sessions — for example, compressing session context.

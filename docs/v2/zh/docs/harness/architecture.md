@@ -9,6 +9,66 @@ description: "HarnessAgent 是什么、各能力如何协作、状态如何在�
 
 > 安装、依赖、跑通第一个 `HarnessAgent` 的端到端示例见 [快速开始](../quickstart.md)。本页只讲架构。
 
+## 构建一个 HarnessAgent
+
+`HarnessAgent`（`io.agentscope.harness.agent.HarnessAgent`）是面向用户的 harness API：它在
+[`ReActAgent`](../building-blocks/agent.md) 之上包装了工作区 / 文件系统 / 沙箱 / 子 agent / 技能 /
+计划模式 / MCP 编排能力。需要这些生产级能力时用 `HarnessAgent.builder()`；只需要裸的 ReAct
+循环、不需要工作区、持久化或子 agent 时，直接用
+[`ReActAgent.builder()`](../building-blocks/agent.md#configuring-an-agent) 即可——两个 builder
+共享大部分字段，之后互相切换基本是机械操作。
+
+`HarnessAgent` 在多次调用之间是**无状态的**，可以安全地作为单例同时服务多个用户 / 会话——每次
+`call()` 用 `RuntimeContext` 的 `(userId, sessionId)` 隔离状态；同一 session 的调用会自动串行化，
+不同 session 并行执行。
+
+和 `ReActAgent` 一样，builder 的 `.model(...)` 接受任意 [`ChatModelBase`](../building-blocks/model.md)
+子类（`DashScopeChatModel`、`OpenAIChatModel`、`AnthropicChatModel` 等）——或者常见场景下的
+`ModelRegistry` 字符串 id。工具挂在 `Toolkit` 上，用法和 `ReActAgent` 完全一致：
+
+```java
+import io.agentscope.core.model.ChatModelBase;
+import io.agentscope.core.tool.Tool;
+import io.agentscope.core.tool.ToolParam;
+import io.agentscope.core.tool.Toolkit;
+import io.agentscope.extensions.model.dashscope.DashScopeChatModel;
+import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
+import io.agentscope.harness.agent.HarnessAgent;
+import java.nio.file.Paths;
+
+public class WeatherTools {
+    @Tool(name = "get_weather", description = "Get the current weather for a city")
+    public String getWeather(
+            @ToolParam(name = "city", description = "City name, e.g. 'Tokyo'") String city) {
+        return "Sunny, 24°C in " + city;
+    }
+}
+
+// 这里可以换成任意 ChatModelBase 子类，比如 OpenAIChatModel、AnthropicChatModel 等
+ChatModelBase model =
+        DashScopeChatModel.builder()
+                .apiKey(System.getenv("DASHSCOPE_API_KEY"))
+                .modelName("qwen-plus")
+                .formatter(new DashScopeChatFormatter())
+                .build();
+
+Toolkit toolkit = new Toolkit();
+toolkit.registerTool(new WeatherTools());
+
+HarnessAgent agent =
+        HarnessAgent.builder()
+                .name("weather-assistant")
+                .sysPrompt("You are a helpful weather assistant.")
+                .model(model)                          // HarnessAgent.Builder#model(Model)
+                .toolkit(toolkit)                       // HarnessAgent.Builder#toolkit(Toolkit)
+                .workspace(Paths.get(".agentscope/workspace"))
+                .build();
+```
+
+`.model(...)` 还有一个 `String` 重载（`.model("dashscope:qwen-plus")`），会经 `ModelRegistry`
+解析并自动读取对应的 API key 环境变量——完整端到端示例见 [快速开始](../quickstart.md)，各家
+`ChatModelBase` provider 及其 builder 选项见 [Model](../building-blocks/model.md)。
+
 ## 核心工作原理
 
 理解 Harness 只需要记住三件事：

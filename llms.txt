@@ -1,0 +1,72 @@
+# AgentScope Java
+
+> AgentScope Java 2.0 is a production-ready Java framework (JDK 17+) for building distributed,
+> enterprise-grade LLM agents. `ReActAgent` provides the reasoning-acting core; `HarnessAgent`
+> layers on workspace, layered memory, session persistence, subagents, sandboxes, permissions,
+> and a typed event stream for building long-running agents that operate safely in production.
+
+Key modules:
+- `agentscope-core` — bare `ReActAgent`, messages/events, tools, permission system, model registry
+- `agentscope-harness` — `HarnessAgent`: workspace, memory, session state, subagents, middleware
+- `agentscope-extensions-model-*` — model provider integrations (DashScope, OpenAI, Anthropic, Gemini, Ollama)
+- `agentscope-service` — Agent Control Plane / Dashboard for fleet-wide observability and orchestration
+- `agentscope-examples` — runnable example projects for every core feature
+
+## Documentation
+
+- [Project README](https://github.com/agentscope-ai/agentscope-java/blob/main/README.md): installation, quickstart, common operations (tools, permissions, error handling, subagents), architecture overview
+- [Quickstart](https://java.agentscope.io/v2/en/docs/quickstart.html): installation, first `HarnessAgent`, streaming, multi-user sessions
+- [Documentation Index](https://java.agentscope.io/v2/en/docs/index.html): full site table of contents
+- [FAQ](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/others/faq.md): common setup and usage questions
+- [Going to Production](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/others/going-to-production.md): distributed deployment, state stores, scaling checklist
+- [Release Notes](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/others/release-notes.md): per-version changes
+
+## Building Blocks
+
+- [Agent](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/agent.md): `ReActAgent` builder API, `call` / `streamEvents` / `observe`, HITL
+- [Model](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/model.md): `ModelRegistry`, provider string ids, API-key env vars, custom model builders
+- [Tool](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/tool.md): `@Tool` / `@ToolParam`, `Toolkit`, `ToolBase`, tool groups
+- [Message and Event](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/message-and-event.md): `ContentBlock`, `Msg`, the 31 typed events, structured output
+- [Permission System](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/permission-system.md): `PermissionMode`, `PermissionContextState`, allow/ask/deny rules, HITL approval
+- [Middleware](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/middleware.md): `onAgent` / `onReasoning` / `onActing` / `onModelCall` / `onSystemPrompt` hooks
+- [Context](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/context.md): `RuntimeContext`, `sessionId` / `userId`, per-call state
+
+## Harness (HarnessAgent)
+
+- [Harness Architecture](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/architecture.md): how `HarnessAgent` composes workspace/memory/subagents on top of `ReActAgent`
+- [Workspace](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/workspace.md): `AGENTS.md` / `MEMORY.md` / `skills/` / `subagents/` / `tools.json` layout
+- [Memory](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/memory.md): layered memory, `MEMORY.md`, on-disk fact log
+- [Subagent](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/subagent.md): `SubagentDeclaration`, `agent_spawn` / `agent_send`, sync vs. background delegation
+- [Sandbox](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/sandbox.md): local / Docker / Kubernetes / cloud sandbox tool execution
+- [Filesystem](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/filesystem.md): local, shared-store, and sandbox deployment modes
+- [Skill](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/skill.md): self-evolving Markdown skill repository
+- [Plan Mode](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/plan-mode.md): read-only planning state for long-running tasks
+- [Compaction](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/compaction.md): auto context compaction and offloading
+- [Channel](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/channel.md): IM channel integration (DingTalk, Feishu, WeCom)
+
+## Integrations
+
+- [Model Providers Overview](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/integration/model/index.md): DashScope, OpenAI, Anthropic, Gemini, Ollama, DeepSeek, GLM, Kimi, MiniMax
+- [Distributed Deployment](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/integration/distributed/index.md): Redis / MySQL / OSS backends for horizontal scaling
+- [Session Persistence](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/integration/session/index.md): `AgentStateStore` implementations (JSON file, MySQL, Redis, PostgreSQL, OSS)
+- [RAG](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/integration/rag/index.md): Bailian, Dify, Haystack, RAGFlow integrations
+- [Protocols](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/integration/protocol/index.md): A2A, AG-UI, Agent Protocol
+- [Skill Repositories](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/integration/skill/index.md): Git / MySQL / PostgreSQL-backed skill storage
+- [Infrastructure](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/integration/infrastructure/index.md): Nacos, Higress, Scheduler
+
+## Examples
+
+- [Examples Overview](https://github.com/agentscope-ai/agentscope-java/blob/main/agentscope-examples/README.md): runnable examples for every core feature (tool calling, structured output, permissions/HITL, MCP, middleware, streaming web, state, interruption), with build/run instructions
+- [AgentScope Service README](https://github.com/agentscope-ai/agentscope-java/blob/main/agentscope-service/README.md): Control Plane, Managed Agents, Agent Teams, production deployment architecture
+
+## Development
+
+- [Contributing Guide](https://github.com/agentscope-ai/agentscope-java/blob/main/CONTRIBUTING.md): how to build, test, and submit changes
+- [Docs Site Build](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/README.md): building the Jupyter Book documentation site locally
+
+## Optional
+
+- [中文 README](https://github.com/agentscope-ai/agentscope-java/blob/main/README_zh.md): Chinese project overview
+- [v1 Documentation (legacy)](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v1/en/intro.md): docs for the pre-2.0 `agentscope-harness` / `HarnessAgent` series
+- [Blogs](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/blogs/agentscope-v2-explained.md): design rationale and release write-ups
+- [Discord Community](https://discord.gg/eYMpfnkG8h): community chat and support

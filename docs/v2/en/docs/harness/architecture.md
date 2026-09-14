@@ -9,6 +9,68 @@ A bare `ReActAgent` only handles "one request → reason → tool → reply". Ha
 
 > Installation, dependency, and an end-to-end "first `HarnessAgent`" walkthrough live in [Quickstart](../quickstart.md). This page is architecture only.
 
+## Building a HarnessAgent
+
+`HarnessAgent` (`io.agentscope.harness.agent.HarnessAgent`) is the user-facing harness API: it wraps
+a [`ReActAgent`](../building-blocks/agent.md) with workspace / filesystem / sandbox / subagent /
+skill / plan-mode / MCP orchestration on top. Use `HarnessAgent.builder()` whenever you need any of
+those production capabilities; for a bare ReAct loop with no workspace, persistence, or subagents,
+use [`ReActAgent.builder()`](../building-blocks/agent.md#configuring-an-agent) directly instead — the
+two builders share most fields, so switching between them later is mostly mechanical.
+
+`HarnessAgent` is **stateless between calls** and safe to use as a singleton serving multiple
+users/sessions concurrently — each `call()` uses the `RuntimeContext`'s `(userId, sessionId)` to
+isolate state; calls on the same session are serialized automatically, different sessions run in
+parallel.
+
+Like `ReActAgent`, the builder's `.model(...)` accepts any [`ChatModelBase`](../building-blocks/model.md)
+subclass (`DashScopeChatModel`, `OpenAIChatModel`, `AnthropicChatModel`, …) — or a `ModelRegistry`
+string id for the common case. Tools go on a `Toolkit`, exactly as with `ReActAgent`:
+
+```java
+import io.agentscope.core.model.ChatModelBase;
+import io.agentscope.core.tool.Tool;
+import io.agentscope.core.tool.ToolParam;
+import io.agentscope.core.tool.Toolkit;
+import io.agentscope.extensions.model.dashscope.DashScopeChatModel;
+import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
+import io.agentscope.harness.agent.HarnessAgent;
+import java.nio.file.Paths;
+
+public class WeatherTools {
+    @Tool(name = "get_weather", description = "Get the current weather for a city")
+    public String getWeather(
+            @ToolParam(name = "city", description = "City name, e.g. 'Tokyo'") String city) {
+        return "Sunny, 24°C in " + city;
+    }
+}
+
+// Any ChatModelBase subclass works here — swap in OpenAIChatModel, AnthropicChatModel, etc.
+ChatModelBase model =
+        DashScopeChatModel.builder()
+                .apiKey(System.getenv("DASHSCOPE_API_KEY"))
+                .modelName("qwen-plus")
+                .formatter(new DashScopeChatFormatter())
+                .build();
+
+Toolkit toolkit = new Toolkit();
+toolkit.registerTool(new WeatherTools());
+
+HarnessAgent agent =
+        HarnessAgent.builder()
+                .name("weather-assistant")
+                .sysPrompt("You are a helpful weather assistant.")
+                .model(model)                          // HarnessAgent.Builder#model(Model)
+                .toolkit(toolkit)                       // HarnessAgent.Builder#toolkit(Toolkit)
+                .workspace(Paths.get(".agentscope/workspace"))
+                .build();
+```
+
+`.model(...)` also has a `String` overload (`.model("dashscope:qwen-plus")`) that resolves through
+`ModelRegistry` and reads the matching API-key environment variable automatically — see
+[Quickstart](../quickstart.md) for that form end-to-end, and [Model](../building-blocks/model.md)
+for every `ChatModelBase` provider and its builder options.
+
 ## Core working principle
 
 Three things to keep in mind:

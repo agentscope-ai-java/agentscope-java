@@ -17,6 +17,71 @@ Yes. The repository includes the `agentscope-admin` module, an out-of-the-box we
 Yes. `io.agentscope.core.rag` and `io.agentscope.core.memory.LongTermMemory` already exist in the repo, but knowledge bases, document readers and similar components are still being completed — track progress in the [Release Notes](release-notes.md) and on GitHub releases.
 :::
 
+  :::{dropdown} How do I switch model providers?
+Change the `<provider>:<model-name>` string passed to `.model(...)`, add the matching
+`agentscope-extensions-model-*` dependency, and set that provider's API-key environment variable.
+No other code changes are needed — `ModelRegistry` resolves the provider at runtime:
+
+```java
+ReActAgent agent =
+        ReActAgent.builder()
+                .name("assistant")
+                .model("openai:gpt-4.1")   // was "dashscope:qwen-plus"
+                .build();
+```
+
+```bash
+# Set the env var matching the row you picked above
+export OPENAI_API_KEY=sk-your-key-here
+```
+
+| Provider | Model string prefix | Env var |
+|---|---|---|
+| DashScope | `dashscope:qwen-plus` | `DASHSCOPE_API_KEY` |
+| OpenAI | `openai:gpt-4.1` | `OPENAI_API_KEY` |
+| Anthropic | `anthropic:claude-sonnet-4-7` | `ANTHROPIC_API_KEY` |
+| Gemini | `gemini:gemini-2.0-flash` | `GEMINI_API_KEY` |
+| Ollama (local) | `ollama:llama3` | none (optional `OLLAMA_BASE_URL`) |
+
+See [Model](../building-blocks/model.md) for the full provider list and explicit-builder configuration.
+:::
+
+  :::{dropdown} Why does `.model("...")` throw "model not found"?
+This means `ModelRegistry` couldn't resolve the `<provider>:<model-name>` string — almost always
+because the matching `agentscope-extensions-model-*` module isn't on the classpath yet. Add it:
+
+```xml
+<dependency>
+    <groupId>io.agentscope</groupId>
+    <artifactId>agentscope-extensions-model-dashscope</artifactId>
+    <version>${agentscope.version}</version>
+</dependency>
+```
+
+Double-check the id follows the `provider:model-name` convention (e.g. `"openai:gpt-5.5"`,
+`"dashscope:qwen-max"`, `"gemini:gemini-2.0-flash"`) — a typo in the provider prefix produces the
+same error even with the dependency present.
+:::
+
+  :::{dropdown} How do I see what the agent is doing (trace reasoning and tool calls)?
+Attach the built-in `AgentTraceMiddleware` — it works on both `ReActAgent` and `HarnessAgent` and
+logs each reasoning step, tool call, and result as it happens:
+
+```java
+import io.agentscope.harness.agent.middleware.AgentTraceMiddleware;
+
+ReActAgent agent =
+        ReActAgent.builder()
+                .name("assistant")
+                .model("dashscope:qwen-plus")
+                .middleware(new AgentTraceMiddleware())
+                .build();
+```
+
+For your own logic instead of (or alongside) tracing, implement `MiddlewareBase` and hook
+`onAgent` / `onReasoning` / `onActing` / `onModelCall` — see [Middleware](../building-blocks/middleware.md).
+:::
+
   :::{dropdown} Is there a non-Java edition?
 Yes. AgentScope ships in three independent language editions, each in its own repository:
 
