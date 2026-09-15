@@ -1,4 +1,6 @@
 {
-  "url": "https://context7.com/agentscope-ai/agentscope-java",
-  "public_key": "pk_6F2rxPAJSlsfpphVfdHRp"
+  "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/agentscope-java/agentscope-java",
+  "projectTitle": "AgentScope Java",
+  "description": "AgentScope Java is a Java implementation of the AgentScope framework, providing a modular and customizable platform for building multi-agent AI systems with features like transparent development, real-time steering, and model agnosticism."
 }
