@@ -1,4 +1,6 @@
-# コアコントリビューター
+---
+title: コアコントリビューター
+---
 
 AgentScope Java にコード、ドキュメント、フィードバックで貢献してくださったすべての方に感謝します。このページでは、パブリックリポジトリへの**直近で活発に活動している**コアコントリビューターを紹介しています(GitHub のデータに基づいており、内容は随時変わります。ボットは除外しています)。
 
@@ -17,6 +19,8 @@ AgentScope Java にコード、ドキュメント、フィードバックで貢�
 |    ![jujn](https://avatars.githubusercontent.com/u/109072362?s=64&v=4)     | [jujn](https://github.com/jujn)                 | [github.com/jujn](https://github.com/jujn)                 | アクティブコントリビューター |
 | ![KomachiSion](https://avatars.githubusercontent.com/u/37170243?s=64&v=4)  | [KomachiSion](https://github.com/KomachiSion)   | [github.com/KomachiSion](https://github.com/KomachiSion)   | アクティブコントリビューター |
 
-```{note}
+<Note>
+
 掲載内容は公開されている貢献活動をもとに選定されたものであり、Tongyi Lab や Alibaba における公式な人事上の肩書きを表すものでは**ありません**。「備考」列はコミュニティ向けの簡潔なラベルであり、文言はメンテナーの合意のもとで PR により調整可能です。
-```
+
+</Note>

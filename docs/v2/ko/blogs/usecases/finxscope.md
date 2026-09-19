@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: "AgentScope로 금융급 Agent 기반 구축하기: FinXScope 실천기"
 ---
-
-# AgentScope로 금융급 Agent 기반 구축하기: FinXScope 실천기
 
 > 저자: Meng Chen (Bantang), Wen Jun (Siyue), Ling Lezhen (Lezhen), Xu Lei (Chongshu), Lin Yuan (Niren)
 

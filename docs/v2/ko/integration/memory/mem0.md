@@ -1,4 +1,6 @@
-# Mem0
+---
+title: Mem0
+---
 
 `agentscope-extensions-mem0`는 [Mem0](https://mem0.ai/)를 장기 기억 저장소로 통합하며, 벡터 검색과 LLM 기반 메모리 추출을 결합합니다. Mem0 SaaS 플랫폼, 자체 호스팅 배포, 로컬 단독 설정을 모두 지원합니다.
 

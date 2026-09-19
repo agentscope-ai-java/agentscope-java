@@ -1,4 +1,6 @@
-# GLM モデル
+---
+title: GLM モデル
+---
 
 `agentscope-extensions-model-openai` は、OpenAI 互換のモデルスタックを通じて第一級の GLM(Zhipu AI / Z.AI)サポートを提供します。OpenAI モデル拡張モジュールを追加し、`ModelRegistry` で `glm:<model>` を使用してください。
 

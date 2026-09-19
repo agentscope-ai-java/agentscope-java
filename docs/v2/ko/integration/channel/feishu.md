@@ -1,4 +1,6 @@
-# Feishu 채널
+---
+title: Feishu 채널
+---
 
 `agentscope-extensions-channel-feishu`는 **Event Subscription v2** 콜백 메커니즘을 통해 Agent를 Feishu / Lark(飞书)에 연결합니다. Spring `@RestController`가 웹훅 콜백을 수신하고, 필요한 경우 암호화된 페이로드를 복호화한 뒤 Gateway를 통해 메시지를 전달합니다.
 

@@ -1,4 +1,6 @@
-# Bailian Knowledge
+---
+title: Bailian Knowledge
+---
 
 `agentscope-extensions-rag-bailian` はアリババクラウドの Bailian ナレッジベースと統合します。embedding、インデックス作成、検索はすべて Bailian 側で管理されます。Agent はクエリを送信し、ドキュメントを受け取るだけです。
 

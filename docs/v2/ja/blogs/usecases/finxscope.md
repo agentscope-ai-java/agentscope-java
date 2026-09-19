@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: "AgentScope で構築する金融グレードのエージェント基盤: FinXScope の実践"
 ---
-
-# AgentScope で構築する金融グレードのエージェント基盤: FinXScope の実践
 
 > 著者: Meng Chen (Bantang)、Wen Jun (Siyue)、Ling Lezhen (Lezhen)、Xu Lei (Chongshu)、Lin Yuan (Niren)
 

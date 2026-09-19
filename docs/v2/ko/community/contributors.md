@@ -1,4 +1,6 @@
-# 핵심 기여자
+---
+title: 핵심 기여자
+---
 
 AgentScope Java에 코드, 문서, 피드백을 기여해 주신 모든 분들께 감사드립니다. 이 페이지는 공개 저장소에 **최근 활발하게 활동한** 핵심 기여자를 소개합니다 (GitHub 데이터 기준; 시간이 지나면서 변경될 수 있음; 봇 제외).
 
@@ -17,6 +19,8 @@ AgentScope Java에 코드, 문서, 피드백을 기여해 주신 모든 분들�
 |    ![jujn](https://avatars.githubusercontent.com/u/109072362?s=64&v=4)     | [jujn](https://github.com/jujn)                 | [github.com/jujn](https://github.com/jujn)                 | 활발한 기여자 |
 | ![KomachiSion](https://avatars.githubusercontent.com/u/37170243?s=64&v=4)  | [KomachiSion](https://github.com/KomachiSion)   | [github.com/KomachiSion](https://github.com/KomachiSion)   | 활발한 기여자 |
 
-```{note}
+<Note>
+
 표의 행들은 공개된 기여 활동을 바탕으로 선정된 것이며, Tongyi Lab 또는 Alibaba의 공식 HR 직함을 **나타내지 않습니다**. "비고" 열은 커뮤니티를 위한 짧은 레이블이며, 문구는 메인테이너의 동의를 받아 PR에서 조정할 수 있습니다.
-```
+
+</Note>

@@ -1,9 +1,9 @@
 ---
-title: "リリースノート"
-description: "AgentScope Java のバージョンごとの変更記録"
+title: リリースノート
+description: AgentScope Java のバージョンごとの変更記録
 ---
 
-このページは AgentScope Java 2.0 のバージョンごとの変更を追跡します。1.x からの全体的な移行ガイドについては、[V1 移行ガイド](../change-log.md) を参照してください。
+このページは AgentScope Java 2.0 のバージョンごとの変更を追跡します。1.x からの全体的な移行ガイドについては、[V1 移行ガイド](/v2/ja/docs/change-log) を参照してください。
 
 ---
 
@@ -13,7 +13,7 @@ description: "AgentScope Java のバージョンごとの変更記録"
 
 AgentScope Java 2.0.1 は 2.0.0 GA 以降で最初のメンテナンスリリースです。モデルプロバイダーのエコシステムを拡張し、Harness のサブエージェント / HITL / パーミッションの挙動を強化し、本番環境で重要な一連の問題を修正しています。
 
-**クイックリンク:** [クイックスタート](../quickstart.md) | [V1 移行ガイド](../change-log.md) | [本番投入](going-to-production.md)
+**クイックリンク:** [クイックスタート](/v2/ja/docs/quickstart) | [V1 移行ガイド](/v2/ja/docs/change-log) | [本番投入](/v2/ja/docs/others/going-to-production)
 
 ### 追加
 
@@ -135,7 +135,7 @@ AgentScope Java 2.0.1 は 2.0.0 GA 以降で最初のメンテナンスリリー
 
 AgentScope Java 2.0.0 が Generally Available になりました。これは 2.0 系列で初めての本番運用対応リリースであり、AgentScope Java の進化における「透明な開発」から「システムエンジニアリング」への1つのマイルストーンです。
 
-**クイックリンク:** [クイックスタート](../quickstart.md) | [V1 移行ガイド](../change-log.md) | [本番投入](going-to-production.md)
+**クイックリンク:** [クイックスタート](/v2/ja/docs/quickstart) | [V1 移行ガイド](/v2/ja/docs/change-log) | [本番投入](/v2/ja/docs/others/going-to-production)
 
 ### 2.0 のコア設計概要
 
@@ -396,7 +396,7 @@ Qwen / OpenAI / Anthropic / Gemini / DeepSeek / Ollama をカバーする、統�
 
 ### 追加
 
-- **`projectWritable` モード**(`LocalFilesystemSpec`) — 有効にすると、エージェントのファイル書き込みはパスによってルーティングされます: ワークスペースのメタデータ(`MEMORY.md`、`agents/`、`skills/` など)はワークスペースへ、それ以外(コード、設定)はプロジェクトディレクトリへ着地します。コード生成エージェント向けに設計されています。[Filesystem · Project-writable mode](../harness/filesystem.md#project-writable-mode-projectwritable) を参照
+- **`projectWritable` モード**(`LocalFilesystemSpec`) — 有効にすると、エージェントのファイル書き込みはパスによってルーティングされます: ワークスペースのメタデータ(`MEMORY.md`、`agents/`、`skills/` など)はワークスペースへ、それ以外(コード、設定)はプロジェクトディレクトリへ着地します。コード生成エージェント向けに設計されています。[Filesystem · Project-writable mode](/v2/ja/docs/harness/filesystem#プロジェクト書き込み可能モードprojectwritable) を参照
 - **ランタイムのパーミッションモード切り替え** — ランタイムでセッションごとにパーミッションモードを動的に調整するための新しい `HarnessAgent.setPermissionMode()` / `getPermissionMode()`
 - **サブエージェントのイベントストリーム転送** — `streamEvents()` は、子エージェントの中間イベント(`TextBlockDelta`、`ToolCallStart` など)をリアルタイムで転送するようになり、それぞれが発信元のエージェントを識別する `source` パスを運びます
 - **`AgentEvent.source` フィールド** — すべての `AgentEvent` インスタンスが `source` フィールドを持つようになり、同一のイベントストリーム内でメインエージェントのイベント(`source = null`)とサブエージェントのイベント(`source = "main/researcher"` のパス形式)を区別できます。これにより、購読者側で追加の状態を持たずにデマルチプレックスできます
@@ -436,4 +436,4 @@ Qwen / OpenAI / Anthropic / Gemini / DeepSeek / Ollama をカバーする、統�
 - エンタープライズグレードの分散デプロイ(マルチテナント分離、サンドボックス実行、パーミッションシステム、セッション復旧)
 - コアフレームワークの再設計(イベントストリーム、メッセージモデル、Middleware、HITL)
 
-完全な 1.x → 2.0 の変更リストについては、[V1 移行ガイド](../change-log.md) を参照してください。
+完全な 1.x → 2.0 の変更リストについては、[V1 移行ガイド](/v2/ja/docs/change-log) を参照してください。

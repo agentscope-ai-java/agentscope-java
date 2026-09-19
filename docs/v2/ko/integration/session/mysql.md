@@ -1,8 +1,12 @@
-```{note}
-이 페이지는 [분산 스토리지 — MySQL](../distributed/mysql.md)로 대체되었습니다. 아래 내용은 참고용으로 남겨둡니다.
-```
+---
+title: MySQL 상태 저장소
+---
 
-# MySQL 상태 저장소
+<Note>
+
+이 페이지는 [분산 스토리지 — MySQL](/v2/ko/integration/distributed/mysql)로 대체되었습니다. 아래 내용은 참고용으로 남겨둡니다.
+
+</Note>
 
 `agentscope-extensions-mysql`은 AgentScope 에이전트 상태를 MySQL에 영속화합니다. 이미 MySQL 인프라를 보유하고 있거나 트랜잭션 / SQL 기반의 상태 데이터 접근이 필요한 경우에 적합합니다.
 

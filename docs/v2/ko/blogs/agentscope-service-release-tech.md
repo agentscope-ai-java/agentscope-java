@@ -1,12 +1,10 @@
 ---
-hide-toc: true
+title: "AgentScope Service 기술 딥다이브: Control Plane, Data Plane, 그리고 복구 가능한 Agent 런타임"
 ---
-
-# AgentScope Service 기술 딥다이브: Control Plane, Data Plane, 그리고 복구 가능한 Agent 런타임
 
 출시 발표문이 "AgentScope Service가 무엇을 할 수 있는가"에 답한다면, 이 글은 "어떻게 만들어졌는가"에 초점을 맞춘다. 우리는 제품 리소스 모델, 플레인 경계, Turn 생명주기, Brain / Hands 분리, Session 이벤트 계약, 그리고 다중 프레임워크 통합 경로를 훑어보며 이 플랫폼 뒤에 있는 시스템 설계를 설명한다.
 
-제품 개요와 역량 요약은 함께 발행된 글을 참고하라: [AgentScope Service 정식 출시](./agentscope-service-release.md). 이 글은 독자가 이미 AgentScope 2.0 / Harness의 기본을 이해하고 있으며, 실행 가능한 단일 에이전트를 조작 가능한 플랫폼으로 확장하는 데 관심이 있다고 가정한다.
+제품 개요와 역량 요약은 함께 발행된 글을 참고하라: [AgentScope Service 정식 출시](/v2/ko/blogs/agentscope-service-release). 이 글은 독자가 이미 AgentScope 2.0 / Harness의 기본을 이해하고 있으며, 실행 가능한 단일 에이전트를 조작 가능한 플랫폼으로 확장하는 데 관심이 있다고 가정한다.
 
 ## AgentScope Service란 무엇인가(구현 관점)
 
@@ -242,7 +240,7 @@ scripts/smoke.sh
 2. HITL: Ask Policy를 트리거하고, 확인 후 계속 진행하며, 이력이 완전한지 검증한다;
 3. `self_hosted`: Worker의 poll / ack / heartbeat / `tool_result` 반환, 그리고 Turn이 올바르게 복구되는지 확인한다.
 
-[`docs/guide/14-validation.md`](../../../agentscope-service/docs/guide/14-validation.md)와 [`docs/guide/02-architecture.md`](../../../agentscope-service/docs/guide/02-architecture.md)의 아키텍처 노트를 참고하라.
+[`docs/guide/14-validation.md`](/v2/en/service/first-session)와 [`docs/guide/02-architecture.md`](/v2/en/service/index)의 아키텍처 노트를 참고하라.
 
 ## 일찍 피해야 할 구현상의 함정
 
@@ -301,4 +299,4 @@ AgentScope Service의 기술적 핵심은 세 문장으로 요약할 수 있다.
 2. **영속화된 이벤트 시퀀스가 Session의 source of truth다; 인프로세스 객체는 오직 일회용 캐시일 뿐이다**;
 3. **Managed와 BYO는 동일한 플릿 계약을 공유한다; 프레임워크 차이는 Console 전반에 흩어지는 대신 어댑터 안으로 수렴한다**.
 
-"단일 Harness Agent"에서 "조작 가능한 에이전트 플릿"으로 옮겨가는 중이라면, 이 계층화는 많은 중복된 인프라를 제거해준다. [`agentscope-service/README.md`](../../../agentscope-service/README.md)를 직접 읽어보길 권한다; 제품 역량과 온보딩 이야기에 대해서는 [출시 글](./agentscope-service-release.md)로 돌아가라.
+"단일 Harness Agent"에서 "조작 가능한 에이전트 플릿"으로 옮겨가는 중이라면, 이 계층화는 많은 중복된 인프라를 제거해준다. [`agentscope-service/README.md`](/v2/en/service/quickstart)를 직접 읽어보길 권한다; 제품 역량과 온보딩 이야기에 대해서는 [출시 글](/v2/ko/blogs/agentscope-service-release)로 돌아가라.

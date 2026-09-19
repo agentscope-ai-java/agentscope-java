@@ -1,4 +1,6 @@
-# DingTalk チャンネル
+---
+title: DingTalk チャンネル
+---
 
 `agentscope-extensions-channel-dingtalk` は **Stream プロトコル**を使って Agent を DingTalk (钉钉) に接続します。Stream プロトコルは永続的な WebSocket であり、パブリックな webhook エンドポイントを公開することなく、bot メッセージをリアルタイムで受信します。
 

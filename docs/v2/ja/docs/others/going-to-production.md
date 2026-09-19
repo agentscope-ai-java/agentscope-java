@@ -1,5 +1,5 @@
 ---
-title: "本番投入"
+title: 本番投入
 description: "シングルノードのプロトタイプからマルチレプリカのデプロイへ: Agent State Store、Filesystem、Skill、Sandbox、Snapshot、Observability のコンポーネント選定と設定"
 ---
 
@@ -41,7 +41,7 @@ HarnessAgent.builder()
     .build();
 ```
 
-コントロールプレーンで `--enable-hosted-store` を有効にしてください(本番では Postgres を推奨)。`withAgentStateStore` にはホスト型 TaskRepository が含まれます。**SandboxFilesystem モードでのサブエージェントのバックグラウンドタスク**にはこの経路が必要です。Redis/Postgres/MySQL/InMemory の AgentStateStore バックエンドはバージョニング CAS をサポートし、それ以外は LWW のままです。Turn gate と `ConflictPolicy.FAIL` は、マルチレプリカでの重複ターン削減のためのオプションです。正しさは CAS によって担保されます。認証はリクエストボディ内のテナント情報を伴う共有の内部トークンです — 同一コントロールプレーン上で相互に信頼できないマルチテナントエージェントには適していません。`queueDrain` は破壊的操作です(読み取り即 ack)。詳細は [分散ストレージ — aistio ホスト型ストア](../../integration/distributed/index.md#aistio-ホスト型ストア) を参照してください。
+コントロールプレーンで `--enable-hosted-store` を有効にしてください(本番では Postgres を推奨)。`withAgentStateStore` にはホスト型 TaskRepository が含まれます。**SandboxFilesystem モードでのサブエージェントのバックグラウンドタスク**にはこの経路が必要です。Redis/Postgres/MySQL/InMemory の AgentStateStore バックエンドはバージョニング CAS をサポートし、それ以外は LWW のままです。Turn gate と `ConflictPolicy.FAIL` は、マルチレプリカでの重複ターン削減のためのオプションです。正しさは CAS によって担保されます。認証はリクエストボディ内のテナント情報を伴う共有の内部トークンです — 同一コントロールプレーン上で相互に信頼できないマルチテナントエージェントには適していません。`queueDrain` は破壊的操作です(読み取り即 ack)。詳細は [分散ストレージ — aistio ホスト型ストア](/v2/ja/integration/distributed/index#aistio-ホスト型ストア) を参照してください。
 
 ## 一目でわかる: シングルノードのデフォルト vs. 分散本番環境
 
@@ -81,7 +81,7 @@ HarnessAgent.builder()
 
 > **推奨**: 1行の設定で済む `distributedStore(...)` を使ってください。以下の詳細な表は、`AgentStateStore` を個別に制御する必要がある上級ユーザー向けです。
 
-`AgentState`(会話コンテキスト、コンパクションのサマリー、パーミッションルール、Plan Mode の状態、ツールの状態)は、[`AgentStateStore`](../../integration/session/index.md) を通じてのみプロセスをまたいで生き残ります。
+`AgentState`(会話コンテキスト、コンパクションのサマリー、パーミッションルール、Plan Mode の状態、ツールの状態)は、[`AgentStateStore`](/v2/ja/integration/session/index) を通じてのみプロセスをまたいで生き残ります。
 
 | 実装 | モジュール | 使いどころ |
 |----------------|--------|-------------|
@@ -119,11 +119,11 @@ agent.call(msg, RuntimeContext.builder()
         .build()).block();
 ```
 
-完全な仕組みは [Context & AgentState](../building-blocks/context.md) を参照してください。
+完全な仕組みは [Context & AgentState](/v2/ja/docs/building-blocks/context) を参照してください。
 
 ## 2. ファイルシステムモードと `IsolationScope`: 「誰が誰とファイルを共有するか」を決める
 
-3つのモードのおさらい(詳細は [Filesystem](../harness/filesystem.md)):
+3つのモードのおさらい(詳細は [Filesystem](/v2/ja/docs/harness/filesystem)):
 
 | モード | 設定 | シェル? | 使いどころ |
 |------|--------|--------|-------------|
@@ -214,7 +214,7 @@ DistributedStore mysqlStore = MysqlDistributedStore.create(dataSource);
 
 `RemoteFilesystemSpec.toFilesystem(...)` は実際には `CompositeFilesystem` を生成します。シェルを持たないベースの `LocalFilesystem`(ローカルテンプレート用のフォールバック)に加え、ルートごとに1つの `OverlayFilesystem`(上層 = `RemoteFilesystem`、下層 = 読み取り専用の `LocalFilesystem` テンプレート)です。
 
-効果: **書き込みは常に Remote へ、読み取りはまず Remote を確認し、なければローカルテンプレートにフォールバックします**。これは [Workspace](../harness/workspace.md) で説明されている「2層読み取りアーキテクチャ」を Remote モード向けにインスタンス化したものです — ローカルの `<workspace>/AGENTS.md` はシード(チーム git で同期される)であり、一度書き込まれると Remote が引き継ぎます。
+効果: **書き込みは常に Remote へ、読み取りはまず Remote を確認し、なければローカルテンプレートにフォールバックします**。これは [Workspace](/v2/ja/docs/harness/workspace) で説明されている「2層読み取りアーキテクチャ」を Remote モード向けにインスタンス化したものです — ローカルの `<workspace>/AGENTS.md` はシード(チーム git で同期される)であり、一度書き込まれると Remote が引き継ぎます。
 
 ### `WorkspaceIndex`: オプションの SQLite インデックス
 
@@ -226,7 +226,7 @@ Remote モードでの `ls` / `glob` / `exists` / `grep` を高速化します �
 
 ## 4. スキルマーケットプレイス: どの `SkillRepository` を選ぶか
 
-スキルは優先度の低いものから高いものへ合成されます(詳細は [Skill](../harness/skill.md)):
+スキルは優先度の低いものから高いものへ合成されます(詳細は [Skill](/v2/ja/docs/harness/skill)):
 
 | 層 | ソース | 設定方法 | 使いどころ |
 |-------|--------|---------------|------------|
@@ -411,7 +411,7 @@ Zookeeper、etcd、その他任意のロック機構を差し込むために、`
 | 公開されたサブエージェント(ユーザーがサブエージェントと直接会話する) | `distributedStore` によって自動配線されるレジストリ — `subagentId` が解決され、任意のレプリカ / 再起動後にサブエージェントが復旧する。`subagentId` のメッセージを同じノードに戻す(スティッキー)ようにルーティングし、復旧をフェイルオーバー時のみのパスにする。`GatewayBootstrap` の場合は `.distributedStore(...)` を渡す |
 | グレースフルシャットダウン | `GracefulShutdownManager`(JVM フックを自動登録)。SIGTERM を処理する。実行中の待機時間は `setConfig(...)` で調整する |
 | Observability | `OtelTracingMiddleware` + OpenTelemetry SDK + OTLP エクスポーター |
-| レート制限 | カスタムの `MiddlewareBase`(onModelCall)。[Middleware — レート制限 Middleware](../building-blocks/middleware.md#レート制限-middleware) を参照 |
+| レート制限 | カスタムの `MiddlewareBase`(onModelCall)。[Middleware — レート制限 Middleware](/v2/ja/docs/building-blocks/middleware#レート制限-middleware) を参照 |
 
 ## 7. 完全な本番用ビルダーテンプレート
 
@@ -472,7 +472,7 @@ agent.call(msg, RuntimeContext.builder()
 
 ## 8. よくある落とし穴
 
-- **`RuntimeContext` を渡し忘れる** — `sessionId` を渡さないと、すべてのリクエストが `defaultSessionId` の状態を共有し、混線が発生します。マルチユーザーのシナリオでは、**すべての `call()` に対して常に `RuntimeContext.builder().userId(...).sessionId(...).build()` を渡し**、状態の分離を保証してください。[Agent — マルチユーザー同時実行](../building-blocks/agent.md#マルチユーザー--マルチセッション同時実行) を参照してください。
+- **`RuntimeContext` を渡し忘れる** — `sessionId` を渡さないと、すべてのリクエストが `defaultSessionId` の状態を共有し、混線が発生します。マルチユーザーのシナリオでは、**すべての `call()` に対して常に `RuntimeContext.builder().userId(...).sessionId(...).build()` を渡し**、状態の分離を保証してください。[Agent — マルチユーザー同時実行](/v2/ja/docs/building-blocks/agent#マルチユーザー--マルチセッションの並行処理) を参照してください。
 - **ワークスペースの書き込みに `java.nio.Files` を使う** — サンドボックス / Remote モードでは、これは誤った場所に着地します。常に `agent.getWorkspaceManager()` を経由してください。**例外**: ビルダー時のシードファイル(`initWorkspaceIfAbsent` 的なコード)— まだランタイムコンテキストがないため、ローカルテンプレートをシードしているという意味で `java.nio.Files` が正しい選択です。
 - **`tools.json` の `allow` フィルタは組み込みツールもフィルタする** — ホワイトリスト化する際は、`read_file` / `memory_search` / `agent_spawn` などをリストに残しておかないと、すべての組み込みツールが剥がされてしまいます。
 - **`IsolationScope` の変更は既存データを移行しない** — 起動前に固定してください。起動後に変更することは、新しい名前空間に切り替えることと同等です。
@@ -483,12 +483,12 @@ agent.call(msg, RuntimeContext.builder()
 
 ## 関連ページ
 
-- [クイックスタート](../quickstart.md) — 最初の `HarnessAgent` をエンドツーエンドで
-- [Harness アーキテクチャ](../harness/architecture.md) — 各能力がどのように連携するか
-- [Context & AgentState](../building-blocks/context.md) — `AgentState` / `AgentStateStore` / ノードをまたぐ復旧
-- [Compaction](../harness/compaction.md) — 会話の要約、ツール結果のエビクション、オーバーフロー時の復旧
-- [Workspace](../harness/workspace.md) — ディレクトリレイアウト、2層読み取り、`tools.json`
-- [Filesystem](../harness/filesystem.md) — 3つのデプロイモード、`IsolationScope`
-- [Sandbox](../harness/sandbox.md) — サンドボックスの詳細、5つの実装、スナップショットの仕組み
-- [Skill](../harness/skill.md) — 4層構成、マーケットプレイスストア、自己学習ループ
-- [Middleware](../building-blocks/middleware.md) — カスタムの observability / レート制限 / フォールバック middleware
+- [クイックスタート](/v2/ja/docs/quickstart) — 最初の `HarnessAgent` をエンドツーエンドで
+- [Harness アーキテクチャ](/v2/ja/docs/harness/architecture) — 各能力がどのように連携するか
+- [Context & AgentState](/v2/ja/docs/building-blocks/context) — `AgentState` / `AgentStateStore` / ノードをまたぐ復旧
+- [Compaction](/v2/ja/docs/harness/compaction) — 会話の要約、ツール結果のエビクション、オーバーフロー時の復旧
+- [Workspace](/v2/ja/docs/harness/workspace) — ディレクトリレイアウト、2層読み取り、`tools.json`
+- [Filesystem](/v2/ja/docs/harness/filesystem) — 3つのデプロイモード、`IsolationScope`
+- [Sandbox](/v2/ja/docs/harness/sandbox) — サンドボックスの詳細、5つの実装、スナップショットの仕組み
+- [Skill](/v2/ja/docs/harness/skill) — 4層構成、マーケットプレイスストア、自己学習ループ
+- [Middleware](/v2/ja/docs/building-blocks/middleware) — カスタムの observability / レート制限 / フォールバック middleware

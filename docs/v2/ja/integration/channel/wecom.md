@@ -1,4 +1,6 @@
-# WeCom チャネル
+---
+title: WeCom チャネル
+---
 
 `agentscope-extensions-channel-wecom` は、**暗号化コールバック**の仕組みを通じて Agent を WeCom（企業微信 / WeChat Work）に接続します。Spring の `@RestController` がメッセージコールバックを受信し、復号したうえで Gateway へディスパッチします。
 

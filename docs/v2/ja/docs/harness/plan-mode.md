@@ -1,5 +1,5 @@
 ---
-title: "Plan Mode"
+title: Plan Mode
 description: "行動する前に考える:プランファイルを書き出し、実行前に HITL 承認を必要とする読み取り専用フェーズ"
 ---
 
@@ -47,7 +47,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 ## ワークフロー
 
-```{mermaid}
+```mermaid
 sequenceDiagram
     autonumber
     participant U as User
@@ -112,7 +112,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 ## ランタイムでのパーミッション切り替え(「bypass」という脱出口)
 
-プランモードは特定のフェーズ切り替えの1つです。その下では、すべてのセッションが、パーミッションエンジンが評価対象とする [`PermissionMode`](../building-blocks/context.md) を保持しています。このモードはランタイムで切り替えることができます――たとえば、他のコーディングツールにある YOLO / 危険スキップスイッチに似た、意図的でユーザー起点の「すべてのパーミッションプロンプトをスキップする」トグルを付与するために。
+プランモードは特定のフェーズ切り替えの1つです。その下では、すべてのセッションが、パーミッションエンジンが評価対象とする [`PermissionMode`](/v2/ja/docs/building-blocks/context) を保持しています。このモードはランタイムで切り替えることができます――たとえば、他のコーディングツールにある YOLO / 危険スキップスイッチに似た、意図的でユーザー起点の「すべてのパーミッションプロンプトをスキップする」トグルを付与するために。
 
 ```java
 RuntimeContext ctx = RuntimeContext.builder().sessionId("my-session").build();
@@ -163,7 +163,7 @@ agent.isPlanModeActive(ctx);
 
 典型的なワークフロー:プランフェーズ中に `PLAN.md` を書く → `plan_exit` → 実行中に `todo_write` を使って PLAN を5〜8個の todo に分割する → 一度に1つずつ進める。各推論ステップで、エージェントに todo のリマインダーが示され、集中を保てます。
 
-⚠ サブエージェントの**バックグラウンドタスク**(`task_output` / `task_cancel` / `task_list`)と混同しないでください――それは別の概念です。[Subagent](./subagent.md) を参照してください。
+⚠ サブエージェントの**バックグラウンドタスク**(`task_output` / `task_cancel` / `task_list`)と混同しないでください――それは別の概念です。[Subagent](/v2/ja/docs/harness/subagent) を参照してください。
 
 ## タスクリストを表示する
 
@@ -205,6 +205,6 @@ agent.streamEvents(message)
 
 ## 関連ページ
 
-- [Workspace](./workspace.md) — `plans/` ディレクトリの場所
-- [Subagent](./subagent.md) — `todo_write` ≠ サブエージェントのタスク;混同しないこと
-- [Architecture](./architecture.md) — プランモードが call() のタイムライン上のどこに位置するか
+- [Workspace](/v2/ja/docs/harness/workspace) — `plans/` ディレクトリの場所
+- [Subagent](/v2/ja/docs/harness/subagent) — `todo_write` ≠ サブエージェントのタスク;混同しないこと
+- [Architecture](/v2/ja/docs/harness/architecture) — プランモードが call() のタイムライン上のどこに位置するか

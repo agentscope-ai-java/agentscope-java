@@ -1,6 +1,6 @@
 ---
-title: "パーミッションシステム"
-description: "エージェントがどのツールを、いつ実行できるかをきめ細かく制御する"
+title: パーミッションシステム
+description: エージェントがどのツールを、いつ実行できるかをきめ細かく制御する
 ---
 
 ## 概要
@@ -13,7 +13,7 @@ description: "エージェントがどのツールを、いつ実行できるか
 - **モード** —— 設定時に決められるグローバルな静的ポリシーで、どのルールにも一致しない呼び出しに対するデフォルトの振る舞いを決めます(例:`EXPLORE` はエージェントを読み取り専用にし、`DONT_ASK` はルールに一致しないものをすべて黙って拒否します)。
 - **組み込みチェック** —— 実際の入力に基づいてツール自身が行うランタイム解析です(`ToolBase#checkPermissions` に実装されています)。これらは事前設定されたパターンではなくランタイムでのチェックであるため、**バイパス不可能**です——モードやルールの対象外です。
 
-```{mermaid}
+```mermaid
 sequenceDiagram
     participant LLM
     participant PS as パーミッションシステム
@@ -41,8 +41,9 @@ sequenceDiagram
     end
 ```
 
-:::{dropdown} 詳細な決定フロー
-```{mermaid}
+<Accordion title="詳細な決定フロー">
+
+```mermaid
 flowchart TD
     A([ツール呼び出し]) --> B{拒否ルールに一致?}
     B -->|一致| DENY([DENY])
@@ -75,11 +76,14 @@ flowchart TD
     style ASK2 fill:#ffd43b,color:#333
     style ASK3 fill:#ffd43b,color:#333
 ```
-:::
 
-:::{note}
+</Accordion>
+
+<Note>
+
 拒否ルールと危険パスチェックは**バイパス不可能**です——これらは `BYPASS` モードでも適用されます。
-:::
+
+</Note>
 
 ## パーミッションモード
 
@@ -95,8 +99,10 @@ flowchart TD
 
 モードはエージェントビルダーで `permissionContext(...)` を通じて設定します:
 
-::::{tab-set}
-:::{tab-item} 初期設定
+<Tabs>
+
+<Tab title="初期設定">
+
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.permission.PermissionContextState;
@@ -115,8 +121,10 @@ ReActAgent agent =
                 .permissionContext(permCtx)
                 .build();
 ```
-:::
-:::{tab-item} 作業ディレクトリ付きの ACCEPT_EDITS
+
+</Tab>
+<Tab title="作業ディレクトリ付きの ACCEPT_EDITS">
+
 ```java
 import io.agentscope.core.permission.AdditionalWorkingDirectory;
 import io.agentscope.core.permission.PermissionContextState;
@@ -130,8 +138,10 @@ PermissionContextState permCtx =
                         new AdditionalWorkingDirectory("/my/project", "userSettings"))
                 .build();
 ```
-:::
-::::
+
+</Tab>
+
+</Tabs>
 
 ## パーミッションルール
 
@@ -341,7 +351,7 @@ if (result != null && result.getGenerateReason() == GenerateReason.PERMISSION_AS
 
 このシナリオでエージェントを停止させるには、`AllToolsDeniedEvent` を監視して `RequestStopEvent` を発行する `onActing` ミドルウェアを組み込んでください。停止後、`Msg.getGenerateReason()` は `ALL_TOOLS_DENIED` を返します。
 
-実装については [Middleware —— すべてのツールが拒否された場合にエージェントを停止する](./middleware.md#すべてのツールが拒否された場合にエージェントを停止する) を参照してください。
+実装については [Middleware —— すべてのツールが拒否された場合にエージェントを停止する](/v2/ja/docs/building-blocks/middleware#すべてのツールが拒否された場合にエージェントを停止する) を参照してください。
 ### ストリーミングモード
 
 `streamEvents()` を使う場合、返された `Msg` から `ToolUseBlock` を取り出す必要はありません——イベントストリームが、保留中のツール呼び出しを直接運ぶ `RequireUserConfirmEvent` を配信します:
@@ -422,8 +432,10 @@ PermissionContextState headless =
 
 以下の例は、典型的なデプロイシナリオ向けに `permissionContext` を設定する方法を示しています。各レシピは、1つのユースケースに合わせて調整されたモードとルールセットを組み合わせています。
 
-::::{tab-set}
-:::{tab-item} 読み取り専用の探索
+<Tabs>
+
+<Tab title="読み取り専用の探索">
+
 ```java
 // EXPLORE モード: エージェントは読み取り専用ツールを自由に呼び出せる。すべての書き込みは自動的に拒否される。
 PermissionContextState explore =
@@ -439,8 +451,10 @@ ReActAgent explorer =
                 .permissionContext(explore)
                 .build();
 ```
-:::
-:::{tab-item} 無人自動化
+
+</Tab>
+<Tab title="無人自動化">
+
 ```java
 import io.agentscope.core.permission.PermissionBehavior;
 import io.agentscope.core.permission.PermissionRule;
@@ -467,8 +481,10 @@ ReActAgent ciAgent =
                 .build();
 // 明示的に許可されたコマンドのみが実行され、それ以外はすべて黙って拒否される。
 ```
-:::
-:::{tab-item} 危険なコマンドをブロックする
+
+</Tab>
+<Tab title="危険なコマンドをブロックする">
+
 ```java
 PermissionContextState bypassWithDeny =
         PermissionContextState.builder()
@@ -484,5 +500,7 @@ PermissionContextState bypassWithDeny =
                 .build();
 // 明示的に拒否されたツール以外のすべてが実行される(拒否ルールはバイパスできない)。
 ```
-:::
-::::
+
+</Tab>
+
+</Tabs>

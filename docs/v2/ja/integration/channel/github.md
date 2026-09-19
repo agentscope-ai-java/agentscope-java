@@ -1,4 +1,6 @@
-# GitHub チャンネル
+---
+title: GitHub チャンネル
+---
 
 `agentscope-extensions-channel-github` は Agent を GitHub の issue や PR のコメントスレッドに接続します。誰かが issue や pull request にコメントすると、Agent は新しいコメントとして返信します。
 

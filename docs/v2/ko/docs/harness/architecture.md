@@ -1,28 +1,28 @@
 ---
-title: "Harness 아키텍처"
-description: "HarnessAgent가 무엇인지, 각 기능이 어떻게 협력하는지, call() 도중 상태가 어떻게 흐르는지"
+title: Harness 아키텍처
+description: HarnessAgent가 무엇인지, 각 기능이 어떻게 협력하는지, call() 도중 상태가 어떻게 흐르는지
 ---
 
 `HarnessAgent`는 `ReActAgent`를 감싸는 얇은 래퍼로, 장기 실행 agent에 필요한 엔지니어링 기능들 — 워크스페이스 기반 페르소나, 장기 기억, 서브에이전트 오케스트레이션, 샌드박스 격리, skill 조합, plan 모드, channel 라우팅 — 을 하나의 빌더로 묶어낸다.
 
 단순한 `ReActAgent`는 "요청 하나 → 추론 → 도구 → 응답"만 처리한다. Harness는 다른 질문들에 답한다: 다음 턴은 이전 턴이 멈춘 지점에서 어떻게 이어받는가, 컨텍스트는 어떻게 한계 안에 머무는가, 사용자는 어떻게 격리되는가, 위험한 작업은 어떻게 검토를 거치는가, 재사용 가능한 능력은 어떻게 쌓이는가.
 
-> 설치, 의존성, 그리고 첫 `HarnessAgent`를 처음부터 끝까지 만들어 보는 과정은 [Quickstart](../quickstart.md)에 있다. 이 페이지는 아키텍처만 다룬다.
+> 설치, 의존성, 그리고 첫 `HarnessAgent`를 처음부터 끝까지 만들어 보는 과정은 [Quickstart](/v2/ko/docs/quickstart)에 있다. 이 페이지는 아키텍처만 다룬다.
 
 ## HarnessAgent 구축하기
 
 `HarnessAgent`(`io.agentscope.harness.agent.HarnessAgent`)는 사용자가 직접 사용하는 harness API다. 이는
-[`ReActAgent`](../building-blocks/agent.md)를 감싸면서 그 위에 워크스페이스 / 파일시스템 / 샌드박스 / 서브에이전트 /
+[`ReActAgent`](/v2/ko/docs/building-blocks/agent)를 감싸면서 그 위에 워크스페이스 / 파일시스템 / 샌드박스 / 서브에이전트 /
 skill / plan 모드 / MCP 오케스트레이션을 더한다. 이러한 프로덕션 기능이 필요할 때는 언제든 `HarnessAgent.builder()`를
 사용하고, 워크스페이스도 지속성도 서브에이전트도 없는 단순한 ReAct 루프가 필요하다면
-[`ReActAgent.builder()`](../building-blocks/agent.md#configuring-an-agent)를 직접 사용하면 된다 — 두 빌더는
+[`ReActAgent.builder()`](/v2/ko/docs/building-blocks/agent#에이전트-구성)를 직접 사용하면 된다 — 두 빌더는
 대부분의 필드를 공유하므로 나중에 서로 전환하는 작업은 대체로 기계적이다.
 
 `HarnessAgent`는 **호출 사이에 상태를 갖지 않으며(stateless)**, 여러 사용자/세션을 동시에 처리하는 싱글턴으로
 사용해도 안전하다 — 각 `call()`은 `RuntimeContext`의 `(userId, sessionId)`를 사용해 상태를 격리한다. 같은 세션에
 대한 호출은 자동으로 직렬화되고, 서로 다른 세션은 병렬로 실행된다.
 
-`ReActAgent`와 마찬가지로 빌더의 `.model(...)`은 어떤 [`ChatModelBase`](../building-blocks/model.md)
+`ReActAgent`와 마찬가지로 빌더의 `.model(...)`은 어떤 [`ChatModelBase`](/v2/ko/docs/building-blocks/model)
 서브클래스든(`DashScopeChatModel`, `OpenAIChatModel`, `AnthropicChatModel` 등) 받아들인다 — 또는 흔히 쓰이는
 `ModelRegistry` 문자열 id도 받아들인다. 도구는 `ReActAgent`와 마찬가지로 `Toolkit`에 올린다.
 
@@ -66,8 +66,8 @@ HarnessAgent agent =
 ```
 
 `.model(...)`에는 `String` 오버로드도 있어서(`.model("dashscope:qwen-plus")`) `ModelRegistry`를 통해 해석되고
-해당 API 키 환경 변수를 자동으로 읽는다 — 이 형태를 처음부터 끝까지 보려면 [Quickstart](../quickstart.md)를,
-모든 `ChatModelBase` 프로바이더와 그 빌더 옵션을 보려면 [Model](../building-blocks/model.md)을 참고한다.
+해당 API 키 환경 변수를 자동으로 읽는다 — 이 형태를 처음부터 끝까지 보려면 [Quickstart](/v2/ko/docs/quickstart)를,
+모든 `ChatModelBase` 프로바이더와 그 빌더 옵션을 보려면 [Model](/v2/ko/docs/building-blocks/model)을 참고한다.
 
 ## 핵심 동작 원리
 
@@ -92,18 +92,18 @@ Harness는 빌드 시점에 내장 middleware를 고정된 순서로 연결한�
 
 | 기능 | 해결하는 문제 | 빌더 훅 | 상세 |
 |---|---|---|---|
-| 워크스페이스 기반 페르소나 | 페르소나, 지식, 서브에이전트 명세, skill, MCP 허용 목록이 모두 파일로 존재 | `.workspace(path)` | [Workspace](./workspace.md) |
-| 상태 지속성 | 동일한 `(userId, sessionId)`가 요청, 프로세스, 복제본을 넘나들며 재개됨 | 기본적으로 켜짐; `.stateStore(...)`로 재정의 | [Context & AgentState](../building-blocks/context.md) |
-| 2계층 장기 기억 | 긴 대화 속 사실들이 `MEMORY.md`로 침전됨 | 기본적으로 켜짐; `.memory(...)`로 프롬프트/트리거 정책 커스터마이즈 | [Memory](./memory.md) |
-| 대화 압축 | 히스토리를 한계 내로 유지; 실제 overflow 시 강제 재시도 | `.compaction(...)` | [Compaction](./compaction.md) |
-| 큰 도구 결과 오프로딩 | 8만 자 이상의 결과를 디스크 + placeholder로 이동 | `.toolResultEviction(...)` | [Compaction](./compaction.md) |
-| 서브에이전트 오케스트레이션 | 자식에게 위임, 동기 또는 백그라운드, 자동 push-back 포함 | `.subagent(...)` 또는 `workspace/subagents/`에 명세를 배치 | [Subagent](./subagent.md) |
-| 플러그형 파일시스템 | 코드 변경 없이 로컬 + 셸 / 공유 저장소 / 샌드박스 전환 | `.filesystem(...)` | [Filesystem](./filesystem.md) |
-| 샌드박스 격리 | 파일과 명령이 격리됨; call 간 복구; 다중 복제본 | `.filesystem(new DockerFilesystemSpec()...)` | [Sandbox](./sandbox.md) |
-| Plan Mode | HITL 종료를 가진, 읽기 전용의 먼저-생각하는 단계 | `.enablePlanMode()` | [Plan Mode](./plan-mode.md) |
-| Skill 조합 | Git / Nacos / MySQL / classpath / workspace로부터 오는 skill | `.skillRepository(...)` | [Skill](./skill.md) |
-| MCP 통합 및 도구 허용 목록 | 선언적 MCP 서버 + 도구별 allow/deny | `workspace/tools.json` | [Workspace](./workspace.md) |
-| Channel 라우팅 | 세션 관리, 세션별 동시성, 다중 agent 라우팅, 스트리밍 이벤트 | `agent.channel(...)` / `GatewayBootstrap` | [Channel](./channel.md) |
+| 워크스페이스 기반 페르소나 | 페르소나, 지식, 서브에이전트 명세, skill, MCP 허용 목록이 모두 파일로 존재 | `.workspace(path)` | [Workspace](/v2/ko/docs/harness/workspace) |
+| 상태 지속성 | 동일한 `(userId, sessionId)`가 요청, 프로세스, 복제본을 넘나들며 재개됨 | 기본적으로 켜짐; `.stateStore(...)`로 재정의 | [Context & AgentState](/v2/ko/docs/building-blocks/context) |
+| 2계층 장기 기억 | 긴 대화 속 사실들이 `MEMORY.md`로 침전됨 | 기본적으로 켜짐; `.memory(...)`로 프롬프트/트리거 정책 커스터마이즈 | [Memory](/v2/ko/docs/harness/memory) |
+| 대화 압축 | 히스토리를 한계 내로 유지; 실제 overflow 시 강제 재시도 | `.compaction(...)` | [Compaction](/v2/ko/docs/harness/compaction) |
+| 큰 도구 결과 오프로딩 | 8만 자 이상의 결과를 디스크 + placeholder로 이동 | `.toolResultEviction(...)` | [Compaction](/v2/ko/docs/harness/compaction) |
+| 서브에이전트 오케스트레이션 | 자식에게 위임, 동기 또는 백그라운드, 자동 push-back 포함 | `.subagent(...)` 또는 `workspace/subagents/`에 명세를 배치 | [Subagent](/v2/ko/docs/harness/subagent) |
+| 플러그형 파일시스템 | 코드 변경 없이 로컬 + 셸 / 공유 저장소 / 샌드박스 전환 | `.filesystem(...)` | [Filesystem](/v2/ko/docs/harness/filesystem) |
+| 샌드박스 격리 | 파일과 명령이 격리됨; call 간 복구; 다중 복제본 | `.filesystem(new DockerFilesystemSpec()...)` | [Sandbox](/v2/ko/docs/harness/sandbox) |
+| Plan Mode | HITL 종료를 가진, 읽기 전용의 먼저-생각하는 단계 | `.enablePlanMode()` | [Plan Mode](/v2/ko/docs/harness/plan-mode) |
+| Skill 조합 | Git / Nacos / MySQL / classpath / workspace로부터 오는 skill | `.skillRepository(...)` | [Skill](/v2/ko/docs/harness/skill) |
+| MCP 통합 및 도구 허용 목록 | 선언적 MCP 서버 + 도구별 allow/deny | `workspace/tools.json` | [Workspace](/v2/ko/docs/harness/workspace) |
+| Channel 라우팅 | 세션 관리, 세션별 동시성, 다중 agent 라우팅, 스트리밍 이벤트 | `agent.channel(...)` / `GatewayBootstrap` | [Channel](/v2/ko/docs/harness/channel) |
 
 ## 상태가 흐르는 방식
 
@@ -129,13 +129,13 @@ Harness의 배관(plumbing)을 우회하지 않으면서 커스텀 동작을 끼
 
 ## 관련 문서
 
-- [Workspace](./workspace.md) — 디렉터리 레이아웃, system prompt에 무엇이 주입되는지, `tools.json`
-- [Context & AgentState](../building-blocks/context.md) — `AgentState`, `RuntimeContext`, `AgentStateStore` 지속성, 다중 사용자 격리
-- [Memory](./memory.md) — 2계층 기억
-- [Compaction](./compaction.md) — 요약 압축, 큰 결과 오프로딩, overflow 복구
-- [Filesystem](./filesystem.md) — 로컬 + 셸 / 공유 저장소 / 샌드박스
-- [Sandbox](./sandbox.md) — 격리된 실행, call 간 복구, 분산
-- [Subagent](./subagent.md) — 선언, 동기/백그라운드, 스트리밍 전달
-- [Skill](./skill.md) — 4계층 조합, 자가 학습 루프
-- [Plan Mode](./plan-mode.md) — 읽기 전용 단계 + HITL 종료
-- [Channel](./channel.md) — 세션 관리, 다중 agent 라우팅, 스트리밍 SSE
+- [Workspace](/v2/ko/docs/harness/workspace) — 디렉터리 레이아웃, system prompt에 무엇이 주입되는지, `tools.json`
+- [Context & AgentState](/v2/ko/docs/building-blocks/context) — `AgentState`, `RuntimeContext`, `AgentStateStore` 지속성, 다중 사용자 격리
+- [Memory](/v2/ko/docs/harness/memory) — 2계층 기억
+- [Compaction](/v2/ko/docs/harness/compaction) — 요약 압축, 큰 결과 오프로딩, overflow 복구
+- [Filesystem](/v2/ko/docs/harness/filesystem) — 로컬 + 셸 / 공유 저장소 / 샌드박스
+- [Sandbox](/v2/ko/docs/harness/sandbox) — 격리된 실행, call 간 복구, 분산
+- [Subagent](/v2/ko/docs/harness/subagent) — 선언, 동기/백그라운드, 스트리밍 전달
+- [Skill](/v2/ko/docs/harness/skill) — 4계층 조합, 자가 학습 루프
+- [Plan Mode](/v2/ko/docs/harness/plan-mode) — 읽기 전용 단계 + HITL 종료
+- [Channel](/v2/ko/docs/harness/channel) — 세션 관리, 다중 agent 라우팅, 스트리밍 SSE

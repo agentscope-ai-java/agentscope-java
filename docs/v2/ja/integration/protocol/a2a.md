@@ -1,4 +1,6 @@
-# A2A (Agent-to-Agent)
+---
+title: A2A (Agent-to-Agent)
+---
 
 `agentscope-extensions-a2a` は [A2A プロトコル](https://a2aproject.github.io/A2A/) を実装しており、2 つのサブモジュールを提供します。
 
@@ -100,8 +102,8 @@ server.postEndpointReady();   // Web サーバーがリッスンを開始した�
 
 - `TaskStore` / `QueueManager`: タスクとイベントキューのストア。デフォルトではインメモリで、本番環境では永続化バージョンに差し替えます。
 - `PushNotificationConfigStore` / `PushNotificationSender`: アウトバウンド通知。
-- `AgentRegistry`: `AgentCard` を Nacos のような外部レジストリに登録します（[Nacos](../infrastructure/nacos.md) を参照）。
+- `AgentRegistry`: `AgentCard` を Nacos のような外部レジストリに登録します（[Nacos](/v2/ja/integration/infrastructure/nacos) を参照）。
 
 ## Spring Boot Starter
 
-Spring Boot を使っている場合は、`agentscope-spring-boot-starter-a2a-server` の利用をお勧めします — サーバーとコントローラーを自動構成してくれます。[クイックスタート](../../docs/quickstart.md) を参照してください。
+Spring Boot を使っている場合は、`agentscope-spring-boot-starter-a2a-server` の利用をお勧めします — サーバーとコントローラーを自動構成してくれます。[クイックスタート](/v2/ja/docs/quickstart) を参照してください。

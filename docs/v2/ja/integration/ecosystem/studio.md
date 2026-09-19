@@ -1,4 +1,6 @@
-# AgentScope Studio
+---
+title: AgentScope Studio
+---
 
 `agentscope-extensions-studio` は、Agent を [AgentScope Studio](https://github.com/agentscope-ai/agentscope-studio) と統合します。すべての Agent 呼び出しは Studio にプッシュされ、視覚的なデバッグ、トレースのリプレイ、Human-in-the-Loop 入力に利用できます。
 

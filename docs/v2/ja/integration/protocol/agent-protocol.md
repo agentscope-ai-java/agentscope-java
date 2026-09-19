@@ -1,13 +1,15 @@
-# Agent Protocol
+---
+title: Agent Protocol
+---
 
-`agentscope-extensions-agent-protocol` は AgentScope の [Harness Agent](../../docs/harness/architecture.md) を標準的な [Agent Protocol](https://agentprotocol.ai/) HTTP API として公開し、外部システム（CI、他のエージェントプラットフォーム、自動化ジョブ）が統一された契約を使って「タスク」を投入できるようにします — 実装の詳細を知る必要はありません。
+`agentscope-extensions-agent-protocol` は AgentScope の [Harness Agent](/v2/ja/docs/harness/architecture) を標準的な [Agent Protocol](https://agentprotocol.ai/) HTTP API として公開し、外部システム（CI、他のエージェントプラットフォーム、自動化ジョブ）が統一された契約を使って「タスク」を投入できるようにします — 実装の詳細を知る必要はありません。
 
 ## いつ使うか
 
 - Agent をクラウド関数のようにリモートからスケジュール実行したい。
 - 既存のチームが Agent Protocol クライアントを使っており、そこに直接接続したい。
 - Spring Boot サービスに Harness Agent を組み込み、`/tasks` REST エンドポイントを自動公開したい。
-- 他の Harness の親から HTTP 経由で呼び出される [リモートサブエージェント](../../docs/harness/subagent.md#リモートサブエージェント) をホストしたい。
+- 他の Harness の親から HTTP 経由で呼び出される [リモートサブエージェント](/v2/ja/docs/harness/subagent#リモートサブエージェント) をホストしたい。
 
 ## プロトコルのレイヤー構成
 
@@ -265,7 +267,7 @@ RuntimeContext.builder()
 
 `tool_call_id` は `toolCallId` のエイリアスとしても受け付けられます。`agentscope.agent-protocol.hitl-enabled=true`（デフォルト）が必要です。成功時は `{ "task_id", "status": "running" }` を返します。
 
-リモート HITL が呼び出し元の親 harness とどのように連携するかは、[リモート認可](../../docs/harness/subagent.md#リモート認可) に記載されています。
+リモート HITL が呼び出し元の親 harness とどのように連携するかは、[リモート認可](/v2/ja/docs/harness/subagent#リモート認可) に記載されています。
 
 ## 設定
 

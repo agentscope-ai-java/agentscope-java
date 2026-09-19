@@ -1,6 +1,6 @@
 ---
-title: "Tool"
-description: "agent가 호출할 수 있는 능력을 정의, 등록, 관리하기"
+title: Tool
+description: agent가 호출할 수 있는 능력을 정의, 등록, 관리하기
 ---
 
 ## 개요
@@ -70,9 +70,11 @@ Toolkit toolkit = new Toolkit();
 toolkit.registerTool(new io.agentscope.core.tool.builtin.TodoTools());
 ```
 
-:::{note}
+<Note>
+
 `Toolkit`은 추가 tool group이나 skill이 존재할 때 `reset_tools` meta tool과 skill 뷰어 도구인 `load_skill_through_path`를 자동으로 등록한다 — 직접 인스턴스화할 필요가 없다. [자체 관리 도구](#자체-관리-도구)와 [Skill](#skill)을 참고한다.
-:::
+
+</Note>
 
 ### 커스텀 도구(애너테이션 기반)
 
@@ -175,7 +177,7 @@ public class WebSearchTool extends ToolBase {
 
 외부 실행 도구는 실제 작업을 agent 런타임 바깥으로 위임한다 — 대개 사람 운영자나 외부 시스템에게. agent는 `RequireExternalExecutionEvent`를 발행하고 일시 정지한다. 다음 호출이 매칭되는 `ToolResultBlock`을 되돌려주면, agent는 계속 진행하기 전에 동일한 `replyId`를 가진 `ExternalExecutionResultEvent`를 발행한다.
 
-이 패턴은 [human-in-the-loop](./agent.md#human-in-the-loop) 흐름의 기반이다 — 일부 작업은 사람의 승인이나 사람의 실행을 필요로 한다.
+이 패턴은 [human-in-the-loop](/v2/ko/docs/building-blocks/agent#human-in-the-loop) 흐름의 기반이다 — 일부 작업은 사람의 승인이나 사람의 실행을 필요로 한다.
 
 외부 도구를 만들려면 `externalTool`을 `true`로 설정하고 `callAsync` 구현을 생략하면 된다.
 
@@ -217,7 +219,7 @@ public class HumanApprovalTool extends ToolBase {
 
 ## 컨텍스트 받기
 
-`agent.call(msgs, runtimeContext)`에 전달된 [`RuntimeContext`](./agent.md#runtimecontext-per-call-context)는 해당 응답 내의 모든 도구 호출로 전달된다. 도구는 두 가지 방식으로 이를 읽을 수 있다: 애너테이션 기반 도구는 자동 주입을 통해, `ToolBase.callAsync`는 `ToolCallParam`을 통해 읽는다.
+`agent.call(msgs, runtimeContext)`에 전달된 [`RuntimeContext`](/v2/ko/docs/building-blocks/agent#runtimecontext-호출별-컨텍스트)는 해당 응답 내의 모든 도구 호출로 전달된다. 도구는 두 가지 방식으로 이를 읽을 수 있다: 애너테이션 기반 도구는 자동 주입을 통해, `ToolBase.callAsync`는 `ToolCallParam`을 통해 읽는다.
 
 ### 자동 주입(`@Tool` 메서드)
 
@@ -313,8 +315,10 @@ MCP 도구는 충돌을 피하기 위해 toolkit 안에서 `mcp__{server_name}__
 
 `McpClientBuilder`를 사용해 `McpClientWrapper`를 만들고, 이를 `Toolkit`에 등록한다.
 
-::::{tab-set}
-:::{tab-item} STDIO
+<Tabs>
+
+<Tab title="STDIO">
+
 ```java
 import io.agentscope.core.tool.Toolkit;
 import io.agentscope.core.tool.mcp.McpClientBuilder;
@@ -330,8 +334,10 @@ McpClientWrapper filesystem =
 Toolkit toolkit = new Toolkit();
 toolkit.registerMcpClient(filesystem).block();
 ```
-:::
-:::{tab-item} Streamable HTTP
+
+</Tab>
+<Tab title="Streamable HTTP">
+
 ```java
 import io.agentscope.core.tool.Toolkit;
 import io.agentscope.core.tool.mcp.McpClientBuilder;
@@ -347,8 +353,10 @@ McpClientWrapper weather =
 Toolkit toolkit = new Toolkit();
 toolkit.registerMcpClient(weather).block();
 ```
-:::
-:::{tab-item} SSE
+
+</Tab>
+<Tab title="SSE">
+
 ```java
 import io.agentscope.core.tool.mcp.McpClientBuilder;
 import io.agentscope.core.tool.mcp.McpClientWrapper;
@@ -362,8 +370,10 @@ McpClientWrapper search =
 Toolkit toolkit = new Toolkit();
 toolkit.registerMcpClient(search).block();
 ```
-:::
-::::
+
+</Tab>
+
+</Tabs>
 
 실행 가능한 예시: `agentscope-examples/documentation/.../mcp/McpStdioExample.java`, `mcp/McpSseExample.java`, `mcp/McpStreamableHttpExample.java`.
 
@@ -426,9 +436,11 @@ skill이 존재하면 `Toolkit`은 2단계 설정을 수행한다.
 1. 요청한 내용을 반환한다(`SKILL.md` markdown, 또는 지정된 리소스 파일).
 2. **skill을 활성화한다** — `Toolkit`에서 연관된 tool group이 활성화되어, 해당 skill에 딸린 도구들이 그 턴이 끝날 때까지 호출 가능해진다. 요청한 `path`가 존재하지 않으면, 뷰어는 사용 가능한 리소스 경로 목록(가장 먼저 `SKILL.md`)을 담은 에러를 반환하므로 agent가 다시 시도할 수 있다.
 
-:::{note}
+<Note>
+
 skill은 도구가 아니다 — agent가 이를 직접 호출할 수 없다. agent는 반드시 먼저 `load_skill_through_path`를 통해 지침을 읽은 뒤, 다른 도구로 이를 실행해야 한다.
-:::
+
+</Note>
 
 ### Skill 스크립트 실행: 셸 도구 설정하기
 
@@ -558,33 +570,41 @@ basic이 아닌 tool group이 하나 이상 존재하고 `enableMetaTool(true)`�
 - 방금 활성화된 각 그룹에 대해, 그 description과(제공된 경우) 사용 지침이 meta tool의 반환 값에 삽입되어 agent에게 해당 그룹을 올바르게 사용하는 방법을 알려준다.
 - 비활성 그룹의 도구는 agent의 도구 schema에 나타나지 않으며, 그만큼 더 많은 컨텍스트를 활성 도구 집합을 위해 남겨둔다.
 
-:::{warning}
+<Warning>
+
 meta tool의 입력은 모든 그룹의 **최종 상태**를 나타내며 델타가 아니다. 명시적으로 `true`로 설정되지 않은 그룹은 이전 상태와 무관하게 비활성화된다.
-:::
+
+</Warning>
 
 ## 더 읽어보기
 
-::::{grid} 2
+<CardGroup cols={2}>
 
-:::{grid-item-card} Agent
-:link: ./agent.html
+
+<Card title="Agent" href="/v2/ko/docs/building-blocks/agent">
+
 
 agent가 ReAct 루프에서 도구 호출을 어떻게 오케스트레이션하는가
-:::
-  :::{grid-item-card} Permission System
-:link: ./permission-system.html
+
+</Card>
+  <Card title="Permission System" href="/v2/ko/docs/building-blocks/permission-system">
+
 
 어떤 도구가 언제 실행되는지에 대한 세밀한 제어
-:::
-  :::{grid-item-card} Middleware
-:link: ./middleware.html
+
+  </Card>
+  <Card title="Middleware" href="/v2/ko/docs/building-blocks/middleware">
+
 
 양파 껍질 구조의 middleware로 도구 호출을 가로채고 다시 쓰기
-:::
-  :::{grid-item-card} Human-in-the-Loop
-:link: ./agent.html#human-in-the-loop
+
+  </Card>
+  <Card title="Human-in-the-Loop" href="/v2/ko/docs/building-blocks/agent#human-in-the-loop">
+
 
 외부 실행 도구와 승인 워크플로
-:::
 
-::::
+  </Card>
+
+
+</CardGroup>

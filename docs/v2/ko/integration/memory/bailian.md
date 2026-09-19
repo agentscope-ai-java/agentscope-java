@@ -1,4 +1,6 @@
-# Bailian Memory
+---
+title: Bailian Memory
+---
 
 `agentscope-extensions-memory-bailian`은 알리바바 클라우드 바이리안(Bailian)의 장기 기억(long-term memory) 서비스와 통합됩니다. 완전관리형이며 rerank, judge, rewrite와 같은 고급 검색 기능을 지원합니다.
 

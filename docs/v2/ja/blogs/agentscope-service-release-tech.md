@@ -1,12 +1,10 @@
 ---
-hide-toc: true
+title: "AgentScope Service 技術詳解: コントロールプレーン、データプレーン、リカバリ可能な Agent ランタイム"
 ---
-
-# AgentScope Service 技術詳解: コントロールプレーン、データプレーン、リカバリ可能な Agent ランタイム
 
 リリース告知が「AgentScope Service で何ができるか」を答えるものだとすれば、本稿は「どう作られているか」に焦点を当てる。プロダクトのリソースモデル、プレーンの境界、Turn のライフサイクル、Brain / Hands の分離、Session のイベント契約、そしてマルチフレームワーク統合パスを一通り見て、このプラットフォームの背後にあるシステム設計を説明する。
 
-プロダクト概要と機能サマリーについては、姉妹記事の [AgentScope Service 正式リリース](./agentscope-service-release.md) を参照してほしい。本稿は読者がすでに AgentScope 2.0 / Harness の基礎を理解しており、単一の実行可能な Agent を運用可能なプラットフォームへとスケールさせることに関心があることを前提としている。
+プロダクト概要と機能サマリーについては、姉妹記事の [AgentScope Service 正式リリース](/v2/ja/blogs/agentscope-service-release) を参照してほしい。本稿は読者がすでに AgentScope 2.0 / Harness の基礎を理解しており、単一の実行可能な Agent を運用可能なプラットフォームへとスケールさせることに関心があることを前提としている。
 
 ## AgentScope Service とは何か(実装視点)
 
@@ -242,7 +240,7 @@ scripts/smoke.sh
 2. HITL: Ask Policy をトリガーし、確認後に続行し、履歴が完全であることを検証する。
 3. `self_hosted`: Worker の poll / ack / heartbeat / `tool_result` の返却を行い、Turn が正しく回復することを確認する。
 
-[`docs/guide/14-validation.md`](../../../agentscope-service/docs/guide/14-validation.md) と、アーキテクチャノートである [`docs/guide/02-architecture.md`](../../../agentscope-service/docs/guide/02-architecture.md) を参照してほしい。
+[`docs/guide/14-validation.md`](/v2/en/service/first-session) と、アーキテクチャノートである [`docs/guide/02-architecture.md`](/v2/en/service/index) を参照してほしい。
 
 ## 早めに避けておくべき実装上の落とし穴
 
@@ -301,4 +299,4 @@ AgentScope Service の技術的なカーネルは、三つの文にまとめら�
 2. **永続化されたイベント列が Session の正本であり、プロセス内のオブジェクトは使い捨てのキャッシュにすぎない**。
 3. **Managed と BYO はフリートの契約を共有し、フレームワークの差異は Console 全体に散らばるのではなく、アダプタに集約される**。
 
-「単一の Harness Agent」から「運用可能な agent フリート」への移行を考えているなら、この階層化によって多くの重複したインフラを排除できる。ぜひ [`agentscope-service/README.md`](../../../agentscope-service/README.md) を直接読んでみてほしい。プロダクト機能とオンボーディングのストーリーについては [リリース記事](./agentscope-service-release.md) に戻ってほしい。
+「単一の Harness Agent」から「運用可能な agent フリート」への移行を考えているなら、この階層化によって多くの重複したインフラを排除できる。ぜひ [`agentscope-service/README.md`](/v2/en/service/quickstart) を直接読んでみてほしい。プロダクト機能とオンボーディングのストーリーについては [リリース記事](/v2/ja/blogs/agentscope-service-release) に戻ってほしい。

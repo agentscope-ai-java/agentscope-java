@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: Harness フレームワーク初リリース — OpenClaw の「継続的な進化」体験をエンタープライズグレードのセキュリティ境界の内側へ
 ---
-
-# Harness フレームワーク初リリース — OpenClaw の「継続的な進化」体験をエンタープライズグレードのセキュリティ境界の内側へ
 
 前回の続きとして、以前の記事では OpenClaw とその背後にある Harness Engineering の実践を深く掘り下げ、その哲学をエンタープライズの agent 開発にどう適用できるかを説明するために「Harness Framework」を素描した。
 
@@ -47,7 +45,7 @@ Harness はすべての agent に対して **Workspace** という概念を導�
 
 実際の動作では、各推論ターンの前に、`WorkspaceContextHook` が `AGENTS.md`、`MEMORY.md`、`knowledge/` などの重要なファイルを system prompt に自動的に注入し、agent のペルソナと知識が毎ターン完全に提示されることを保証する。agent の実行が終わった後、`MemoryFlushHook` は会話から新しい事実を抽出し、メモリファイルに書き込む。その後、バックグラウンドの `MemoryConsolidator` が定期的に実行ログを洗練された長期記憶にマージする。Workspace は会話を通じて継続的に進化し、実行のたびに前回よりもユーザーとタスクについて「より多くを知っている」。
 
-<!-- 这是一张图片，ocr 内容为： -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1777338565508-2d485103-d3b6-4c8f-830b-7ee6e783cda3.png)
 
 ### コアの柱 2: Workspace をあらゆる環境で動かす AbstractFilesystem
@@ -56,7 +54,7 @@ Workspace というアイデアは魅力的だが、実用上の制約がある:
 
 AgentScope Harness はこの問題を **AbstractFilesystem** 抽象レイヤーで解決する。上位レイヤーにとって、agent は `read/write/ls/grep` のような統一されたインターフェースを呼ぶだけでよく、「ファイル」が実際にどこに着地するかを気にする必要はない。下位レイヤーでは、ローカルディスク、リモートオブジェクトストレージ(OSS)、KV データベース(Redis)、サンドボックスのファイルシステム、その他任意のメディアに適応でき、さらに `CompositeFilesystem` を通じて異なるパスを異なるバックエンドにルーティングすることもできる。
 
-<!-- 这是一张图片，ocr 内容为：ABSTRACTFILESYTEM 继承 继承 继承 继承 继承 SANDBOXFILESYSTEM REMOTEFILESYSTEM LOCALFILESYSTEM LOCALFILESYSTEMWITHSHELL COMPOSITEFILESYSTEM -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1778218615934-eec5c4c7-4a9c-44c2-84cb-56688f64d7f0.png)
 
 図に示すように、AbstractFilesystem インターフェースに基づいて、AgentScope は三つの組み込みの拡張実装を提供しており、それぞれ三つの利用モードに対応する。
@@ -66,9 +64,8 @@ AgentScope Harness はこの問題を **AbstractFilesystem** 抽象レイヤー�
 
 AgentScope 1.1 では、Workspace が agent のコア抽象であり、AbstractFilesystem は Workspace の物理的な実装キャリアである。すべてのファイル操作、コマンド実行、メモリ管理ツールは、標準の操作エントリとして AbstractFilesystem を使う。
 
-<!-- 这是一张图片，ocr 内容为：FILESYSTEMTOOL SHELLEXECUTETOOL MEMORY 命令 记忆 读写 搜索 执行 管理 WORKSPACE BASED ON ABSTRACTFILESYSTEM -->
-![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1778218989236-658ff65d-94ae-42e6-a004-4fe7b223a52a.png)
 
+![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1778218989236-658ff65d-94ae-42e6-a004-4fe7b223a52a.png)
 
 
 このファイルシステム抽象の上に、AgentScope フレームワークは agent 開発に三つの大きなエンジニアリング上の能力を直接もたらす:
@@ -345,7 +342,6 @@ Workspace 駆動のアプローチが最も推奨される — サブエージ�
 + **グローバル共有**: agent 全体が一つのサンドボックスを共有する。ツール型または読み取り専用の agent に適している。
 
 
-
 実際の本番環境でサンドボックスを適用するには、さらに多くの考慮事項がある。詳細は公式ドキュメントを参照:
 
 + サンドボックスのライフサイクルをどう管理するか: agent 組み込みの管理か、ユーザー管理か
@@ -366,8 +362,7 @@ Workspace 駆動のアプローチが最も推奨される — サブエージ�
 
 AgentScope Java 1.1 は、誰もが Harness Engineering から求めているが自分で組み立てるのが最も難しい機能セットを、**`HarnessAgent` + Workspace の規約 + プラガブルなファイルシステム + hook パイプライン** へと収束させた: 個人向けシナリオでは、記憶を持ち、compaction を持ち、サブタスクを持つ強化された ReAct Agent であり、エンタープライズシナリオでは、**隔離、マルチテナンシー、分散メモリ、サブエージェントのオーケストレーション** を設定項目に変えるインフラである。
 
-個人アシスタントのプロトタイプから本番対応のエンタープライズ agent への進化を評価しているなら、[Harness 概要](../overview.md) のクイックスタートから始め、[Filesystem](../filesystem.md) から宣言的なモードを選び、それから必要に応じて compaction、サンドボックス、サブエージェントを有効化していくことをお勧めする — それぞれのステップには対応するドキュメントとサンプルモジュールがあり、「Workspace こそが真実」というランタイムをゼロから発明する必要はない。
-
+個人アシスタントのプロトタイプから本番対応のエンタープライズ agent への進化を評価しているなら、[Harness 概要](/v1/en/docs/harness/overview) のクイックスタートから始め、[Filesystem](/v1/en/docs/harness/filesystem) から宣言的なモードを選び、それから必要に応じて compaction、サンドボックス、サブエージェントを有効化していくことをお勧めする — それぞれのステップには対応するドキュメントとサンプルモジュールがあり、「Workspace こそが真実」というランタイムをゼロから発明する必要はない。
 
 
 ![Canvas](https://intranetproxy.alipay.com/skylark/lark/0/2026/jpeg/54037/1778221664765-d534ffa1-1649-4444-ad8c-046c936e40e7.jpeg)

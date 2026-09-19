@@ -1,6 +1,6 @@
 ---
-title: "메모리(Memory)"
-description: "2계층 장기 메모리, 대화 압축, 대용량 도구 결과 오프로딩; 프롬프트와 트리거 정책을 커스터마이즈 가능"
+title: 메모리(Memory)
+description: 2계층 장기 메모리, 대화 압축, 대용량 도구 결과 오프로딩; 프롬프트와 트리거 정책을 커스터마이즈 가능
 ---
 
 ## 역할
@@ -30,7 +30,7 @@ description: "2계층 장기 메모리, 대화 압축, 대용량 도구 결과 �
 
 ## 두 계층이 동작하는 방식
 
-```{mermaid}
+```mermaid
 graph LR
     Conv["conversation messages"]
     Conv -->|each call end / can be throttled| Flush["Flush LLM call"]
@@ -268,6 +268,6 @@ HarnessAgent.builder()
 
 ## 관련 문서
 
-- [워크스페이스](./workspace.md) — 워크스페이스 안에서 `MEMORY.md` / `memory/`가 위치하는 곳
-- [컨텍스트](../building-blocks/context.md) — 절대 압축되지 않는 `*.log.jsonl` 대화 로그
-- [아키텍처](./architecture.md) — 긴 대화 속 사실이 어떻게 `MEMORY.md`로 정착되는지
+- [워크스페이스](/v2/ko/docs/harness/workspace) — 워크스페이스 안에서 `MEMORY.md` / `memory/`가 위치하는 곳
+- [컨텍스트](/v2/ko/docs/building-blocks/context) — 절대 압축되지 않는 `*.log.jsonl` 대화 로그
+- [아키텍처](/v2/ko/docs/harness/architecture) — 긴 대화 속 사실이 어떻게 `MEMORY.md`로 정착되는지

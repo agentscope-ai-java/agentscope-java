@@ -1,4 +1,6 @@
-# MySQL / JDBC
+---
+title: MySQL / JDBC
+---
 
 `agentscope-extensions-mysql` は、既存のリレーショナルデータベース基盤を持つチーム向けに、フルスタックな JDBC ベースの分散ストレージを提供します。
 

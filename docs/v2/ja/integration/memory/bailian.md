@@ -1,4 +1,6 @@
-# Bailian メモリ
+---
+title: Bailian メモリ
+---
 
 `agentscope-extensions-memory-bailian` は、Alibaba Cloud Bailian の長期記憶サービスと統合します。完全マネージド型で、リランク（rerank）、判定（judge）、書き換え（rewrite）などの高度な検索機能をサポートします。
 

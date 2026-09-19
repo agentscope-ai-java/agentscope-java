@@ -1,5 +1,5 @@
 ---
-title: "프로덕션으로 가기"
+title: 프로덕션으로 가기
 description: "단일 노드 프로토타입에서 다중 레플리카 배포로: Agent State Store, Filesystem, Skill, Sandbox, Snapshot, Observability를 위한 컴포넌트 선택과 설정"
 ---
 
@@ -41,7 +41,7 @@ HarnessAgent.builder()
     .build();
 ```
 
-컨트롤 플레인에서 `--enable-hosted-store`로 활성화합니다(Postgres 권장). `withAgentStateStore`는 호스팅된 TaskRepository를 포함합니다; **SandboxFilesystem 모드에서의 서브에이전트 백그라운드 작업**은 이 경로가 필요합니다. Redis/Postgres/MySQL/InMemory `AgentStateStore` 백엔드는 버저닝 CAS를 지원하며, 그 외는 LWW로 남습니다. Turn gate와 `ConflictPolicy.FAIL`은 다중 레플리카에서 중복 턴을 줄이기 위한 선택 사항입니다; 정확성은 CAS에서 나옵니다. 인증은 요청 본문의 tenant를 포함하는 공유 내부 토큰입니다 — 하나의 CP 위에서 서로를 신뢰하지 않는 멀티 테넌트 에이전트에는 적합하지 않습니다. `queueDrain`은 파괴적입니다(읽으면 즉시 ack). [분산 스토리지 — aistio 호스팅 스토어](../../integration/distributed/index.md#aistio-호스팅-스토어)를 참고하세요.
+컨트롤 플레인에서 `--enable-hosted-store`로 활성화합니다(Postgres 권장). `withAgentStateStore`는 호스팅된 TaskRepository를 포함합니다; **SandboxFilesystem 모드에서의 서브에이전트 백그라운드 작업**은 이 경로가 필요합니다. Redis/Postgres/MySQL/InMemory `AgentStateStore` 백엔드는 버저닝 CAS를 지원하며, 그 외는 LWW로 남습니다. Turn gate와 `ConflictPolicy.FAIL`은 다중 레플리카에서 중복 턴을 줄이기 위한 선택 사항입니다; 정확성은 CAS에서 나옵니다. 인증은 요청 본문의 tenant를 포함하는 공유 내부 토큰입니다 — 하나의 CP 위에서 서로를 신뢰하지 않는 멀티 테넌트 에이전트에는 적합하지 않습니다. `queueDrain`은 파괴적입니다(읽으면 즉시 ack). [분산 스토리지 — aistio 호스팅 스토어](/v2/ko/integration/distributed/index#aistio-호스팅-스토어)를 참고하세요.
 
 ## 한눈에 보기: 단일 노드 기본값 vs. 분산 프로덕션
 
@@ -81,7 +81,7 @@ HarnessAgent.builder()
 
 > **권장**: 한 줄 설정을 위해 `distributedStore(...)`를 사용하세요. 아래의 상세 표는 `AgentStateStore`를 개별적으로 제어해야 하는 고급 사용자를 위한 것입니다.
 
-`AgentState`(대화 컨텍스트, 압축 요약, 권한 규칙, Plan Mode 상태, 도구 상태)는 [`AgentStateStore`](../../integration/session/index.md)를 통해서만 프로세스 간에 살아남습니다.
+`AgentState`(대화 컨텍스트, 압축 요약, 권한 규칙, Plan Mode 상태, 도구 상태)는 [`AgentStateStore`](/v2/ko/integration/session/index)를 통해서만 프로세스 간에 살아남습니다.
 
 | 구현체 | 모듈 | 사용 시점 |
 |----------------|--------|-------------|
@@ -119,11 +119,11 @@ agent.call(msg, RuntimeContext.builder()
         .build()).block();
 ```
 
-전체 메커니즘은 [Context & AgentState](../building-blocks/context.md)에 있습니다.
+전체 메커니즘은 [Context & AgentState](/v2/ko/docs/building-blocks/context)에 있습니다.
 
 ## 2. Filesystem 모드와 `IsolationScope`: "누가 누구와 파일을 공유하는지" 결정하기
 
-세 가지 모드 요약(자세한 내용은 [Filesystem](../harness/filesystem.md)에 있음):
+세 가지 모드 요약(자세한 내용은 [Filesystem](/v2/ko/docs/harness/filesystem)에 있음):
 
 | 모드 | 설정 | Shell? | 사용 시점 |
 |------|--------|--------|-------------|
@@ -214,7 +214,7 @@ DistributedStore mysqlStore = MysqlDistributedStore.create(dataSource);
 
 `RemoteFilesystemSpec.toFilesystem(...)`은 실제로 `CompositeFilesystem`을 생성합니다: 셸이 없는 기본 `LocalFilesystem`(로컬 템플릿을 위한 폴백)에, 경로별로 하나씩의 `OverlayFilesystem`(상위 = `RemoteFilesystem`, 하위 = 읽기 전용 `LocalFilesystem` 템플릿)이 더해진 구조입니다.
 
-효과: **쓰기는 항상 Remote로 가고, 읽기는 먼저 Remote를 확인한 뒤 로컬 템플릿으로 폴백합니다**. 이것이 [Workspace](../harness/workspace.md)에서 설명한 "2계층 읽기 아키텍처"가 Remote 모드로 구체화된 것입니다 — 로컬 `<workspace>/AGENTS.md`는 시드 역할을 하며(팀 git을 통해 동기화됨), Remote는 한 번 쓰기가 이루어지는 즉시 그 자리를 넘겨받습니다.
+효과: **쓰기는 항상 Remote로 가고, 읽기는 먼저 Remote를 확인한 뒤 로컬 템플릿으로 폴백합니다**. 이것이 [Workspace](/v2/ko/docs/harness/workspace)에서 설명한 "2계층 읽기 아키텍처"가 Remote 모드로 구체화된 것입니다 — 로컬 `<workspace>/AGENTS.md`는 시드 역할을 하며(팀 git을 통해 동기화됨), Remote는 한 번 쓰기가 이루어지는 즉시 그 자리를 넘겨받습니다.
 
 ### `WorkspaceIndex`: 선택적인 SQLite 인덱스
 
@@ -226,7 +226,7 @@ Remote 모드에서 `ls` / `glob` / `exists` / `grep`을 빠르게 만듭니다 
 
 ## 4. 스킬 마켓플레이스: 어떤 `SkillRepository`를 선택할지
 
-스킬은 낮은 우선순위에서 높은 우선순위로 합성됩니다(자세한 내용은 [Skill](../harness/skill.md)에 있음):
+스킬은 낮은 우선순위에서 높은 우선순위로 합성됩니다(자세한 내용은 [Skill](/v2/ko/docs/harness/skill)에 있음):
 
 | 계층 | 소스 | 설정 방법 | 용도 |
 |-------|--------|---------------|------------|
@@ -411,7 +411,7 @@ Zookeeper, etcd, 그 외 다른 락 메커니즘을 연결하기 위해 `Sandbox
 | 노출된 서브에이전트(사용자가 서브에이전트와 직접 대화) | `distributedStore`가 자동으로 연결하는 레지스트리 — `subagentId`가 해석되고 서브에이전트는 어떤 레플리카에서도 / 재시작 이후에도 복구됩니다; `subagentId`의 메시지를 동일한 노드로 다시 라우팅해서(sticky) 복구가 유일한 failover 경로가 되게 하세요. `GatewayBootstrap`의 경우 `.distributedStore(...)`를 전달하세요 |
 | 우아한 종료 | `GracefulShutdownManager`(JVM 훅을 자동 등록함); SIGTERM을 처리함; `setConfig(...)`로 진행 중인 작업의 대기 시간을 조정 |
 | Observability | `OtelTracingMiddleware` + OpenTelemetry SDK + OTLP exporter |
-| 속도 제한 | 커스텀 `MiddlewareBase`(onModelCall); [Middleware — 속도 제한 미들웨어](../building-blocks/middleware.md#속도-제한-미들웨어)를 참고하세요 |
+| 속도 제한 | 커스텀 `MiddlewareBase`(onModelCall); [Middleware — 속도 제한 미들웨어](/v2/ko/docs/building-blocks/middleware#속도-제한-미들웨어)를 참고하세요 |
 
 ## 7. 완전한 프로덕션 빌더 템플릿
 
@@ -472,7 +472,7 @@ agent.call(msg, RuntimeContext.builder()
 
 ## 8. 흔한 함정
 
-- **`RuntimeContext` 전달을 잊는 것** — `sessionId`가 없으면 모든 요청이 `defaultSessionId` 상태를 공유하게 되어 상태가 뒤섞입니다. 멀티 유저 시나리오에서는, 상태 격리를 보장하기 위해 **모든 `call()`에 항상 `RuntimeContext.builder().userId(...).sessionId(...).build()`를 전달하세요**. [Agent — Multi-user Concurrency](../building-blocks/agent.md#다중-사용자--다중-세션-동시성)를 참고하세요.
+- **`RuntimeContext` 전달을 잊는 것** — `sessionId`가 없으면 모든 요청이 `defaultSessionId` 상태를 공유하게 되어 상태가 뒤섞입니다. 멀티 유저 시나리오에서는, 상태 격리를 보장하기 위해 **모든 `call()`에 항상 `RuntimeContext.builder().userId(...).sessionId(...).build()`를 전달하세요**. [Agent — Multi-user Concurrency](/v2/ko/docs/building-blocks/agent#다중-사용자--다중-세션-동시성)를 참고하세요.
 - **워크스페이스 쓰기에 `java.nio.Files` 사용** — 샌드박스 / Remote 모드에서는 잘못된 위치에 기록됩니다. 항상 `agent.getWorkspaceManager()`를 거치세요. **예외**: 빌드 시점 시드 파일(`initWorkspaceIfAbsent` 스타일 코드) — 아직 런타임 컨텍스트가 없으므로, 로컬 템플릿을 시드하는 것이므로 `java.nio.Files`가 올바릅니다.
 - **`tools.json`의 `allow` 필터는 내장 도구도 필터링합니다** — 화이트리스트를 만들 때는 `read_file` / `memory_search` / `agent_spawn` 등을 목록에 함께 넣으세요, 그러지 않으면 모든 내장 도구가 제거됩니다.
 - **`IsolationScope`를 바꿔도 기존 데이터는 마이그레이션되지 않습니다** — 배포 전에 고정하세요. 배포 후 이를 바꾸는 것은 새로운 네임스페이스로 전환하는 것과 같습니다.
@@ -483,12 +483,12 @@ agent.call(msg, RuntimeContext.builder()
 
 ## 관련 페이지
 
-- [Quickstart](../quickstart.md) — 첫 `HarnessAgent`를 처음부터 끝까지
-- [Harness Architecture](../harness/architecture.md) — 여러 역량이 어떻게 협력하는지
-- [Context & AgentState](../building-blocks/context.md) — `AgentState` / `AgentStateStore` / 노드 간 복구
-- [Compaction](../harness/compaction.md) — 대화 요약, 도구 결과 축출, overflow 복구
-- [Workspace](../harness/workspace.md) — 디렉터리 레이아웃, 2계층 읽기, `tools.json`
-- [Filesystem](../harness/filesystem.md) — 세 가지 배포 모드, `IsolationScope`
-- [Sandbox](../harness/sandbox.md) — 샌드박스 상세, 다섯 가지 구현체, 스냅샷 메커니즘
-- [Skill](../harness/skill.md) — 4계층 합성, 마켓플레이스 스토어, 자가 학습 루프
-- [Middleware](../building-blocks/middleware.md) — 커스텀 observability / 속도 제한 / 폴백 미들웨어
+- [Quickstart](/v2/ko/docs/quickstart) — 첫 `HarnessAgent`를 처음부터 끝까지
+- [Harness Architecture](/v2/ko/docs/harness/architecture) — 여러 역량이 어떻게 협력하는지
+- [Context & AgentState](/v2/ko/docs/building-blocks/context) — `AgentState` / `AgentStateStore` / 노드 간 복구
+- [Compaction](/v2/ko/docs/harness/compaction) — 대화 요약, 도구 결과 축출, overflow 복구
+- [Workspace](/v2/ko/docs/harness/workspace) — 디렉터리 레이아웃, 2계층 읽기, `tools.json`
+- [Filesystem](/v2/ko/docs/harness/filesystem) — 세 가지 배포 모드, `IsolationScope`
+- [Sandbox](/v2/ko/docs/harness/sandbox) — 샌드박스 상세, 다섯 가지 구현체, 스냅샷 메커니즘
+- [Skill](/v2/ko/docs/harness/skill) — 4계층 합성, 마켓플레이스 스토어, 자가 학습 루프
+- [Middleware](/v2/ko/docs/building-blocks/middleware) — 커스텀 observability / 속도 제한 / 폴백 미들웨어

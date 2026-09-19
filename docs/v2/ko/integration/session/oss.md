@@ -1,8 +1,12 @@
-```{note}
-이 페이지는 [분산 스토리지 — OSS](../distributed/oss.md)로 대체되었습니다. 아래 내용은 참고용으로 남겨둡니다.
-```
+---
+title: OSS 상태 저장소
+---
 
-# OSS 상태 저장소
+<Note>
+
+이 페이지는 [분산 스토리지 — OSS](/v2/ko/integration/distributed/oss)로 대체되었습니다. 아래 내용은 참고용으로 남겨둡니다.
+
+</Note>
 
 `agentscope-extensions-oss`는 AgentScope 에이전트 상태를 Alibaba Cloud Object Storage Service(OSS)에 영속화합니다. 대용량 데이터와 Alibaba Cloud 생태계에 적합합니다.
 

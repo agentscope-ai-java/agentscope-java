@@ -1,11 +1,13 @@
 ---
-title: "V1 移行ガイド"
-description: "AgentScope Java 1.x から 2.0 への完全な移行ガイド"
+title: V1 移行ガイド
+description: AgentScope Java 1.x から 2.0 への完全な移行ガイド
 ---
 
-:::{tip}
-バージョンごとの変更記録をお探しですか? [リリースノート](others/release-notes.md) を参照してください。
-:::
+<Tip>
+
+バージョンごとの変更記録をお探しですか? [リリースノート](/v2/ja/docs/others/release-notes) を参照してください。
+
+</Tip>
 
 AgentScope Java 2.0 は、可能な限り 1.x との互換性を維持し、ほとんどのユーザーがスムーズにアップグレードできることを目指しています。とはいえ、2.0 は API レベルの変更を導入しています。このページでは、それらの変更を2つのセクションに分けています。
 
@@ -28,14 +30,14 @@ AgentScope Java 2.0 は、可能な限り 1.x との互換性を維持し、ほ�
 | `.statePersistence(StatePersistence)` | 同上 — `AgentStateStore` が永続化を包含する |
 | `.structuredOutputReminder(StructuredOutputReminder)` | 不要になった — 構造化出力は現在モデル層でネイティブに処理される(`Model.supportsNativeStructuredOutput()`)。フレームワークが自動的にネイティブ JSON スキーマを選択するか、tool-choice にフォールバックする |
 
-詳細 → [Context](building-blocks/context.md)
+詳細 → [Context](/v2/ja/docs/building-blocks/context)
 
 #### A.2 削除されたパッケージとクラス
 
 | 2.0 で削除 | 置き換え |
 |---|---|
 | `io.agentscope.core.session.SessionManager` | エージェントビルダーで `.stateStore(AgentStateStore)` を設定する。永続化は `(userId, sessionId)` ごとに自動的に行われる |
-| `io.agentscope.core.pipeline.*` — `Pipeline`、`Pipelines`、`SequentialPipeline`、`FanoutPipeline`、`MsgHub` | マルチエージェントオーケストレーションのために middleware + サブエージェント + イベントストリームを合成する。サブエージェントガイドを参照 → [Subagent](harness/subagent.md) |
+| `io.agentscope.core.pipeline.*` — `Pipeline`、`Pipelines`、`SequentialPipeline`、`FanoutPipeline`、`MsgHub` | マルチエージェントオーケストレーションのために middleware + サブエージェント + イベントストリームを合成する。サブエージェントガイドを参照 → [Subagent](/v2/ja/docs/harness/subagent) |
 | `io.agentscope.core.model.tts.*`(14ファイル、DashScope TTS / Realtime TTS / `AudioPlayer` など) | Core はもはや TTS を同梱しない。TTS が必要な場合は上流のプロバイダー SDK を直接統合する |
 | `io.agentscope.core.model.StructuredOutputReminder` | 不要になった — 構造化出力はモデル層でネイティブに処理される |
 | `io.agentscope.core.agent.StructuredOutputCapableAgent` | 削除 — 構造化出力の能力はネイティブなモデル層サポートとともに `ReActAgent` にインライン化された |
@@ -77,7 +79,7 @@ Spring Boot アプリケーションは、汎用の core モデルパスに頼�
 | Anthropic | `agentscope-anthropic-spring-boot-starter` |
 | Ollama | `agentscope-ollama-spring-boot-starter` |
 
-詳細 → [Model](building-blocks/model.md)、[Model Providers](../integration/overview.md)
+詳細 → [Model](/v2/ja/docs/building-blocks/model)、[Model Providers](/v2/ja/integration/overview)
 
 #### A.4 `state` パッケージの再構成(コンパイルエラー)
 
@@ -89,7 +91,7 @@ Spring Boot アプリケーションは、汎用の core モデルパスに頼�
 | `ToolkitState` | `io.agentscope.core.state.legacy.ToolkitState` に移動(互換性のためだけに残されている。新しいコードでは参照しないこと) |
 | (新規) | `Task`、`TaskContextState`、`ToolContextState`、`PlanModeContextState`、`ReadCacheEntry` |
 
-`io.agentscope.core.state` から `AgentMetaState`、`StateModule`、`StatePersistence`、`ToolkitState` をインポートするコードはすべてコンパイルに失敗します。詳細 → [Context](building-blocks/context.md)
+`io.agentscope.core.state` から `AgentMetaState`、`StateModule`、`StatePersistence`、`ToolkitState` をインポートするコードはすべてコンパイルに失敗します。詳細 → [Context](/v2/ja/docs/building-blocks/context)
 
 #### A.5 `PlanNotebook` を削除 — 代わりに `HarnessAgent.enablePlanMode()` を使う
 
@@ -116,7 +118,7 @@ Spring Boot アプリケーションは、汎用の core モデルパスに頼�
 - `SYSTEM` — `TextBlock` のみ
 - `ASSISTANT` — 制限なし
 
-v1 で許容されていた組み合わせ(例えば `ToolUseBlock` を運ぶ `USER` メッセージ)は、構築時にスローされるようになりました。呼び出し箇所でロールとコンテンツの互換性を明確にするために、ロール固定のサブクラス `UserMessage` / `AssistantMessage` / `SystemMessage` / `ToolResultMessage` を使ってください。詳細 → [Message & Event](building-blocks/message-and-event.md)
+v1 で許容されていた組み合わせ(例えば `ToolUseBlock` を運ぶ `USER` メッセージ)は、構築時にスローされるようになりました。呼び出し箇所でロールとコンテンツの互換性を明確にするために、ロール固定のサブクラス `UserMessage` / `AssistantMessage` / `SystemMessage` / `ToolResultMessage` を使ってください。詳細 → [Message & Event](/v2/ja/docs/building-blocks/message-and-event)
 
 #### A.7 Agent が完全にステートレスに(アーキテクチャの変更)
 
@@ -153,7 +155,7 @@ TracerRegistry.register(TelemetryTracer.builder().tracer(tracer).build());
 | フレームワークグローバルなトレーサー | スパンを発行すべき各エージェントに `new OtelTracingMiddleware()` を追加する |
 | `TracerRegistry.resetToNoop()` / トレーサーのシャットダウン | シャットダウン時にアプリケーションが所有する `SdkTracerProvider` をクローズする |
 
-middleware は `GlobalOpenTelemetry` を読み取るため、SDK はエージェントが middleware を使用する前に登録されている必要があります。必要な依存関係と、カスタム認証ヘッダーを使った完全な OTLP の例については、[Middleware — OtelTracingMiddleware](building-blocks/middleware.md#oteltracingmiddleware) を参照してください。
+middleware は `GlobalOpenTelemetry` を読み取るため、SDK はエージェントが middleware を使用する前に登録されている必要があります。必要な依存関係と、カスタム認証ヘッダーを使った完全な OTLP の例については、[Middleware — OtelTracingMiddleware](/v2/ja/docs/building-blocks/middleware#oteltracingmiddleware) を参照してください。
 
 ---
 
@@ -167,7 +169,7 @@ middleware は `GlobalOpenTelemetry` を読み取るため、SDK はエージェ
 - 推奨される方法: `Builder.skillRepository(...)` / `.skillRepositories(...)` を介して、1つ以上の `AgentSkillRepository` 実装(組み込み: `ClasspathSkillRepository`、`FileSystemSkillRepository`)を登録することです。少なくとも1つのリポジトリが登録されると、`DynamicSkillMiddleware` が自動的にインストールされ、`call()` のたびにスキルプロンプトを再構築します。
 - 細粒度のフィルタリング: `Builder.skillFilter(SkillFilter)`。
 
-詳細 → [Skill](harness/skill.md)
+詳細 → [Skill](/v2/ja/docs/harness/skill)
 
 #### B.2 Hook → Middleware
 
@@ -177,7 +179,7 @@ middleware は `GlobalOpenTelemetry` を読み取るため、SDK はエージェ
 - ビルダーメソッド: `.middleware(MiddlewareBase)` と `.middlewares(List<? extends MiddlewareBase>)`。
 - 組み込み: `TaskReminderMiddleware`(`TodoTools` と対になり、各推論ステップの前にタスクリストを再注入する)。
 
-詳細 → [Middleware](building-blocks/middleware.md)
+詳細 → [Middleware](/v2/ja/docs/building-blocks/middleware)
 
 #### B.3 `Memory` → `AgentStateStore` + `AgentState`
 
@@ -188,7 +190,7 @@ middleware は `GlobalOpenTelemetry` を読み取るため、SDK はエージェ
   - **永続化** は `AgentStateStore` 抽象化(組み込み: `InMemoryAgentStateStore`、`JsonFileAgentStateStore`)を使い、`(userId, sessionId)` のペアで分割されます。
   - ビルダーチェーン: `.stateStore(AgentStateStore)` — `AgentState` は、呼び出しの `RuntimeContext` が運ぶ `(userId, sessionId)` をキーとして、`call()` のたびに自動的に保存/読み込みされます。
 
-詳細 → [Context](building-blocks/context.md)
+詳細 → [Context](/v2/ja/docs/building-blocks/context)
 
 #### B.4 イベント購読: hook + chunk イベント → `streamEvents()`
 
@@ -201,7 +203,7 @@ v1 で `Hook` + `*ChunkEvent` を介してテキストやツール呼び出し�
 - `ToolUseBlock` / `ToolResultBlock` 上の `ToolCallState` / `ToolResultState` — ツール呼び出しのライフサイクル
 - すべてのブロックにある `id` フィールド — ストリームをまたいだ安定した参照
 
-詳細 → [Message & Event](building-blocks/message-and-event.md)
+詳細 → [Message & Event](/v2/ja/docs/building-blocks/message-and-event)
 
 ##### `stream()` → `streamEvents()`(Python 2.0 との整合)
 
@@ -261,7 +263,7 @@ ReActAgent agent = ReActAgent.builder()
 
 - `HarnessAgent` ユーザー向けには、harness モジュールが、統一されたローカル / Docker / クラウドサンドボックスのストア、パーミッションの分離、読み取り/書き込みキャッシュ、HITL 承認を備えた、独自のワークスペース対応ファイル/シェルツール(`read_file`、`write_file`、`execute` など)を提供します。ワークスペース統合されたシナリオでは、組み込みの harness ツールを使うことが推奨されます。
 
-詳細 → [Harness filesystem](harness/filesystem.md)
+詳細 → [Harness filesystem](/v2/ja/docs/harness/filesystem)
 
 ---
 
@@ -278,7 +280,7 @@ ReActAgent agent = ReActAgent.builder()
 - **挙動の変更:** `source != null` を持つ AgentEvent(サブエージェントのイベント)は、ネイティブの `TEXT_MESSAGE_*` / `RUN_*` の代わりに AG-UI の `CUSTOM` イベント(`subagent.lifecycle`、`subagent.text`、`subagent.thinking`、`subagent.tool_call`、`subagent.tool_result`、`subagent.require_confirm`)として発行されます。従来のネイティブなマッピングに戻すには `emitSubagentEventsAsNative(true)` を設定してください。
 - Spring Boot スターターは、`AguiRuntimeContextResolver`、カスタムの `AguiAgentAdapterFactory`、フロントエンドツールの注入 / マージモード、HITL の割り込み出力をサポートします。
 
-詳細 → [AG-UI](../integration/protocol/agui.md)
+詳細 → [AG-UI](/v2/ja/integration/protocol/agui)
 
 ### Toolkit とパーミッション
 
@@ -293,7 +295,7 @@ ReActAgent agent = ReActAgent.builder()
   - `PermissionEngine`、`PermissionRule`、`PermissionMode`(`DEFAULT` / `ACCEPT_EDITS` / `EXPLORE` / `BYPASS` / `DONT_ASK`)、`PermissionBehavior`
   - すべてのツール呼び出しは `PermissionEngine` を通過します: 許可 / ユーザー確認が必要 / 拒否。HITL の決定は `UserConfirmResultEvent` として戻ってきます。
 
-詳細 → [Tool](building-blocks/tool.md)、[Permission System](building-blocks/permission-system.md)
+詳細 → [Tool](/v2/ja/docs/building-blocks/tool)、[Permission System](/v2/ja/docs/building-blocks/permission-system)
 
 ### モデルのフォールトトレランスと認証情報
 
@@ -301,14 +303,14 @@ ReActAgent agent = ReActAgent.builder()
 - `ModelRegistry` は、対応するモデル拡張モジュールがクラスパス上にある場合、`"provider:model"` 文字列(例: `dashscope:qwen-max`、`openai:gpt-5`)からモデルを解決する
 - ビルダーへの追加: `.model(String)`、`.maxRetries(int)`、`.fallbackModel(Model)` / `.fallbackModel(String)`、`.stopOnReject(boolean)` — プライマリモデルの失敗を自動的にリトライし、フォールバックする
 
-詳細 → [Model](building-blocks/model.md)
+詳細 → [Model](/v2/ja/docs/building-blocks/model)
 
 ### Workspace(Harness モジュール)
 
 - Workspace 抽象化が、ローカルファイルシステム、Docker、E2B クラウドサンドボックスの実行を単一のインタフェースの背後に統一する
 - ウォームアッププール — 実行環境をバッチで事前に初期化する。並列の RL ロールアウトに有用
 
-詳細 → [Workspace](harness/workspace.md)
+詳細 → [Workspace](/v2/ja/docs/harness/workspace)
 
 ### その他の新しい Builder メソッド
 
@@ -318,7 +320,7 @@ ReActAgent agent = ReActAgent.builder()
 - `HarnessAgent.Builder.fromAgent(ReActAgent)` — ReActAgent → HarnessAgent の移行ヘルパー。`ReActAgent.Builder.fromAgent` と同じ7つのフィールドに加え、**ReActAgent 上の他のすべての観測可能な設定**を継承します: `stateStore` / `defaultSessionId`、`ModelConfig`(`maxRetries` / `fallbackModel`)、`ReactConfig.stopOnReject`、`modelExecutionConfig` / `toolExecutionConfig` / `toolExecutionContext`、`enablePendingToolRecovery`、`checkRunning`、`permissionContext`、`middlewares`、そして `hooks`。コピーされない唯一のフラグは `enableMetaTool` / `enableTaskList` です — これらはビルダー時に toolkit を変更するフラグであり、toolkit のコピーにはすでにそれらが登録したツールが含まれています。Harness 固有の設定(workspace / filesystem / subagents / skills / plan mode / `disable*` トグル)は、依然として明示的に設定する必要があります。完全な表は javadoc を参照してください。
 - **上記の移行をサポートするための、ReActAgent / 親クラスへの新しい getter**: `getModelExecutionConfig()` / `getToolExecutionConfig()` / `getToolExecutionContext()` / `isPendingToolRecoveryEnabled()` / `getPermissionContext()`(`ReActAgent` 上)。`isCheckRunning()`(`AgentBase` 上。非推奨で、常に `false` を返す)。
 
-詳細 → [Agent](building-blocks/agent.md)
+詳細 → [Agent](/v2/ja/docs/building-blocks/agent)
 
 ### Memory / Compaction 向けの専用モデル
 

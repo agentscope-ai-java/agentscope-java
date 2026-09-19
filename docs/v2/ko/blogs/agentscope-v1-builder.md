@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: "AgentScope Builder — OpenClaw의 \"자가 진화\"를 팀 전체를 위한 플랫폼으로"
 ---
-
-# AgentScope Builder — OpenClaw의 "자가 진화"를 팀 전체를 위한 플랫폼으로
 
 AgentScope Java 1.1.0에서 우리는 OpenClaw와 Coding Agent로부터 "워크스페이스가 곧 진실 + 자가 진화"라는 경험을 증류하여 Harness 엔지니어링 기반으로 만들었다: `HarnessAgent` + `AbstractFilesystem` + 내장 압축과 계층화된 메모리. 그때 우리는 한 가지 약속을 했다: **에이전트 로직을 한 번만 작성하고, 필요에 따라 배포 형태를 전환한다 — 개인 노트북에서부터 엔터프라이즈 분산 배포까지**.
 
@@ -27,7 +25,7 @@ Claw는 다음 저장소 경로에 존재한다.
 agentscope-examples/agents/agentscope-claw/
 ```
 
-이는 샘플 코드가 아니라 **완전한 Spring Boot 애플리케이션**이다: JDK 17, `mvn package` 한 번, `java -jar` 한 번이면 되고, 브라우저에서 <http://localhost:8080>을 열면 끝이다. 모든 상태는 `~/.agentscope/` 워크스페이스 아래에 영속화되며, 이는 `CLAW_HOME` 환경 변수로 재정의할 수 있다. 처음 실행하면 내장된 `default` 에이전트가 자동으로 생성되므로, 코드를 한 줄도 작성하지 않고 곧바로 채팅을 시작할 수 있다.
+이는 샘플 코드가 아니라 **완전한 Spring Boot 애플리케이션**이다: JDK 17, `mvn package` 한 번, `java -jar` 한 번이면 되고, 브라우저에서 [http://localhost:8080](http://localhost:8080)을 열면 끝이다. 모든 상태는 `~/.agentscope/` 워크스페이스 아래에 영속화되며, 이는 `CLAW_HOME` 환경 변수로 재정의할 수 있다. 처음 실행하면 내장된 `default` 에이전트가 자동으로 생성되므로, 코드를 한 줄도 작성하지 않고 곧바로 채팅을 시작할 수 있다.
 
 ### 세 가지 핵심 역량
 
@@ -218,7 +216,7 @@ CompositeFilesystem의 해법은 직접적이다: **하위 스토리지 백엔�
 - 사용자 워크스페이스를 관리하는 웹 레이어도 동일한 `BaseStore`를 사용한다 — 웹이 보는 것과 에이전트가 보는 것은 같은 데이터다
 - 분산 `Session`(전형적인 구현: `RedisSession`)과 결합하면, Builder 프로세스 자체를 동등한 레플리카로 배포할 수 있다
 
-다이어그램의 "네임스페이스 라우팅 상위 레이어"는 전혀 바뀌지 않는다 — 네임스페이스 라우팅은 CompositeFilesystem 내부에서 이루어지며, 스토리지 백엔드가 로컬 디스크든, Docker 컨테이너든, Redis든 이에 대해 전혀 알지 못한다. **바로 이 지점에서 [Harness 아티클](agentscope-v1-harness.md)에서 다룬 `AbstractFilesystem`이 진짜 힘을 발휘한다** — 비즈니스 코드는 단 한 줄도 바뀌지 않고, 배포 측에서 Bean 하나만 교체하면 단일 노드에서 분산 환경으로의 마이그레이션이 완료된다.
+다이어그램의 "네임스페이스 라우팅 상위 레이어"는 전혀 바뀌지 않는다 — 네임스페이스 라우팅은 CompositeFilesystem 내부에서 이루어지며, 스토리지 백엔드가 로컬 디스크든, Docker 컨테이너든, Redis든 이에 대해 전혀 알지 못한다. **바로 이 지점에서 [Harness 아티클](/v2/ko/blogs/agentscope-v1-harness)에서 다룬 `AbstractFilesystem`이 진짜 힘을 발휘한다** — 비즈니스 코드는 단 한 줄도 바뀌지 않고, 배포 측에서 Bean 하나만 교체하면 단일 노드에서 분산 환경으로의 마이그레이션이 완료된다.
 
 ---
 
@@ -271,7 +269,7 @@ mvn -pl agentscope-examples/agents/agentscope-claw -am clean package -DskipTests
 java -jar agentscope-examples/agents/agentscope-claw/target/agentscope-claw-*.jar
 ```
 
-<http://localhost:8080>을 연다. 기본 홈 디렉터리는 `~/.agentscope`이다. DingTalk / WeCom / Feishu 등의 채널을 연결하려면 `~/.agentscope/agentscope.json`을 편집하고 해당하는 채널 항목을 추가하라. 자세한 내용은 [Claw README]를 참고하라.
+[http://localhost:8080](http://localhost:8080)을 연다. 기본 홈 디렉터리는 `~/.agentscope`이다. DingTalk / WeCom / Feishu 등의 채널을 연결하려면 `~/.agentscope/agentscope.json`을 편집하고 해당하는 채널 항목을 추가하라. 자세한 내용은 [Claw README]를 참고하라.
 
 ### Builder
 
@@ -307,7 +305,7 @@ java -jar agentscope-examples/agents/agentscope-builder/target/agentscope-builde
 
 ## 요약
 
-[Harness 아티클](agentscope-v1-harness.md)에서 우리는 "자가 진화하는 에이전트 런타임" — `HarnessAgent` + 워크스페이스 컨벤션 + 플러그형 파일 시스템 + 훅 파이프라인 — 을 제시했다.
+[Harness 아티클](/v2/ko/blogs/agentscope-v1-harness)에서 우리는 "자가 진화하는 에이전트 런타임" — `HarnessAgent` + 워크스페이스 컨벤션 + 플러그형 파일 시스템 + 훅 파이프라인 — 을 제시했다.
 
 오늘 글은 그 런타임을 **곧바로 실행 가능한 두 개의 제품**으로 바꾼다.
 

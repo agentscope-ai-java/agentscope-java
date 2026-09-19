@@ -1,4 +1,6 @@
-# Simple Knowledge
+---
+title: Simple Knowledge
+---
 
 `agentscope-extensions-rag-simple`은 "DIY 엔드투엔드" RAG 구현체입니다: 문서 리더, 청킹 전략, 임베딩 어댑터, 그리고 다섯 가지 즉시 사용 가능한 벡터 스토어 어댑터를 제공합니다.
 

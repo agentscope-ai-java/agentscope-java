@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: "첫 Harness 프레임워크 릴리스 — OpenClaw의 \"지속적 진화\" 경험을 엔터프라이즈급 보안 경계 안으로"
 ---
-
-# 첫 Harness 프레임워크 릴리스 — OpenClaw의 "지속적 진화" 경험을 엔터프라이즈급 보안 경계 안으로
 
 지난 글에 이어서, 이전 글에서 나는 OpenClaw와 그 배후에 있는 Harness Engineering 실천법을 깊이 파고들었고, 그 철학을 엔터프라이즈 에이전트 개발에 어떻게 적용할 수 있는지 설명하기 위해 "Harness Framework"의 밑그림을 그렸다.
 
@@ -47,7 +45,7 @@ Harness는 모든 에이전트에 대해 **워크스페이스**라는 개념을 
 
 실제 동작에서는, 매 추론 턴이 시작되기 전에 `WorkspaceContextHook`이 `AGENTS.md`, `MEMORY.md`, `knowledge/` 등 핵심 파일을 자동으로 시스템 프롬프트에 주입하여, 에이전트의 페르소나와 지식이 매 턴마다 온전히 제시되도록 보장한다. 에이전트 실행이 끝난 후에는 `MemoryFlushHook`이 대화에서 새로운 사실을 추출해 메모리 파일에 기록하고, 이후 백그라운드의 `MemoryConsolidator`가 주기적으로 실행 로그를 정제된 장기 메모리로 병합한다. 워크스페이스는 대화를 거치며 지속적으로 진화하고, 매 실행마다 지난번보다 사용자와 태스크에 대해 "더 많이 아는" 상태가 된다.
 
-<!-- 这是一张图片，ocr 内容为： -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1777338565508-2d485103-d3b6-4c8f-830b-7ee6e783cda3.png)
 
 ### 핵심 기둥 2: 워크스페이스가 어떤 환경에서도 동작하게 하는 AbstractFilesystem
@@ -56,7 +54,7 @@ Harness는 모든 에이전트에 대해 **워크스페이스**라는 개념을 
 
 AgentScope Harness는 **AbstractFilesystem**이라는 추상화 레이어로 이 문제를 해결한다. 상위 레이어에서 에이전트는 `read/write/ls/grep`과 같은 통일된 인터페이스만 호출하면 되며, "파일"이 실제로 어디에 저장되는지는 신경 쓰지 않는다. 하위 레이어에서는 로컬 디스크, 원격 오브젝트 스토리지(OSS), KV 데이터베이스(Redis), 샌드박스 파일 시스템, 그 밖의 어떤 매체로도 적응시킬 수 있으며, `CompositeFilesystem`을 통해 서로 다른 경로를 서로 다른 백엔드로 라우팅할 수도 있다.
 
-<!-- 这是一张图片，ocr 内容为：ABSTRACTFILESYTEM 继承 继承 继承 继承 继承 SANDBOXFILESYSTEM REMOTEFILESYSTEM LOCALFILESYSTEM LOCALFILESYSTEMWITHSHELL COMPOSITEFILESYSTEM -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1778218615934-eec5c4c7-4a9c-44c2-84cb-56688f64d7f0.png)
 
 그림에서 보듯, AbstractFilesystem 인터페이스를 기반으로 AgentScope는 세 가지 내장 확장 구현을 제공하며, 각각 세 가지 사용 모드에 대응한다.
@@ -66,9 +64,8 @@ AgentScope Harness는 **AbstractFilesystem**이라는 추상화 레이어로 이
 
 AgentScope 1.1에서 워크스페이스는 에이전트의 핵심 추상화이며, AbstractFilesystem은 워크스페이스의 물리적 구현체다. 모든 파일 조작, 명령 실행, 메모리 관리 도구는 AbstractFilesystem을 표준 조작 진입점으로 사용한다.
 
-<!-- 这是一张图片，ocr 内容为：FILESYSTEMTOOL SHELLEXECUTETOOL MEMORY 命令 记忆 读写 搜索 执行 管理 WORKSPACE BASED ON ABSTRACTFILESYSTEM -->
-![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1778218989236-658ff65d-94ae-42e6-a004-4fe7b223a52a.png)
 
+![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1778218989236-658ff65d-94ae-42e6-a004-4fe7b223a52a.png)
 
 
 이 파일 시스템 추상화를 기반으로, AgentScope 프레임워크는 에이전트 개발에 세 가지 주요 엔지니어링 역량을 직접 가져다준다.
@@ -345,7 +342,6 @@ Harness는 세션 상태 영속화를 **두 개의 병렬 경로**로 나누며,
 + **전역 공유**: 전체 에이전트가 하나의 샌드박스를 공유한다. 도구형이나 읽기 전용 에이전트에 적합하다.
 
 
-
 실제 프로덕션 환경에서 샌드박스를 적용하는 것은 더 많은 고려 사항을 수반한다. 자세한 내용은 공식 문서를 참고하라.
 
 + 샌드박스 생명주기를 어떻게 관리할 것인가: 에이전트 내장 관리 또는 사용자 관리
@@ -366,8 +362,7 @@ Harness는 세션 상태 영속화를 **두 개의 병렬 경로**로 나누며,
 
 AgentScope Java 1.1은 모두가 Harness Engineering으로부터 원하지만 스스로 조립하기는 가장 어려운 역량들을 **`HarnessAgent` + 워크스페이스 컨벤션 + 플러그형 파일 시스템 + 훅 파이프라인**으로 수렴시킨다: 개인용 시나리오에서는 메모리, 압축, 서브태스크가 가능한 강화된 ReAct Agent이며; 엔터프라이즈 시나리오에서는 **격리, 멀티테넌시, 분산 메모리, 서브에이전트 오케스트레이션**을 설정 항목으로 바꾸어주는 인프라다.
 
-개인 비서 프로토타입에서 프로덕션 수준의 엔터프라이즈 에이전트로의 진화를 검토 중이라면, [Harness Overview](../overview.md)의 빠른 시작으로 시작한 뒤, [Filesystem](../filesystem.md)에서 선언적 모드를 하나 선택하고, 이후 필요에 따라 압축, 샌드박스, 서브에이전트를 활성화할 것을 권장한다 — 각 단계마다 대응하는 문서와 예제 모듈이 있어, "워크스페이스가 source of truth"라는 런타임을 처음부터 새로 발명할 필요가 없다.
-
+개인 비서 프로토타입에서 프로덕션 수준의 엔터프라이즈 에이전트로의 진화를 검토 중이라면, [Harness Overview](/v1/en/docs/harness/overview)의 빠른 시작으로 시작한 뒤, [Filesystem](/v1/en/docs/harness/filesystem)에서 선언적 모드를 하나 선택하고, 이후 필요에 따라 압축, 샌드박스, 서브에이전트를 활성화할 것을 권장한다 — 각 단계마다 대응하는 문서와 예제 모듈이 있어, "워크스페이스가 source of truth"라는 런타임을 처음부터 새로 발명할 필요가 없다.
 
 
 ![Canvas](https://intranetproxy.alipay.com/skylark/lark/0/2026/jpeg/54037/1778221664765-d534ffa1-1649-4444-ad8c-046c936e40e7.jpeg)

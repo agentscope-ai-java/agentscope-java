@@ -1,4 +1,6 @@
-# GitHub 채널
+---
+title: GitHub 채널
+---
 
 `agentscope-extensions-channel-github`는 Agent를 GitHub 이슈 및 PR 댓글 스레드에 연결합니다. 누군가 이슈나 풀 리퀘스트에 댓글을 달면 Agent가 새 댓글로 응답합니다.
 

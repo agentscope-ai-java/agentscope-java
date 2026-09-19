@@ -1,6 +1,6 @@
 ---
-title: "Memory"
-description: "二層構造の長期記憶、会話の圧縮、大きなツール結果のオフロード;プロンプトとトリガーポリシーはカスタマイズ可能"
+title: Memory
+description: 二層構造の長期記憶、会話の圧縮、大きなツール結果のオフロード;プロンプトとトリガーポリシーはカスタマイズ可能
 ---
 
 ## 役割
@@ -30,7 +30,7 @@ description: "二層構造の長期記憶、会話の圧縮、大きなツール
 
 ## 二層がどう機能するか
 
-```{mermaid}
+```mermaid
 graph LR
     Conv["conversation messages"]
     Conv -->|each call end / can be throttled| Flush["Flush LLM call"]
@@ -268,6 +268,6 @@ HarnessAgent.builder()
 
 ## 関連ページ
 
-- [Workspace](./workspace.md) — ワークスペース内での `MEMORY.md` / `memory/` の配置場所
-- [Context](../building-blocks/context.md) — 決して圧縮されない `*.log.jsonl` 会話ログ
-- [Architecture](./architecture.md) — 長い会話の中の事実が `MEMORY.md` にどう定着するか
+- [Workspace](/v2/ja/docs/harness/workspace) — ワークスペース内での `MEMORY.md` / `memory/` の配置場所
+- [Context](/v2/ja/docs/building-blocks/context) — 決して圧縮されない `*.log.jsonl` 会話ログ
+- [Architecture](/v2/ja/docs/harness/architecture) — 長い会話の中の事実が `MEMORY.md` にどう定着するか

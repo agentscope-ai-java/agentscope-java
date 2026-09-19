@@ -1,4 +1,6 @@
-# GitLab 채널
+---
+title: GitLab 채널
+---
 
 `agentscope-extensions-channel-gitlab`는 Agent를 GitLab 노트(댓글) 훅에 연결합니다. 누군가 이슈나 머지 리퀘스트에 댓글을 달면 Agent가 새 노트로 응답합니다.
 

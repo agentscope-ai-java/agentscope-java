@@ -1,6 +1,6 @@
 ---
-title: "Model"
-description: "AgentScope Java에서 LLM 모델 프로바이더를 설정하고 연결하기"
+title: Model
+description: AgentScope Java에서 LLM 모델 프로바이더를 설정하고 연결하기
 ---
 
 ## 개요
@@ -219,8 +219,10 @@ Model model = ModelRegistry.resolve("openai:gpt-4.1-mini", context);
 
 각 chat model은 빌더로 만들어진다. 가장 흔히 쓰이는 필드는 `apiKey`, `modelName`, `stream`, `formatter`, `defaultOptions`다. 세 가지 전형적인 설정 예시:
 
-::::{tab-set}
-:::{tab-item} 스트리밍
+<Tabs>
+
+<Tab title="스트리밍">
+
 ```java
 import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
 import io.agentscope.extensions.model.dashscope.DashScopeChatModel;
@@ -233,8 +235,10 @@ DashScopeChatModel model =
                 .formatter(new DashScopeChatFormatter())
                 .build();
 ```
-:::
-:::{tab-item} 도구
+
+</Tab>
+<Tab title="도구">
+
 ```java
 import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
 import io.agentscope.extensions.model.dashscope.DashScopeChatModel;
@@ -252,8 +256,10 @@ DashScopeChatModel model =
                                 .build())
                 .build();
 ```
-:::
-:::{tab-item} 추론
+
+</Tab>
+<Tab title="추론">
+
 ```java
 import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
 import io.agentscope.extensions.model.dashscope.DashScopeChatModel;
@@ -272,8 +278,10 @@ DashScopeChatModel model =
                                 .build())
                 .build();
 ```
-:::
-::::
+
+</Tab>
+
+</Tabs>
 
 공통 빌더 필드:
 
@@ -318,7 +326,7 @@ model.stream(
 `ChatResponse`는 콘텐츠 블록 목록(`TextBlock`, `ThinkingBlock`, `ToolUseBlock`, `DataBlock`)과 토큰 수 및 시간을 기록하는 `ChatUsage`를 담고 있다.
 
 실제로는 보통 `ReActAgent`를 통해, 또는 워크스페이스, 세션 지속성, 서브에이전트까지 필요하다면
-[`HarnessAgent`](../harness/architecture.md#harnessagent-구축하기)를 통해 모델을 간접적으로 호출한다 — 두 빌더의 `.model(...)`은
+[`HarnessAgent`](/v2/ko/docs/harness/architecture#harnessagent-구축하기)를 통해 모델을 간접적으로 호출한다 — 두 빌더의 `.model(...)`은
 위에서 만든 동일한 `ChatModelBase` 인스턴스를 그대로 받는다. 가벼운 직접 호출 예시는
 `agentscope-examples/documentation/.../model/ModelRegistryExample.java`를 참고한다.
 
@@ -537,9 +545,11 @@ ModelRegistry.registerFactory(
 | `displayName()` | `String` | 사람이 읽기 쉬운 라벨(예: `"Claude Sonnet 4.6"`) |
 | `contextSize()` | `Integer` | 최대 컨텍스트 윈도우(토큰 단위) |
 
-:::{note}
+<Note>
+
 `ModelCard` 스키마는 현재 단계에서는 의도적으로 최소한으로 유지된다. 모델 탐색 인프라가 성숙해짐에 따라 기능 플래그(입력/출력 MIME 타입)와 파라미터 스키마가 추가될 예정이다.
-:::
+
+</Note>
 
 ### ModelCard 가져오기
 

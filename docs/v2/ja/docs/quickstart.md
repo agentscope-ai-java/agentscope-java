@@ -1,6 +1,6 @@
 ---
-title: "クイックスタート"
-description: "AgentScope Java 2.0 を始める — HarnessAgent で最初の長時間稼働エージェントを立ち上げる"
+title: クイックスタート
+description: AgentScope Java 2.0 を始める — HarnessAgent で最初の長時間稼働エージェントを立ち上げる
 ---
 
 ## インストール
@@ -19,11 +19,13 @@ AgentScope Java は JDK 17 以降を必要とします。Maven 3.9+ を推奨し
 </dependency>
 ```
 
-:::{note}
-`${agentscope.version}` は最新バージョンに置き換えてください。最新バージョンと完全なリリース詳細については [リリースノート](others/release-notes.md) を参照してください。
-:::
+<Note>
 
-素の `ReActAgent` の API だけが必要な場合(ワークスペース / 永続化 / サブエージェント / サンドボックスなし)は、エージェントフレームワーク自体には `agentscope-core` だけで十分です。具体的なモデルプロバイダーは別モジュールです。プロバイダー固有のチャットモデルとフォーマッターは、独立した `agentscope-extensions-model-*` モジュールに存在します。`ReActAgent` と `HarnessAgent` の違いは [Harness アーキテクチャ](./harness/architecture.md) で説明しています。
+`${agentscope.version}` は最新バージョンに置き換えてください。最新バージョンと完全なリリース詳細については [リリースノート](/v2/ja/docs/others/release-notes) を参照してください。
+
+</Note>
+
+素の `ReActAgent` の API だけが必要な場合(ワークスペース / 永続化 / サブエージェント / サンドボックスなし)は、エージェントフレームワーク自体には `agentscope-core` だけで十分です。具体的なモデルプロバイダーは別モジュールです。プロバイダー固有のチャットモデルとフォーマッターは、独立した `agentscope-extensions-model-*` モジュールに存在します。`ReActAgent` と `HarnessAgent` の違いは [Harness アーキテクチャ](/v2/ja/docs/harness/architecture) で説明しています。
 
 以下のクイックスタートでは `.model("dashscope:qwen-plus")` を介して DashScope を使用するため、対応するモデル拡張も追加してください。
 
@@ -93,9 +95,11 @@ public class FirstAgent {
 
 `AgentState` はデフォルトで **ワークスペースの外側** の `~/.agentscope/state/<agentId>/` に存在します — 状態はワークスペース自体を復元するための前提条件(例えばサンドボックスがワイプされた後など)であるため、ワークスペースのデータと絡み合ってはならないからです。同じ `sessionId` でプロセスを再起動しても、2ターン目は1ターン目を記憶し続けます。
 
-:::{warning}
-デフォルトの `JsonFileAgentStateStore` は、開発およびシングルノードデプロイに適したローカルファイルバックエンドです。本番クラスタでは、`RedisAgentStateStore`(`agentscope-extensions-redis` が提供)のような分散実装を使うか、独自の `AgentStateStore` を実装してください。[本番投入](./others/going-to-production.md) を参照してください。
-:::
+<Warning>
+
+デフォルトの `JsonFileAgentStateStore` は、開発およびシングルノードデプロイに適したローカルファイルバックエンドです。本番クラスタでは、`RedisAgentStateStore`(`agentscope-extensions-redis` が提供)のような分散実装を使うか、独自の `AgentStateStore` を実装してください。[本番投入](/v2/ja/docs/others/going-to-production) を参照してください。
+
+</Warning>
 
 十分なターン数でコンパクションが発動すると、蒸留された事実はまず `workspace/memory/YYYY-MM-DD.md` に落とされ、その後スロットル制御されたバックグラウンドジョブがそれらを `MEMORY.md` にマージし、次の推論ステップでシステムプロンプトに注入されます。
 
@@ -122,9 +126,11 @@ agent.streamEvents(new UserMessage("今日のまとめを3つの箇条書きで�
         .blockLast();
 ```
 
-:::{tip}
+<Tip>
+
 実行前に環境変数 `DASHSCOPE_API_KEY` を設定してください。プロバイダーを切り替えるには、対応する `agentscope-extensions-model-*` モジュールを追加し、`.model(...)` に渡す文字列を変更し、対応する API キー(`OPENAI_API_KEY`、`ANTHROPIC_API_KEY`、`GEMINI_API_KEY`)をエクスポートしてください。タイムアウトやカスタムエンドポイントを明示的に制御したい場合は、`DashScopeChatModel.builder()...build()` のようなプロバイダービルダーでモデルを構築し、それを `.model(Model)` に渡してください。
-:::
+
+</Tip>
 
 ### マルチユーザーの並行処理
 
@@ -157,11 +163,11 @@ agent.call(new UserMessage(userInput), RuntimeContext.builder()
         .build()).block();
 ```
 
-同じ `(userId, sessionId)` を対象とする呼び出しは自動的にシリアライズされます(1つのセッションへの並行書き込みはありません)。異なるセッションへの呼び出しは並行して実行されます。完全な本番パターン(Redis セッション、サンドボックス、スキルリポジトリ)については、[本番投入](./others/going-to-production.md) を参照してください。
+同じ `(userId, sessionId)` を対象とする呼び出しは自動的にシリアライズされます(1つのセッションへの並行書き込みはありません)。異なるセッションへの呼び出しは並行して実行されます。完全な本番パターン(Redis セッション、サンドボックス、スキルリポジトリ)については、[本番投入](/v2/ja/docs/others/going-to-production) を参照してください。
 
 ## 次のステップ
 
-- [Agent](./building-blocks/agent.md) — 完全な `ReActAgent` API、ビルダーのフィールド、`call` / `streamEvents` / `observe`、human-in-the-loop、`AgentStateStore` の設定
-- [Harness アーキテクチャ](./harness/architecture.md) — `HarnessAgent` の各能力がどのように連携し、状態がどのように流れるか
-- [Workspace](./harness/workspace.md) — `AGENTS.md` / `MEMORY.md` / `skills/` / `subagents/` / `tools.json` のディレクトリレイアウトと読み込みモデル
-- [Filesystem](./harness/filesystem.md) — ローカル + シェル / 共有ストア / サンドボックスの各デプロイモード
+- [Agent](/v2/ja/docs/building-blocks/agent) — 完全な `ReActAgent` API、ビルダーのフィールド、`call` / `streamEvents` / `observe`、human-in-the-loop、`AgentStateStore` の設定
+- [Harness アーキテクチャ](/v2/ja/docs/harness/architecture) — `HarnessAgent` の各能力がどのように連携し、状態がどのように流れるか
+- [Workspace](/v2/ja/docs/harness/workspace) — `AGENTS.md` / `MEMORY.md` / `skills/` / `subagents/` / `tools.json` のディレクトリレイアウトと読み込みモデル
+- [Filesystem](/v2/ja/docs/harness/filesystem) — ローカル + シェル / 共有ストア / サンドボックスの各デプロイモード

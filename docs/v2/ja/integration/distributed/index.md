@@ -1,4 +1,6 @@
-# 分散ストレージ（Distributed Store）
+---
+title: 分散ストレージ（Distributed Store）
+---
 
 AgentScope は、分散永続化が必要なすべてのコンポーネントを `DistributedStore` インターフェースの下に統合します。1 行の設定で、エージェントの状態、ワークスペースファイルシステム、サンドボックスのスナップショット、並行処理ロックを同じ分散ストアに切り替えられます。
 
@@ -80,9 +82,9 @@ Docker/K8s サンドボックスのワークスペースを tar アーカイブ�
 
 ## ストアのドキュメント
 
-- [Redis](redis.md) — 全機能をカバー、マルチレプリカの本番環境に推奨
-- [MySQL / JDBC](mysql.md) — 既存のリレーショナルデータベース基盤向け
-- [Alibaba Cloud OSS](oss.md) — オブジェクトストレージ、大容量スナップショットに最適
+- [Redis](/v2/ja/integration/distributed/redis) — 全機能をカバー、マルチレプリカの本番環境に推奨
+- [MySQL / JDBC](/v2/ja/integration/distributed/mysql) — 既存のリレーショナルデータベース基盤向け
+- [Alibaba Cloud OSS](/v2/ja/integration/distributed/oss) — オブジェクトストレージ、大容量スナップショットに最適
 
 ## aistio ホスト型ストア
 

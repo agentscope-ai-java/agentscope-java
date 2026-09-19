@@ -1,4 +1,6 @@
-# Chat Completions Web
+---
+title: Chat Completions Web
+---
 
 `agentscope-extensions-chat-completions-web`는 AgentScope Agent를 [OpenAI Chat Completions](https://platform.openai.com/docs/api-reference/chat) 호환 API 뒤에 노출시켜, OpenAI SDK, LangChain, LlamaIndex, ChatBox 등이 마치 OpenAI와 통신하는 것처럼 연결할 수 있게 합니다.
 

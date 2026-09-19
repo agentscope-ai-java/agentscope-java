@@ -1,6 +1,6 @@
 ---
-title: "モデル"
-description: "AgentScope Java で LLM モデルプロバイダーを設定・接続する"
+title: モデル
+description: AgentScope Java で LLM モデルプロバイダーを設定・接続する
 ---
 
 ## 概要
@@ -219,8 +219,10 @@ Model model = ModelRegistry.resolve("openai:gpt-4.1-mini", context);
 
 各チャットモデルはビルダーを使って構築します。最も一般的なフィールドは `apiKey`、`modelName`、`stream`、`formatter`、`defaultOptions` です。代表的な3つのセットアップを次に示します:
 
-::::{tab-set}
-:::{tab-item} ストリーミング
+<Tabs>
+
+<Tab title="ストリーミング">
+
 ```java
 import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
 import io.agentscope.extensions.model.dashscope.DashScopeChatModel;
@@ -233,8 +235,10 @@ DashScopeChatModel model =
                 .formatter(new DashScopeChatFormatter())
                 .build();
 ```
-:::
-:::{tab-item} ツール
+
+</Tab>
+<Tab title="ツール">
+
 ```java
 import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
 import io.agentscope.extensions.model.dashscope.DashScopeChatModel;
@@ -252,8 +256,10 @@ DashScopeChatModel model =
                                 .build())
                 .build();
 ```
-:::
-:::{tab-item} 推論
+
+</Tab>
+<Tab title="推論">
+
 ```java
 import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
 import io.agentscope.extensions.model.dashscope.DashScopeChatModel;
@@ -272,8 +278,10 @@ DashScopeChatModel model =
                                 .build())
                 .build();
 ```
-:::
-::::
+
+</Tab>
+
+</Tabs>
 
 共通のビルダーフィールド:
 
@@ -318,7 +326,7 @@ model.stream(
 `ChatResponse` は、コンテンツブロックのリスト(`TextBlock`、`ThinkingBlock`、`ToolUseBlock`、`DataBlock`)と、トークン数と所要時間を記録する `ChatUsage` を保持します。
 
 実際には、モデルを直接呼び出すのではなく `ReActAgent` 経由で呼び出すことがほとんどです。あるいは、ワークスペース、セッション永続化、サブエージェントも必要な場合は
-[`HarnessAgent`](../harness/architecture.md#harnessagent-を組み立てる) を使います——どちらのビルダーの `.model(...)` も、上記で構築した同じ `ChatModelBase`
+[`HarnessAgent`](/v2/ja/docs/harness/architecture#harnessagent-を組み立てる) を使います——どちらのビルダーの `.model(...)` も、上記で構築した同じ `ChatModelBase`
 インスタンスを受け付けます。軽量な直接呼び出しについては `agentscope-examples/documentation/.../model/ModelRegistryExample.java` を参照してください。
 
 ### 構造化出力を生成する
@@ -536,9 +544,11 @@ ModelRegistry.registerFactory(
 | `displayName()` | `String` | 人間が読める形式のラベル(例:`"Claude Sonnet 4.6"`) |
 | `contextSize()` | `Integer` | 最大コンテキストウィンドウ(トークン単位) |
 
-:::{note}
+<Note>
+
 `ModelCard` のスキーマは現段階では意図的に最小限にとどめられています。モデル発見のインフラが成熟するにつれ、機能フラグ(入出力の MIME タイプ)やパラメータスキーマが追加される予定です。
-:::
+
+</Note>
 
 ### ModelCard を取得する
 

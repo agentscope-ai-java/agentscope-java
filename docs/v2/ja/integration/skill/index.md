@@ -1,1 +1,4 @@
-# Skill Repository
+---
+title: Skill Repository
+---
+

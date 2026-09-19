@@ -1,4 +1,6 @@
-# Dify Knowledge
+---
+title: Dify Knowledge
+---
 
 `agentscope-extensions-rag-dify`는 [Dify](https://dify.ai/) 데이터셋과 통합되어, 이미 Dify에서 유지 관리 중인 지식 베이스를 재사용합니다.
 

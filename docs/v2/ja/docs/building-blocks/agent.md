@@ -1,6 +1,6 @@
 ---
-title: "エージェント"
-description: "AgentScope Java 2.0 でエージェントを定義・設定する方法を学びます"
+title: エージェント
+description: AgentScope Java 2.0 でエージェントを定義・設定する方法を学びます
 ---
 
 ## 概要
@@ -30,7 +30,7 @@ description: "AgentScope Java 2.0 でエージェントを定義・設定する�
 
 各 `call` は推論・行動ループを通じて実行されます。次の図はメインの制御フローを示しています。
 
-```{mermaid}
+```mermaid
 flowchart TD
     A([入力: メッセージ / イベント]) --> B{外部イベントを\n待機中?}
     B -- はい --> C[イベントを適用\nツール状態を更新]
@@ -61,8 +61,10 @@ flowchart TD
 
 `ReActAgent.builder()...build()` でエージェントを構築します。`.model(...)` には、`ModelRegistry` によって解決される文字列 ID(最も一般的な方法——環境変数を自動的に読み込む)、または明示的な `Model` インスタンス(タイムアウトやカスタムエンドポイントなどを明示的に制御したい場合)のいずれかを渡せます。
 
-::::{tab-set}
-:::{tab-item} 文字列モデル ID(推奨)
+<Tabs>
+
+<Tab title="文字列モデル ID(推奨)">
+
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.tool.Toolkit;
@@ -78,8 +80,10 @@ ReActAgent agent =
                 .toolkit(new Toolkit())
                 .build();
 ```
-:::
-:::{tab-item} 明示的な Model ビルダー
+
+</Tab>
+<Tab title="明示的な Model ビルダー">
+
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
@@ -100,8 +104,10 @@ ReActAgent agent =
                 .toolkit(new Toolkit())
                 .build();
 ```
-:::
-:::{tab-item} Toolkit / MCP を使う
+
+</Tab>
+<Tab title="Toolkit / MCP を使う">
+
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.tool.Toolkit;
@@ -127,12 +133,16 @@ ReActAgent agent =
                 .toolkit(toolkit)
                 .build();
 ```
-:::
-::::
 
-:::{tip}
-`ModelRegistry` の文字列形式(`<provider>:<model>`)を使うには、対応するモデル拡張モジュールがクラスパス上になければなりません。`dashscope` / `openai` / `deepseek` / `anthropic` / `gemini` / `ollama` に対応しており、対応する API キー(`DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `DEEPSEEK_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY`)を環境変数から読み込みます。長時間稼働するシナリオでワークスペース、セッション永続化、メモリの圧縮、サブエージェントなども必要な場合は [`HarnessAgent`](../harness/architecture.md) を使ってください——これは `ReActAgent` を薄くラップしたもので、ビルダーはほぼ同一です。`ChatModelBase` と `Toolkit` を `HarnessAgent.Builder` に組み込む実例については [HarnessAgent の構築](../harness/architecture.md#building-a-harnessagent) を参照してください。
-:::
+</Tab>
+
+</Tabs>
+
+<Tip>
+
+`ModelRegistry` の文字列形式(`<provider>:<model>`)を使うには、対応するモデル拡張モジュールがクラスパス上になければなりません。`dashscope` / `openai` / `deepseek` / `anthropic` / `gemini` / `ollama` に対応しており、対応する API キー(`DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `DEEPSEEK_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY`)を環境変数から読み込みます。長時間稼働するシナリオでワークスペース、セッション永続化、メモリの圧縮、サブエージェントなども必要な場合は [`HarnessAgent`](/v2/ja/docs/harness/architecture) を使ってください——これは `ReActAgent` を薄くラップしたもので、ビルダーはほぼ同一です。`ChatModelBase` と `Toolkit` を `HarnessAgent.Builder` に組み込む実例については [HarnessAgent の構築](/v2/ja/docs/harness/architecture#harnessagent-を組み立てる) を参照してください。
+
+</Tip>
 
 ### ビルダーのフィールド
 
@@ -145,7 +155,7 @@ ReActAgent agent =
 | `middlewares` | `List<? extends MiddlewareBase>` | `List.of()` | agent / reasoning / acting / model call / system prompt の各 hook に適用される |
 | `stateStore` | `AgentStateStore` | `null`(永続化なし) | 設定すると、エージェントは呼び出しの `RuntimeContext` の `(userId, sessionId)` をキーとして、`call` のたびに `AgentState` を自動的にロード/保存する |
 | `defaultSessionId` | `String` | エージェントの `name` | 呼び出しの `RuntimeContext` にセッション ID が含まれない場合に使われるフォールバック `sessionId` |
-| `permissionContext` | `PermissionContextState` | `DEFAULT` モード | ツール実行に関するきめ細かなルール。[Permission System](./permission-system.md) を参照 |
+| `permissionContext` | `PermissionContextState` | `DEFAULT` モード | ツール実行に関するきめ細かなルール。[Permission System](/v2/ja/docs/building-blocks/permission-system) を参照 |
 | `modelConfig` | `ModelConfig` | デフォルト | モデルのリトライとフォールバックモデル |
 | `reactConfig` | `ReactConfig` | デフォルト | 最大反復回数と拒否時の扱い |
 | `maxIters` | `int` | `10` | ReAct メインループの最大反復回数(`reactConfig` の代替) |
@@ -180,9 +190,11 @@ agent.call(List.of(new UserMessage("やあ")),
 
 各 `call()` の開始時、エージェントは指定された `(userId, sessionId)` の `AgentState`(会話コンテキスト、パーミッションルールなど)を自動的にロードします。呼び出しが終わると、状態は書き戻されます。異なるセッションは完全に分離されています。
 
-:::{tip}
+<Tip>
+
 同一の `(userId, sessionId)` を対象とする呼び出しは**直列化**されます——2番目のリクエストは最初のリクエストの完了を待ちます。異なるセッションを対象とする呼び出しは並行して実行されます。
-:::
+
+</Tip>
 
 完全な Spring Boot の例: `agentscope-examples/documentation/.../streaming/StreamingWebExample.java`。
 
@@ -262,7 +274,7 @@ agent.streamEvents(new UserMessage("README を要約してください。"))
         .blockLast();
 ```
 
-イベントタイプとフィールドの完全なリファレンス: [メッセージとイベント](./message-and-event.md)。
+イベントタイプとフィールドの完全なリファレンス: [メッセージとイベント](/v2/ja/docs/building-blocks/message-and-event)。
 
 ### observe
 
@@ -288,7 +300,7 @@ agent.observe(otherAgentMsg).block();
 | 文字列属性(自由形式のキーバリュー) | `put(String key, Object value)` | `<T> T get(String key)` |
 | 型付き属性(`Class<T>` によってビジネス POJO を注入) | `put(Class<T> type, T value)` / `put(String key, Class<T> type, T value)` | `<T> T get(Class<T> type)` / `<T> T get(String key, Class<T> type)` |
 
-型付き属性はツールへの注入を支える機能です——`@Tool` メソッドに一致する型のパラメータを宣言すれば、フレームワークがその値を渡します。[Tool — コンテキストを受け取る](./tool.md#コンテキストを受け取る) を参照してください。文字列属性は、通常プロセス内の連携(たとえば middleware 間のシグナリング)に使われます。この2つのレイヤーは分離されており、型付きの値は `getExtra()` には現れず、その逆もまた同様です。
+型付き属性はツールへの注入を支える機能です——`@Tool` メソッドに一致する型のパラメータを宣言すれば、フレームワークがその値を渡します。[Tool — コンテキストを受け取る](/v2/ja/docs/building-blocks/tool#コンテキストを受け取る) を参照してください。文字列属性は、通常プロセス内の連携(たとえば middleware 間のシグナリング)に使われます。この2つのレイヤーは分離されており、型付きの値は `getExtra()` には現れず、その逆もまた同様です。
 
 ### 構築して渡す
 
@@ -313,8 +325,8 @@ Msg result = agent.call(List.of(new UserMessage("こんにちは。")), ctx).blo
 
 ### 誰が読み取るのか
 
-- **ツール**(`@Tool` メソッドと `ToolBase.callAsync`)—— [Tool — コンテキストを受け取る](./tool.md#コンテキストを受け取る) を参照。
-- **Middleware**(すべての `MiddlewareBase` hook)—— 第2引数 `ctx` として受け取ります。[Middleware — RuntimeContext の読み取り](./middleware.md#runtimecontext-の読み取り) を参照。
+- **ツール**(`@Tool` メソッドと `ToolBase.callAsync`)—— [Tool — コンテキストを受け取る](/v2/ja/docs/building-blocks/tool#コンテキストを受け取る) を参照。
+- **Middleware**(すべての `MiddlewareBase` hook)—— 第2引数 `ctx` として受け取ります。[Middleware — RuntimeContext の読み取り](/v2/ja/docs/building-blocks/middleware#runtimecontext-の読み取り) を参照。
 - **同一呼び出し内のすべてのスレッド** —— 内部のマップは `ConcurrentMap` なので、hook とツールは同じインスタンスを読み書きして連携できます。
 
 ### 永続化との関係
@@ -324,9 +336,11 @@ Msg result = agent.call(List.of(new UserMessage("こんにちは。")), ctx).blo
 
 実行可能な例: `agentscope-examples/documentation/.../context/RuntimeContextExample.java`、`tool/ToolExecutionContextExample.java`。
 
-:::{note}
+<Note>
+
 レガシーな `ToolExecutionContext`(`io.agentscope.core.tool`)は `@Deprecated` です。新しいコードでは `RuntimeContext` を使ってください。レガシーな型は `RuntimeContext.asToolExecutionContext()` によって自動的にブリッジされるため、既存のコードはそのまま動作します。
-:::
+
+</Note>
 
 ## Human-in-the-Loop
 
@@ -433,13 +447,15 @@ for (var tc : externalEvent.getToolCalls()) {
 
 **3. エージェントを再開する** —— 結果を次の `call` の入力メッセージとして返します。結果が検証されると、それらはエージェントのコンテキストに注入され、エージェントは `ExternalExecutionResultEvent` を発行します。その `getReplyId()` は先の `RequireExternalExecutionEvent#getReplyId()` と一致します。推論は一時停止した箇所から続行されます。
 
-:::{tip}
+<Tip>
+
 インタラクティブな UI を構築する場合は `streamEvents` を使いましょう —— リアルタイムで一時停止を検知し、すぐにユーザーへ確認を求められます。イベントを自動的に処理するプログラム的なフローには `call` を使います。完全な実行可能例: `agentscope-examples/documentation/.../hitl/PermissionHITLExample.java`。
-:::
+
+</Tip>
 
 ## 状態永続化の設定(AgentStateStore)
 
-`AgentState` は、エージェントを再開するために必要なすべて——会話コンテキスト、圧縮された要約、パーミッションルール、ツールの状態、現在の返信位置——を保持します。[`AgentStateStore`](../../integration/session/index.md) はそのストレージ抽象化です。
+`AgentState` は、エージェントを再開するために必要なすべて——会話コンテキスト、圧縮された要約、パーミッションルール、ツールの状態、現在の返信位置——を保持します。[`AgentStateStore`](/v2/ja/integration/session/index) はそのストレージ抽象化です。
 
 **ビルダーで `stateStore(...)` を設定すると、エージェントは自動的に永続化と復元を行います**——すべての `call` が `AgentState` を書き戻し、同じ `(userId, sessionId)` で次に呼び出したときにロードされます。エージェントのインスタンス自体はセッションに関してステートレスです——スロットは呼び出しごとに `RuntimeContext` から選択されます(指定がなければ `defaultSessionId` にフォールバック)。
 
@@ -486,7 +502,7 @@ state.getContext().size();                  // 現在のメッセージ数
 String json = state.toJson();               // JSON にシリアライズする
 ```
 
-フィールドごとの詳細、ノードをまたいだ継続、状態ストアがコンパクション / Plan Mode / サブエージェントとどう連携するかについては、[コンテキストと AgentState](context.md) と [コンパクション](../harness/compaction.md) を参照してください。
+フィールドごとの詳細、ノードをまたいだ継続、状態ストアがコンパクション / Plan Mode / サブエージェントとどう連携するかについては、[コンテキストと AgentState](/v2/ja/docs/building-blocks/context) と [コンパクション](/v2/ja/docs/harness/compaction) を参照してください。
 
 ## 構造化出力
 
@@ -603,18 +619,22 @@ ReActAgent.builder()
 
 ## さらに読む
 
-::::{grid} 2
+<CardGroup cols={2}>
 
-:::{grid-item-card} Permission System
-:link: ./permission-system.html
+
+<Card title="Permission System" href="/v2/ja/docs/building-blocks/permission-system">
+
 
 エージェントがどのツールを、どのような条件で呼び出せるかを制御する。
-:::
 
-:::{grid-item-card} Middleware
-:link: ./middleware.html
+</Card>
+
+<Card title="Middleware" href="/v2/ja/docs/building-blocks/middleware">
+
 
 agent / reasoning / acting / model-call の各 hook でエージェントの振る舞いをインターセプトし、変更する。
-:::
 
-::::
+</Card>
+
+
+</CardGroup>

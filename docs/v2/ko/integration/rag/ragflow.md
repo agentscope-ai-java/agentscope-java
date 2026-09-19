@@ -1,4 +1,6 @@
-# RAGFlow Knowledge
+---
+title: RAGFlow Knowledge
+---
 
 `agentscope-extensions-rag-ragflow`는 [RAGFlow](https://ragflow.io/)와 통합됩니다. RAGFlow는 문서 파싱(OCR, 표 추출, 지식 그래프 증강)에 강점이 있으며, 비구조화 데이터 비중이 높은 KB에 적합합니다.
 

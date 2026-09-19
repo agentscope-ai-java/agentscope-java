@@ -1,4 +1,6 @@
-# Ollama モデル
+---
+title: Ollama モデル
+---
 
 `agentscope-extensions-model-ollama` は、ローカルでホストされる Ollama モデルを統合します。ローカル開発、プライベートデプロイメント、オフラインでのモデル提供に有用です。
 
@@ -60,4 +62,4 @@ agentscope:
     # base-url: http://localhost:11434
 ```
 
-ビルダーの全オプション、フォーマッター、認証情報、レジストリコンテキストの詳細については [Model](../../docs/building-blocks/model.md) を参照してください。
+ビルダーの全オプション、フォーマッター、認証情報、レジストリコンテキストの詳細については [Model](/v2/ja/docs/building-blocks/model) を参照してください。

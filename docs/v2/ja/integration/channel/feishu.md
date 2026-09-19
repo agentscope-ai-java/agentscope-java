@@ -1,4 +1,6 @@
-# Feishu チャンネル
+---
+title: Feishu チャンネル
+---
 
 `agentscope-extensions-channel-feishu` は **Event Subscription v2** コールバック機構を通じて Agent を Feishu / Lark (飞书) に接続します。Spring の `@RestController` が webhook コールバックを受信し、必要に応じて暗号化されたペイロードを復号し、Gateway を通じてメッセージを振り分けます。
 

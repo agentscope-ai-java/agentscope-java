@@ -1,4 +1,6 @@
-# Dify Knowledge
+---
+title: Dify Knowledge
+---
 
 `agentscope-extensions-rag-dify` は [Dify](https://dify.ai/) のデータセットと統合し、すでに Dify で維持しているナレッジベースを再利用します。
 

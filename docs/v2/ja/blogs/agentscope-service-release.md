@@ -1,10 +1,10 @@
 ---
-hide-toc: true
+title: Agentscope Service Release
 ---
 
 **AgentScope Service** — AgentScope Harness の上に構築された Agent コントロールプレーン。
 
-<!-- 这是一张图片，ocr 内容为：AISTIO LS FLEET OVERVIEW CONTROL PLANE CONSOLE CROSS-FRAMEWORK AGENT INSTANCES AND RUNTIME SESSIONS REPORTED INTO AISTIOD. 品 DASHBOARD TOKENS (24H, IDLE SESSIONS STALE AGENTS HEALTHY ERRORS (24H) ACTIVE OVERVIEW A) INSTANCES INSTANCES SESSIONS 0 1 R AGENTS 1 R 6,319 3 SESSIONS GOVERNANCE AGENTS COUNTS LIVE INSTANCES ONLY.3 HISTORICAL MANAGED AGENTS TOKEN USAGE(24H) 8 TEAMS HOURLY SUM OF USAGE DELTAS (NOT CUMULATIVE SNAPSHOTS) 14:00:6,319 TOKENS TOP 10 AGENTS BY TOKENS TOP 10 SESSIONS BY TOKENS RANKED BY TOKEN USAGE DELTAS - LAST 24H RANKED BY TOKEN USAGE DELTAS `LAST 24H #SESSION ACTIVE TOKENS ERRORS 井 AGENT PHASE TOKENS ADMIN MAIN-ED0098A8-E94E-42A9-9578- DEFAULT 1 6,319 6.319 B5FAD881F839 DEFAULT ACTIVE PROFILE USERS DEFAULT -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785989956180-2b6581fd-cf41-4155-baaf-08db90a6eb5d.png)
 
 
@@ -32,19 +32,15 @@ AgentScope Service は既存の Agent フレームワークを置き換えるこ
 コントロールプレーンは AgentScope Service の中核である。すべての Agent アプリケーションはこれを通じて登録される。SDK または Sidecar 経由で、主要な Agent フレームワーク(AgentScope、LangChain、ADK)に加え、Claude、Qoder などのランタイムをサポートする。
 
 
-
 Dashboard はコントロールプレーンのビジュアルコンソールである。オンラインの agent、デプロイされたインスタンス、稼働中の Session、Token 使用量、その他のグローバルなシグナルについて、フリート全体のライブビューを提供し、運用者がクラスタの状態を把握できるようにする。
 
 
-
-<!-- 这是一张图片，ocr 内容为：AISTIO AS FLEET OVERVIEW CONTROL PLANE CONSOLE CROSS-FRAMEWORK AGENT INSTANCES AND RUNTIME SESSIONS REPORTED INTO AISTIOD. 品 DASHBOARD TOKENS (24H. HEALTHY IDLE SESSIONS STALE ERRORS (24H) AGENTS ACTIVE OVERVIEW 4) INSTANCES INSTANCES SESSIONS 1 R R AGENTS O 1 6,319 3 SESSIONS GOVERNANCE AGENTS COUNTS LIVE INSTANCES ONLY.3 HISTORICAL MANAGED AGENTS TOKEN USAGE(24H) 8 TEAMS HOURLY SUM OF USAGE DELTAS (NOT CUMULATIVE SNAPSHOTS) 14:00:6,319 TOKENS TOP 10 AGENTS BY TOKENS TOP 10 SESSIONS BY TOKENS RANKED BY TOKEN USAGE DELTAS `LAST 24H RANKED BY TOKEN USAGE DELTAS `LAST 24H SESSION TOKENS ACTIVE ERRORS # PHASE AGENT TOKENS ADMIN MAIN-ED0098A8-E94E-42A9-9578 DEFAULT 1 6,319 6,319 B5FAD881F839 DEFAULT ACTIVE PROFILE USERS DEFAULT -->
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785934371848-7b1b934e-11ed-4625-97cc-820f2fe5d214.png)
-
 
 
 Dashboard からは、Session の詳細を調べたり、稼働中の Session のライブなコンテキスト状態(コンテキストの各部分がどのように寄与しているかを含む)を見たり、Session のコンテキストを動的に調整・圧縮したり、稼働中の会話に介入したりすることもできる。
 
-<!-- 这是一张图片，ocr 内容为：AISTIO S SESSIONS CONTROL PLANE CONSOLE 7818AE8D-D486-4B41-BD2A ABORT TUM RESTORE EXIT PLAN ENTER PLAN COMPRESS TERMINATE CF8B7EB67224 品 DASHBOARD AGENTSCOPE-PAW - DEFAULT - AGENTSCOPE-JAVA - TURN #7 OVERVIEW AGENTS LIFETIME USAGE PHASE LAST ACTIVE INSTANCE MODEL PRESSURE SESSIONS 31% 46,777 2026/7/30 HEALTHY 22:55:01 GOVERNANCE ZPROMPT+COMPLETION U-FF406114-1819... HTTP://LOCALHOS MANAGED AGENTS WINDOW-IN 45,260/ OUT 1.517 TEAMS CONTEXT VIEW COMPACTED. 6 CFFECTIVE MSGS -7 TOOLS - WINDOW 125/ 32,768 -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785946414310-ff29cee8-2b2b-40df-9ec8-0211ee03fe8c.png)
 
 ### Managed Agents
@@ -52,50 +48,40 @@ Dashboard からは、Session の詳細を調べたり、稼働中の Session �
 Managed Agents は `agentscope-builder` プラットフォームから進化したものである。それらは引き続きローコードの Agent プラットフォームとして、開発者に SaaS スタイルの Agent 定義とホスティング実行を提供する。今回のアップグレードでは、推論とツール実行の分離をさらに強調している。Harness の機能はより徹底的にホストされる一方、ツール実行はユーザーがより強く制御できるようになる。
 
 
-
-<!-- 这是一张图片，ocr 内容为：AISTIO AGENTS NEW AGENT CONTROL PLANE CONSOLE LOW-CODE MANAGED AGENTS. EACH AGENT IS SHAPED BY ITS WORKSPACE - AGENTS.MD, TOOLS, SKILLS AND SUBAGENTS. 品 DASHBOARD CLONE-ONLY O ALL 4 SHARED WITH ME O MINE 4 GLOBAL MANAGED AGENTS AGENTS SESSIONS BBB PPP OWNER OWNER OWNER CCC 调用专用AGENT 擅长做微服务相关搜索 WORKSPACES BBB TEST AG_4ECD3838B3CD AG_1426C299ADF8 AG_5AF01156E61F ENVIRONMENTS WORKSPACE LINKED WORKSPACE LINKED WORKSPACE LINKED MEMORY VAULTS DEPLOYMENTS OWNER AAA CHANNELS XXXXX AG_CECC0395E056 8 TEAMS WORKSPACE LINKED ADMIN PROFILE USERS -->
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948183107-014a5cb1-6fcf-4b04-93cb-f01341b35350.png)
-
 
 
 Agent の定義は AgentScope Harness の核となる設計に従う。まず Workspace や Memory といった基礎的な概念を定義し、それから Workspace と Memory を Agent に関連付けて作成する。
 
 
-
 Workspace を定義する:
 
-<!-- 这是一张图片，ocr 内容为：AISTIO WORKSPACES CONTROLPLANE CONSOLE TEST MANAGE AGENTS.MD, SKILLS, TOOLS AND SUBAGENTS FOR LINKED AGENTS. 品 DASHBOARD V1 SKILLS O SUBAGENTS O . AGENTS.MD MANAGED AGENTS SUBAGENTS AGENTS.MD SKILLS TOOLS MARKETPLACE AGENTS SESSIONS BUILTIN TOOLSET WORKSPACES BASH FILESYSTEM EXECUTE A SHELL COMMAND ENVIRONMENTS READ FILESYSTEM MEMORY READ A FILE FROM THE WORKSPACE VAULTS WRITE FILESYSTEM WRITE A FILE IN THE WORKSPACE DEPLOYMENTS EDIT FILESYSTEM EDIT A FILE VIA STRING REPLACEMENT CHANNELS GLOB FILESYSTEM 8 TEAMS FIND FILES BY GLOB PATTERN GREP FILESYSTEM SEARCH FILE CONTENTS WITH REGEX WEB_FETCH WEB FETCH CONTENT FROM A URL WEB SEARCH WEB SEARCH THE WEB FOR INFORMATION MEMORY_SAVE HARNESS SAVE A LONG-TERM MEMORY FACT MEMORY_GET HARNESS GET A MEMORY ENTRY -->
-![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948616059-4d7be456-50bf-4e68-9ebf-3d48ce0ca9d3.png)
 
+![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948616059-4d7be456-50bf-4e68-9ebf-3d48ce0ca9d3.png)
 
 
 Agent を定義する:
 
-<!-- 这是一张图片，ocr 内容为：AISTIO SY NEW AGENT CONTROL PLANE CONSOLE DASHBOARD PREFER LINKING A WORKSPAGE SO AGENTS.ND / SKILLS/  TOOLS / SUBAGENTS ARE AUTHORED ONCE AND INTO THIS AGENT.OR LEAVE WORKSPACE EMPTY FOR AN AGENT-PRIVATE DEFINITION. MANAGED AGENTS NAME AGENTS ASSISTANT SESSIONS WORKSPACES DESCRIPTION ENVIRONMENTS DEMO ASSISTANT AGENT MEMORY WORKSPACE VAULTS TEST DEPLOYMENTS LINK A WORKSPACE TO INHERIT AGENTS.ND; SKILLS, TOOLS AND SUBAGENTS,MANAGE WORKSPACES FROM THE WORKSPA CHANNELS WILLINHERIT FROM TEST(V1):AGENTS.ND - SKILS O- SUBAGENTS O,LEAVE SYSTEM PROMPT BLANK TO USE WORKSPACE TEAMS AGENTS.MD. DEFAULT ENVIRONMENT(OPTIONAL) NONE-CHAT WILL ENSURE A LOCAL DEFAULT USED WHEN OPENING CHAT / CHANNEL SESSIONS.VAULTS AND MEMORY STORES CAN BE ATTACHED LATERIN SETTINGS WORKSPACE PATH(OPTIONAL OVERRIDE) LEAVE BLANK FOR DEFAULT UNDER AISTIOD WORKSPACE ROOT LEAVE BLANK TO USE THE CONTROL-PLANE DEFAULT PATH.ABSOLUTE PATHS ARE USED AS-IS. ADMIN SYSTEM PROMPT PROFILE USERS YOU ARE A HELPFUL ASSISTANT. -->
-![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948697346-865380da-fb2c-420b-9968-4275b51a85b6.png)
 
+![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948697346-865380da-fb2c-420b-9968-4275b51a85b6.png)
 
 
 今回のアップグレードにおける最大の変化は、ホストされたランタイムのロジックとアーキテクチャ — すなわち Managed Agents である。プラットフォームは静的な定義(Agent、Workspace)と動的なランタイム(Environment、Session)をきれいに分離し、Environment と Session を使って Agent が実際にどう動くかをオーケストレーションする。
 
 
-
 Session を作成し、self-hosted なサンドボックスランタイム環境をバインドする:
 
-<!-- 这是一张图片，ocr 内容为：AISTIO AS SESSIONS CONTROLPLANE CONSOLE NEW SESSION CREATES A SESSION RESOURCE BOUND TO AN AGENT AND MOUNTS.NO TURN STARTS UNTILYOU SEND A DASHBOARD MESSAGE IN CHAT. MANAGED AGENTS AGENT ASSISTANT AGENTS SESSIONS NEW SESSION WORKSPACES / CREATE A SESSION DEFINITION ONLY - NO TURN STARTS UNTIL THE FIRST MESSAGE. CHOOSE ENVIRONMENT, I VAULTS, AND MEMORY STORES. AGENT SESSION DEFAULTS PREFILL THE FORM. ENVIRONMENTS RESET TO AGENT DEFAULTS MEMORY ENVIRONMENT VAULTS SELF-HOSTED-FC-SANDBOX(SELF_HOSTED) DEPLOYMENTS VAULTS CHANNELS NO VAULTS.CREATE ONE UNDER BUILD > VAULTS. TEAMS MEMORY STORES BBB AAA OPTIONAL OVERRIDES CREATE SESSION CANCEL -->
-![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948796759-2723bb0e-e25e-49a6-aad4-27f8eb368d8d.png)
 
+![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948796759-2723bb0e-e25e-49a6-aad4-27f8eb368d8d.png)
 
 
 Session を作成しただけでは SSE イベントストリームは開始しない。会話と推論の全パスは、ユーザーがメッセージを送信したときにのみ始まる。以下のように、コンソールのチャットページからユーザーメッセージを送信できる:
 
-<!-- 这是一张图片，ocr 内容为：AISTIO CHAT SESSION DETAILS SESS_AD018033431F SESSIONS SY CONTROL PLANE CONSOLE ENV:SELF-HOSTED-FC-SANDBOX . VAULTS:0 MEMORY:1 ALL SESSIONS MANAGED SESSION DETAILS SESS_AD018033431F DASHBOARD NEW SESSION MANAGED AGENTS USER你好 AGENTS SESSIONS ASSISTANT 你好!有什么可以帮助你的吗? WORKSPACES ENVIRONMENTS MEMORY VAULTS DEPLOYMENTS CHANNELS -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948840673-56827ddd-93f4-4091-9b7c-bbafa217a511.png)
 
 
-
 Agent を作成 → Environment を作成 → Session を作成 → 最初のメッセージを送信 → Dashboard でイベントストリームを見る。Session を作成しただけでは Agent は起動しない。長時間実行される作業について、Managed Agents は特に **リカバリ可能性** を重視している: イベントは永続化され、状態は再構築可能で、HITL は一時停止と再開が可能である。フロントエンドのリフレッシュやサービスレプリカの変更が、最初からやり直すことを意味してはならない。
-
 
 
 ランタイムの設計は Claude Managed Agents と密接に整合している。Harness のインフラとランタイムは完全にホストされている(AgentScope Harness Runtime に支えられている)。Brain/Hands の分離により、ユーザーはツールが実際にどこで動くかをより制御できる。デプロイはコントロールプレーンと Managed な Dataplane に分かれる — 以下の本番デプロイのセクションを参照。
@@ -104,7 +90,7 @@ Agent を作成 → Environment を作成 → Session を作成 → 最初のメ
 
 AgentScope Service のコントロールプレーンに登録されたすべての Agent — フレームワーク(LangChain、AgentScope、ADK、Claude SDK など)を通じて自己デプロイ・登録されたものであれ、ローコードのパスで Managed Agent として作成されたものであれ — は、一つまたは複数の Agent Team に組み込まれ、複雑な作業で協調できる。
 
-<!-- 这是一张图片，ocr 内容为：AISTIO IS TEAM1 BACK COMPLETE TEAM FORCE DELETE LEAD CLOSE CONTROL PLANE CONSOLE CCC SOSS_025CA811A27B 帮我分析E2B沙箱和DAYTONA沙箱 SESS_E25CA811A27B FULL PAGE TEAM CHAT DASHBOARD IDLE NS-DEFAULT TASKS 1/2COMPLETE 1 IN PROGRESS 0 PENDING TASK-1.I ALSO LET THEM KNOW THAT THEY CAN REACH OUT IF THEY NEED ANY MANAGED AGENTS SPECIFIC RESOURCES OR HAVE ANY TOPOLOGY AGENTS QUESTIONS. SESSIONS WORKER1 LEAD IS THERE ANYTHING ELSE YOU WOULD LIKE TO ADDRESS AT THIS MOMENT? WORKS PACES ENVIRONMENTS OPEN CHAT CHAT OPEN [TEAM:TEAM1 FROM WORKER1]I HAVE MEMORY CLAIMED TASK-1 AND WILL START THE VAULTS ANALYSIS OF THE E2B SANDBOX.I WILL REACH OUT IF I NEED ANY SPECIFIC DEPLOYMENTS TASK BOARD MEMBERS MESSAGES RESOURCES OR HAVE ANY QUESTIONS. CHANNELS NEW TASK SUBJECT ADD TASK TEAMS TOOL:CLAIMTASK CA11_78816 UNASSIGNED(0) BLOCKED((() COMPLETED(1) IN PROGRESS(1) ASSIGNED(0) TOOL: CA11_5B2 TEAMS 分析E2B治理沙箱 分析DAYTONA 治理沙 箱 TEMPLATES TOOL:TEAM COMPLETE UNCLAIM SEND MESSAGE AG_4ECD3838B3CD... FAILED(0) ADMIN PROFILE USERS -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785948895276-d0221173-9683-4a94-b281-55f9372cee65.png)
 
 AgentScope Service において、Team はチャットルームではない。それは操作可能なコラボレーションユニットである: タスクはクレームでき、プランは承認でき、メンバーは起こすことができ、Session が終わったからといって状態が消えることはない。よくあるパターンは、作業を分解・受け入れる Lead と、能力に応じて調査・コーディング・検証などのサブタスクをクレームする Member である。プラットフォームがメッセージルーティング、タスクボード、ライフサイクルを所有する — ビジネスコードが一時的なマルチプロセス通信を手作りする必要はない。
@@ -115,26 +101,24 @@ AgentScope Service において、Team はチャットルームではない。�
 
 ### 全体アーキテクチャ
 
-<!-- 这是一张图片，ocr 内容为：HUMAN 用户USER REST API DASHBOARD 接入入口:日 SDK/CURL BROWSER .可视化控制台 第三方系统集成 AGENTSCOPE SERVICE 控制面.CONTROLPLANE CONTROLPLANE 框架接入FRAMEWORKS AGENTSCOPE CLAUDE QWENPAW LANGCHAIN SIDECAR  接入 原生接入 SIDECAR 接入 INSTRUMENT SDK AGENTSCOPE  SERVICE  系统架构图 -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785984168683-7e939049-046d-4ffa-b30d-1c0e6c0ff01b.png)
 
 人間は Dashboard(ブラウザ)と REST API(SDK / curl / サードパーティ統合)という二つの入口から AgentScope Service コントロールプレーンに到達する。コントロールプレーンの下では、四つの Agent 接続モデルが統合的に管理されている: ネイティブな AgentScope 接続、`instrument()` 経由の LangChain、そして Sidecar 経由の Claude / QwenPaw である。
 
 ### Managed Agents
 
-<!-- 这是一张图片，ocr 内容为： -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785976191807-3dde2cf8-ece0-4819-b376-328b498ed00c.png)
 
 
-
-<!-- 这是一张图片，ocr 内容为： -->
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785976204028-86690651-b369-4c47-b3eb-73c9f7da508e.png)
 
 ### Agent Teams のコラボレーションフロー
 
 Team のメンバーは、同じフレームワークやホスティングモデルから来る必要はない。コンソールでは、すでにコントロールプレーンに登録済みの複数の Agent を選び、誰が Lead で誰が Worker かを選ぶだけでオーケストレーションが完了する — Lead がタスクを作成・割り当て、Worker がそれをクレームして実行し、コラボレーション状態はコントロールプレーンによって維持される:
 
-<!-- 这是一张图片，ocr 内容为：HUMAN/CONSOLE 发起方HUMAN 创建 TEAM:选择已注册 AGENT 组成 LEAD +WORKERS AGENTSCOPE SERVICE CONTROL PLANE TEAM: RESEARCH 控制面CONTROL PLANE TASK BOARD (PENDING / CLAIMED / DONE) MAILBOX(单播 TO-MEMBER  广播TO 空) TEAM-JOIN (BYO 成员)/FIND-OR-CREATE SESSION (MANAGED 成员) 团队成员TEAMMEMBERS WORKER 3 WORKER 1 WORKER  2 LEAD (代码评审) (安全扫描) (法务合规) (CTO) LANGCHAIN/CLAUDE SIDECAR AGENTSCOPE 原生 MANAGED AGENT MANAGED AGENT SELF-CLAIM 创建任务.ASSIGN SELF-CLAIM CLAIM 未分配任务 未分配任务 已分配任务 自动认领 自动认领 共享 TEAM 状态 跨进程/跨 SESSION 持久化消息与任务 共享状态SHARED STATE AGENTSCOPE SERVICE - TEAM 协作架构图 -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785985724730-b8f8d88c-669a-430c-bbf6-0c9f2d64b0f7.png)
 
 図の重要なポイント:
@@ -155,10 +139,7 @@ AgentScope の `HarnessAgent` が単一インスタンスから複数レプリ�
 以下の図は **ランタイムのトポロジー**、すなわち複数の `HarnessAgent` レプリカがコントロールプレーンと `AgentStateStore` バックエンドとどのようにやり取りするかを示している — `DistributedStore` のインターフェース定義ではない。
 
 
-
-<!-- 这是一张图片，ocr 内容为：控制面:CONTROLPLANE AGENTSCOPE SERVICE CONTROL PLANE (AISTIO) 面向HARNESS的托管能力 WORKSPACE 共享  AGENT TEAMS (消息/任务协作) SESSION 并发控制.异步工具执行 协调类API调用(无状态数据本身) 运行副本WORKERS HARNESSAGENT HARNESSAGENT HARNESSAGENT 副本2(JVM) 副本1(JVM) 副本N(JVM) 直连读写会话状态(不经过控制面) 状态后端 `STATE STORE AGENTSTATESTORE 后端 REDIS / MYSQL / POSTGRES / OSS 业务自备,多副本共享同一后端 AGENTSCOPE SERVICE `HARNESS 托管运行架构图 -->
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785985855412-a79588d2-9ae3-4922-a30b-337ff4e6e526.png)
-
 
 
 決して互いを経由しない二つの独立したパスが最も重要である:
@@ -177,10 +158,7 @@ AgentScope の `HarnessAgent` が単一インスタンスから複数レプリ�
 AgentScope Framework は、閉じたループの Agent Teams 機能も備えている。チームがどう形成されるかは、コントロールプレーンによる直接的なオーケストレーションとは異なる: 開発時にメンバーを固定の Team トポロジーに事前配線する必要は **ない**。Subagent パターンと同様に、呼び出し可能な Subagent のプール(`agentRef`)を Main Agent に事前登録しておくだけでよい。実行時、Human(または上流のシステム)が Main Agent にチームが必要な作業を記述したメッセージを送ると、Main Agent 自身がチームを組むかどうか、事前登録された Subagent のうちどれを Worker として使うかを判断し、動的に Team を作成する:
 
 
-
-<!-- 这是一张图片，ocr 内容为：开发阶段:为MAIN AGENT预先注册一组可调用的 SUBAGENTREF),不提前编排成固定 TEAM 预定义SUBAGENT池(只是候选成员名单,不是TEAM) REVIEWER - SECURITY-SCANNER " PERF-TESTER " 运行期:HUMAN发一条消息给MAIN AGENT,消息里带着团队任务描息给MAN发一条消息里带着团队任务团队任务团队任务团队任务团队任务团队任务团队任务团队任务团队任务描述 "帮我并行做一次代码评审+安全扫描+性能测试,组个团队来处理" (HARNESSAGENT)收到消息后自行判断需要组队 MAIN AGENT 从SUBAGENT池中挑人调用 SPAWNMEMBER CREATETEAM 不需要人工编排,也不用改代码 动态组建TEAM LEAD WORKER WORKER WORKER MAIN AGENT PERF-TESTER REVIEWER SECURITY-SCANNER 成员之间可直接互发消息,共享同一个 TASK BOARD(认领/完成/通知) (框架内抽象接口) TEAMCLIENT LOCALTEAMCLIENT(BASESTORE,闭环) / CONTROLPLANETEAMCLIENT (HTTP,托管) AGENTSCOPE SERVICE  `动态组队(DYNAMIC  TEAM) 流程图 -->
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785987685062-a679fc73-257a-4f74-8ff8-d214a82b7c88.png)
-
 
 
 上図の重要なポイント:
@@ -189,7 +167,7 @@ AgentScope Framework は、閉じたループの Agent Teams 機能も備えて�
 + **トリガーはランタイムのメッセージであり、コードやコンソールの設定ではない。** Human が Main Agent に「これに対応するチームを組んで」といった意図を含む普通のメッセージを送ると、Main Agent の推論が `createTeam`(追加メンバーが必要な場合は `spawnMember` も)を呼び出すことを判断し、自身を Lead に設定し、選ばれた Subagent を Worker としてインスタンス化する。この判断は一回の LLM の Turn の中で起こる — 人間による事前のオーケストレーションもコードの変更も不要である。
 + **一度形成された Team は同じコラボレーションの仕組みを使う。** Lead と Worker は一つの `TeamClient`(Task Board + Mailbox)を共有する。それはコントロールプレーン不要の `LocalTeamClient`(閉じたループ、`BaseStore` 上での直接的な楽観的並行性制御)でもよいし、レプリカをまたぐ協調と Dashboard の可観測性を得られる `ControlPlaneTeamClient` でもよい。これは上述のコンソールによるオーケストレーションパスと合致しており、違いは Team がどのように形成されるかだけである。
 
-この機能と [Subagents](../docs/harness/subagent.md) パターンは同じ Subagent の定義を再利用しているが、コラボレーションモデルは完全に異なる — そして混同しやすい — ので、明示的に比較しておく価値がある:
+この機能と [Subagents](/v2/ja/docs/harness/subagent) パターンは同じ Subagent の定義を再利用しているが、コラボレーションモデルは完全に異なる — そして混同しやすい — ので、明示的に比較しておく価値がある:
 
 ```text
 Subagent mode (one-way delegation, peers isolated)
@@ -215,10 +193,7 @@ Agent Teams や AgentScope Subagent の委譲先は、同じプロセス内に�
 リモートの場合、AgentScope Service コントロールプレーンの役割は、Agent A がターゲットがどこにあるか、どのフレームワークを使っているかを気にせずに `delegate` 呼び出しを発行できるようにすることである:
 
 
-
-<!-- 这是一张图片，ocr 内容为：TARGET AGENT(TECHLEAD) AGENTSCOPE SERVICE AGENT A(CTO) MANAGED AGENT / LANGCHAIN CONTROL PLANE(AISTIOD) AGENTSCOPO FRAMEWORK AGENT AGENT TEAMS/SUBAGENT 委派 DELEGATE("TECHLEAD", "REVIEW THIS PR") IS TECHLEAD A LOCAL, IN-PROCESS SUBAGENT? [ TECHLEAD 是本地 IN-PROCESS SUBAGENT ] ALT YES- SKIP CONTROL PLANE (AGENT 直接本地调用) [NO-REMOTE / CROSS-FRAMEWORK TARGET] POST /API/V1/AGENT-CHAT/TECHLEAD 1.CHECK ACL / TEAM MEMBERSHIP 2. LOOK UP TARGET INSTANCE (MANAGED  AGENT 或 LANGCHAIN REGISTERED VIA INSTRUMENT) 3.PROXY TO TARGET'S CHAT URL POST /ASK 或/SESSIONS/{ID}/EVENTS TARGET RESPONSE RELAY RESPONSE AGENTSCOPE SERVICE  AGENT-TO-AGENT 委派与控制面代理 时序图 -->
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785987846445-098ee5ce-1d73-4343-a3b2-09cc17ebf963.png)
-
 
 
 上図は、リモート Subagent 呼び出しに対するコントロールプレーン経由の **トラフィックプロキシ** を示している — 一回限りの API 設計ではない:
@@ -231,7 +206,7 @@ Agent Teams や AgentScope Subagent の委譲先は、同じプロセス内に�
 
 ### 本番デプロイアーキテクチャ
 
-<!-- 这是一张图片，ocr 内容为：AGENT SERVICE WEB CONSOLE: DASHBOARD - MANAGED AGENTS - AGENT TEAMS BROWSER / SDK / CLI 认证与公共API路由 :8080 SERVICE-GATEWAY 统一入口鉴权反向代理 AISTIOD :8081  SERVICE-DATAPLANE :8082 产品与运行时控制面 AGENTSCOPE BRAIN TURN ` EVENT . SSE ` HITL AGENT 注册.AGENT TEAMS SERVICE-SCHEDULER :8083 POSTGRESQL CHANNEL`CRON`HANDS WORKER CP RT DP SCHEMAS RUNTIME MANAGED AGENTS RUNTIME - SELF HOSTED FRAMEWORK RUNTIME ' SANDBOX -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785987384213-cab424c2-502c-43b3-ac78-ee0e43eb9c9c.png)
 
 四つのプレーンは次のように理解できる:
@@ -253,7 +228,7 @@ Agent Teams や AgentScope Subagent の委譲先は、同じプロセス内に�
 
 これはまた、「managed」が「すべてのデータが顧客環境の外に出なければならない」ことを意味しない理由も説明する。クラウド側での匿名化が許容できるなら、ホストされたサンドボックスを使えばよい。ツールが内部システムや機密なファイルシステムに到達しなければならない場合は、Hands を顧客 VPC に置き、アウトバウンドの Worker がツールを実行して結果を返す。Brain は依然としてオーケストレーションと状態復元を所有している — 入れ替わるのは実行プレーンだけである。
 
-Turn のパス、イベント契約、スキーマの境界についてより深く知りたい読者は、姉妹記事の技術記事 [AgentScope Service 技術詳解](./agentscope-service-release-tech.md) を読んでほしい。
+Turn のパス、イベント契約、スキーマの境界についてより深く知りたい読者は、姉妹記事の技術記事 [AgentScope Service 技術詳解](/v2/ja/blogs/agentscope-service-release-tech) を読んでほしい。
 
 ## Agent の接続方法
 
@@ -281,7 +256,6 @@ Agent Teams のレプリカをまたぐメッセージ配送とサブタスク�
 これにより、LangChain で構築された Agent も、ビジネスパスを書き直すことなく、AgentScope Service のフリート管理と Session 可観測性に参加できる。
 
 
-
 Claude Agent SDK や Google ADK のような、より多くのフレームワークのサポートも時間をかけて追加されていく — ロードマップを参照。
 
 ### Coding Agent
@@ -289,7 +263,6 @@ Claude Agent SDK や Google ADK のような、より多くのフレームワー
 バイナリとして変更しづらい Coding Agent — Claude Code、Qoder CLI など — には、**Sidecar** がそのギャップを埋めることができる: ローカルの Session ディレクトリとランタイム状態を帯域外で観測し、コントロールプレーンに報告し、compress や terminate といった運用コマンドを受け付ける。
 
 このパスのポイントは、企業が「最も強力な Coding Agent を使う」ことと「統一的なガバナンスのもとに置く」ことのどちらかを選ばなくてよいということである。生産性ツールは開発者の環境で動き続けながら、プラットフォームはそれらを見て、管理し、必要なときに介入できる。
-
 
 
 QwenPaw のような個人向けワークスペースアシスタントも、原理的には Sidecar 経由で接続できる — 詳細はロードマップを参照。

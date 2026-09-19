@@ -1,4 +1,6 @@
-# Scheduler
+---
+title: Scheduler
+---
 
 `agentscope-extensions-scheduler` は Agent を定期的に実行します。例えば「毎日午前 8 時に daily-report Agent を実行する」や「5 秒ごとにヘルスチェック Agent を実行する」といった用途です。このモジュールは統一された `AgentScheduler` インターフェースを抽象化し、2 つの実装を提供します。
 

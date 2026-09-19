@@ -1,4 +1,6 @@
-# DingTalk 채널
+---
+title: DingTalk 채널
+---
 
 `agentscope-extensions-channel-dingtalk`는 **Stream 프로토콜**을 사용하여 Agent를 DingTalk(钉钉)에 연결합니다 — 공개 웹훅 엔드포인트를 노출하지 않고도 봇 메시지를 실시간으로 수신하는 영구 WebSocket입니다.
 

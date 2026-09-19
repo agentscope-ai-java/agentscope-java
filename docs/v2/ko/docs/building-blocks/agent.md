@@ -1,6 +1,6 @@
 ---
-title: "에이전트"
-description: "AgentScope Java 2.0에서 에이전트를 정의하고 구성하는 방법을 알아봅니다"
+title: 에이전트
+description: AgentScope Java 2.0에서 에이전트를 정의하고 구성하는 방법을 알아봅니다
 ---
 
 ## 개요
@@ -30,7 +30,7 @@ description: "AgentScope Java 2.0에서 에이전트를 정의하고 구성하�
 
 각 `call`은 추론-행동 루프를 거쳐 실행됩니다. 아래 다이어그램은 주요 제어 흐름을 보여줍니다:
 
-```{mermaid}
+```mermaid
 flowchart TD
     A([입력: 메시지 / 이벤트]) --> B{외부 이벤트를\n기다리는 중인가?}
     B -- yes --> C[이벤트 적용\n도구 상태 업데이트]
@@ -61,8 +61,10 @@ flowchart TD
 
 `ReActAgent.builder()...build()`로 에이전트를 만듭니다. `.model(...)`은 `ModelRegistry`로 해석되는 문자열 id(가장 흔히 사용되며, 환경 변수를 자동으로 읽습니다) 또는 명시적인 `Model` 인스턴스(타임아웃 / 커스텀 엔드포인트 등을 명시적으로 제어해야 할 때)를 받습니다.
 
-::::{tab-set}
-:::{tab-item} 문자열 모델 id (권장)
+<Tabs>
+
+<Tab title="문자열 모델 id (권장)">
+
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.tool.Toolkit;
@@ -78,8 +80,10 @@ ReActAgent agent =
                 .toolkit(new Toolkit())
                 .build();
 ```
-:::
-:::{tab-item} 명시적 Model 빌더
+
+</Tab>
+<Tab title="명시적 Model 빌더">
+
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.extensions.model.dashscope.formatter.DashScopeChatFormatter;
@@ -100,8 +104,10 @@ ReActAgent agent =
                 .toolkit(new Toolkit())
                 .build();
 ```
-:::
-:::{tab-item} Toolkit / MCP 사용
+
+</Tab>
+<Tab title="Toolkit / MCP 사용">
+
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.tool.Toolkit;
@@ -127,12 +133,16 @@ ReActAgent agent =
                 .toolkit(toolkit)
                 .build();
 ```
-:::
-::::
 
-:::{tip}
-`ModelRegistry` 문자열 형식(`<provider>:<model>`)을 사용하려면 클래스패스에 일치하는 모델 확장 모듈이 있어야 합니다. `dashscope` / `openai` / `deepseek` / `anthropic` / `gemini` / `ollama`를 지원하며, 환경 변수에서 일치하는 API 키(`DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `DEEPSEEK_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY`)를 읽습니다. 워크스페이스, 세션 영속화, 메모리 압축, 서브에이전트 등이 추가로 필요한 장시간 실행 시나리오에는 [`HarnessAgent`](../../../en/docs/harness/architecture.md)를 사용하세요 — 이는 `ReActAgent`를 감싸는 얇은 래퍼이며 빌더도 거의 동일합니다. `ChatModelBase`와 `Toolkit`을 `HarnessAgent.Builder`에 연결하는 실전 예제는 [HarnessAgent 구축하기](../../../en/docs/harness/architecture.md#building-a-harnessagent)를 참고하세요.
-:::
+</Tab>
+
+</Tabs>
+
+<Tip>
+
+`ModelRegistry` 문자열 형식(`<provider>:<model>`)을 사용하려면 클래스패스에 일치하는 모델 확장 모듈이 있어야 합니다. `dashscope` / `openai` / `deepseek` / `anthropic` / `gemini` / `ollama`를 지원하며, 환경 변수에서 일치하는 API 키(`DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `DEEPSEEK_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY`)를 읽습니다. 워크스페이스, 세션 영속화, 메모리 압축, 서브에이전트 등이 추가로 필요한 장시간 실행 시나리오에는 [`HarnessAgent`](/v2/en/docs/harness/architecture)를 사용하세요 — 이는 `ReActAgent`를 감싸는 얇은 래퍼이며 빌더도 거의 동일합니다. `ChatModelBase`와 `Toolkit`을 `HarnessAgent.Builder`에 연결하는 실전 예제는 [HarnessAgent 구축하기](/v2/en/docs/harness/architecture#building-a-harnessagent)를 참고하세요.
+
+</Tip>
 
 ### 빌더 필드
 
@@ -145,7 +155,7 @@ ReActAgent agent =
 | `middlewares` | `List<? extends MiddlewareBase>` | `List.of()` | 에이전트 / 추론 / 행동 / 모델 호출 / 시스템 프롬프트 훅에 적용됨 |
 | `stateStore` | `AgentStateStore` | `null` (영속화 없음) | 설정 시, 에이전트는 호출의 `RuntimeContext`가 가진 `(userId, sessionId)`를 키로 모든 `call`에서 `AgentState`를 자동으로 로드/저장 |
 | `defaultSessionId` | `String` | 에이전트 `name` | 호출의 `RuntimeContext`에 아무것도 없을 때 사용되는 폴백 `sessionId` |
-| `permissionContext` | `PermissionContextState` | `DEFAULT` 모드 | 세밀한 도구 실행 규칙, [권한 시스템](../../../en/docs/building-blocks/permission-system.md) 참고 |
+| `permissionContext` | `PermissionContextState` | `DEFAULT` 모드 | 세밀한 도구 실행 규칙, [권한 시스템](/v2/en/docs/building-blocks/permission-system) 참고 |
 | `modelConfig` | `ModelConfig` | 기본값 | 모델 재시도 및 폴백 모델 |
 | `reactConfig` | `ReactConfig` | 기본값 | 최대 반복 횟수와 거부 처리 |
 | `maxIters` | `int` | `10` | ReAct 메인 루프의 최대 반복 횟수(`reactConfig`의 대안) |
@@ -180,9 +190,11 @@ agent.call(List.of(new UserMessage("Hi there")),
 
 각 `call()`이 시작될 때, 에이전트는 주어진 `(userId, sessionId)`에 대한 `AgentState`(대화 컨텍스트, 권한 규칙 등)를 자동으로 로드합니다. 호출이 끝나면 상태가 다시 저장됩니다. 서로 다른 세션은 완전히 격리됩니다.
 
-:::{tip}
+<Tip>
+
 동일한 `(userId, sessionId)`를 대상으로 하는 호출은 **직렬화**됩니다 — 두 번째 요청은 첫 번째 요청이 완료될 때까지 기다립니다. 서로 다른 세션을 대상으로 하는 호출은 병렬로 실행됩니다.
-:::
+
+</Tip>
 
 완전한 Spring Boot 예제: `agentscope-examples/documentation/.../streaming/StreamingWebExample.java`.
 
@@ -262,7 +274,7 @@ agent.streamEvents(new UserMessage("Summarize the README."))
         .blockLast();
 ```
 
-전체 이벤트 타입 및 필드 참조: [메시지와 이벤트](./message-and-event.md).
+전체 이벤트 타입 및 필드 참조: [메시지와 이벤트](/v2/ko/docs/building-blocks/message-and-event).
 
 ### observe
 
@@ -288,7 +300,7 @@ agent.observe(otherAgentMsg).block();
 | 문자열 속성 (자유 형식 key-value) | `put(String key, Object value)` | `<T> T get(String key)` |
 | 타입 속성 (`Class<T>`로 비즈니스 POJO 주입) | `put(Class<T> type, T value)` / `put(String key, Class<T> type, T value)` | `<T> T get(Class<T> type)` / `<T> T get(String key, Class<T> type)` |
 
-타입 속성은 도구 주입을 가능하게 합니다 — `@Tool` 메서드에 일치하는 타입의 파라미터를 선언하면 프레임워크가 값을 제공합니다. [Tool — 컨텍스트 수신](../../../en/docs/building-blocks/tool.md#receiving-context)을 참고하세요. 문자열 속성은 일반적으로 프로세스 내 조율(예: 미들웨어 간 신호 전달)에 사용됩니다. 이 두 레이어는 서로 격리되어 있습니다: 타입 값은 `getExtra()`에 나타나지 않으며 그 반대도 마찬가지입니다.
+타입 속성은 도구 주입을 가능하게 합니다 — `@Tool` 메서드에 일치하는 타입의 파라미터를 선언하면 프레임워크가 값을 제공합니다. [Tool — 컨텍스트 수신](/v2/en/docs/building-blocks/tool#receiving-context)을 참고하세요. 문자열 속성은 일반적으로 프로세스 내 조율(예: 미들웨어 간 신호 전달)에 사용됩니다. 이 두 레이어는 서로 격리되어 있습니다: 타입 값은 `getExtra()`에 나타나지 않으며 그 반대도 마찬가지입니다.
 
 ### 생성 및 전달
 
@@ -313,8 +325,8 @@ Msg result = agent.call(List.of(new UserMessage("Hi.")), ctx).block();
 
 ### 누가 읽는가
 
-- **도구** (`@Tool` 메서드와 `ToolBase.callAsync`) — [Tool — 컨텍스트 수신](../../../en/docs/building-blocks/tool.md#receiving-context)을 참고하세요.
-- **미들웨어** (모든 `MiddlewareBase` 훅) — 두 번째 파라미터 `ctx`로 전달받습니다. [미들웨어 — RuntimeContext 읽기](./middleware.md#runtimecontext-읽기)를 참고하세요.
+- **도구** (`@Tool` 메서드와 `ToolBase.callAsync`) — [Tool — 컨텍스트 수신](/v2/en/docs/building-blocks/tool#receiving-context)을 참고하세요.
+- **미들웨어** (모든 `MiddlewareBase` 훅) — 두 번째 파라미터 `ctx`로 전달받습니다. [미들웨어 — RuntimeContext 읽기](/v2/ko/docs/building-blocks/middleware#runtimecontext-읽기)를 참고하세요.
 - **동일한 호출 내의 모든 스레드** — 내부 맵은 `ConcurrentMap`이므로, 훅과 도구가 동일한 인스턴스를 읽고 써서 조율할 수 있습니다.
 
 ### 영속성과의 관계
@@ -324,9 +336,11 @@ Msg result = agent.call(List.of(new UserMessage("Hi.")), ctx).block();
 
 실행 가능한 예제: `agentscope-examples/documentation/.../context/RuntimeContextExample.java`, `tool/ToolExecutionContextExample.java`.
 
-:::{note}
+<Note>
+
 레거시 `ToolExecutionContext`(`io.agentscope.core.tool`)는 `@Deprecated`입니다. 새 코드는 `RuntimeContext`를 사용해야 합니다. 레거시 타입은 `RuntimeContext.asToolExecutionContext()`를 통해 자동으로 브리지되므로, 기존 코드는 계속 동작합니다.
-:::
+
+</Note>
 
 ## Human-in-the-loop
 
@@ -433,13 +447,15 @@ for (var tc : externalEvent.getToolCalls()) {
 
 **3. 에이전트 재개** — 결과를 다음 `call`의 입력 메시지로 다시 전달합니다. 결과가 검증되면 에이전트 컨텍스트에 주입되고, 에이전트는 `ExternalExecutionResultEvent`를 발생시킵니다; 이 이벤트의 `getReplyId()`는 앞선 `RequireExternalExecutionEvent#getReplyId()`와 일치합니다. 이후 추론은 일시 중지되었던 지점부터 계속됩니다.
 
-:::{tip}
+<Tip>
+
 인터랙티브 UI를 구축할 때는 `streamEvents`를 사용하세요 — 일시 중지를 실시간으로 감지하고 즉시 사용자에게 물어볼 수 있습니다. 이벤트를 자동으로 처리하는 프로그래밍 방식 흐름에는 `call`을 사용하세요. 완전한 실행 가능 예제: `agentscope-examples/documentation/.../hitl/PermissionHITLExample.java`.
-:::
+
+</Tip>
 
 ## 상태 영속성 구성 (AgentStateStore)
 
-`AgentState`는 에이전트를 재개하는 데 필요한 모든 것 — 대화 컨텍스트, 압축된 요약, 권한 규칙, 도구 상태, 현재 응답 위치 — 를 담습니다. [`AgentStateStore`](../../../en/integration/session/index.md)는 그 저장 추상화입니다.
+`AgentState`는 에이전트를 재개하는 데 필요한 모든 것 — 대화 컨텍스트, 압축된 요약, 권한 규칙, 도구 상태, 현재 응답 위치 — 를 담습니다. [`AgentStateStore`](/v2/en/integration/session/index)는 그 저장 추상화입니다.
 
 **빌더에서 `stateStore(...)`를 설정하면 에이전트가 자동으로 영속화하고 복구합니다**: 모든 `call`은 `AgentState`를 다시 기록합니다; 동일한 `(userId, sessionId)`로 다음에 호출하면 그것을 로드합니다. 에이전트 인스턴스는 세션에 대해 상태를 갖지 않습니다 — 슬롯은 호출마다 `RuntimeContext`로부터 선택됩니다(없으면 `defaultSessionId`로 폴백).
 
@@ -486,7 +502,7 @@ state.getContext().size();                  // 현재 메시지 수
 String json = state.toJson();               // JSON으로 직렬화
 ```
 
-전체 필드별 세부 사항, 크로스 노드 재개, 상태 저장소가 압축 / Plan 모드 / 서브에이전트와 어떻게 상호작용하는지는 [Context & AgentState](context.md)와 [Compaction](../../../en/docs/harness/compaction.md)을 참고하세요.
+전체 필드별 세부 사항, 크로스 노드 재개, 상태 저장소가 압축 / Plan 모드 / 서브에이전트와 어떻게 상호작용하는지는 [Context & AgentState](/v2/ko/docs/building-blocks/context)와 [Compaction](/v2/en/docs/harness/compaction)을 참고하세요.
 
 ## 구조화된 출력
 
@@ -603,18 +619,22 @@ ReActAgent.builder()
 
 ## 더 읽어보기
 
-::::{grid} 2
+<CardGroup cols={2}>
 
-:::{grid-item-card} 권한 시스템
-:link: ../../../en/docs/building-blocks/permission-system.html
+
+<Card title="권한 시스템" href="/v2/en/docs/building-blocks/permission-system">
+
 
 에이전트가 호출할 수 있는 도구와 그 조건을 제어합니다.
-:::
 
-:::{grid-item-card} 미들웨어
-:link: ./middleware.html
+</Card>
+
+<Card title="미들웨어" href="/v2/ko/docs/building-blocks/middleware">
+
 
 에이전트, 추론, 행동, 모델 호출 훅에서 에이전트 동작을 가로채고 수정합니다.
-:::
 
-::::
+</Card>
+
+
+</CardGroup>

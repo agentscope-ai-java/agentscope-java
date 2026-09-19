@@ -1,4 +1,6 @@
-# MiniMax モデル
+---
+title: MiniMax モデル
+---
 
 `agentscope-extensions-model-openai` は、OpenAI 互換のモデルスタックを通じて第一級の MiniMax サポートを提供します。OpenAI モデル拡張モジュールを追加し、`ModelRegistry` で `minimax:<model>` を使用してください。
 

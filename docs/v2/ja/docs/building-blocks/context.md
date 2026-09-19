@@ -1,6 +1,6 @@
 ---
-title: "コンテキストと AgentState"
-description: "ステートレスなエージェントエンジン、AgentState のライフサイクル、状態の永続化、RuntimeContext"
+title: コンテキストと AgentState
+description: ステートレスなエージェントエンジン、AgentState のライフサイクル、状態の永続化、RuntimeContext
 ---
 
 ## ステートレスなエージェントエンジン
@@ -32,7 +32,7 @@ description: "ステートレスなエージェントエンジン、AgentState �
 
 ## AgentState
 
-[`AgentStateStore`](../../integration/session/index.md) は**`AgentState`**(`io.agentscope.core.state.AgentState`)——エージェントを再起動可能にするために必要なすべての完全なスナップショット——を永続化します。
+[`AgentStateStore`](/v2/ja/integration/session/index) は**`AgentState`**(`io.agentscope.core.state.AgentState`)——エージェントを再起動可能にするために必要なすべての完全なスナップショット——を永続化します。
 
 | `AgentState` のフィールド | 内容 |
 |---|---|
@@ -40,7 +40,7 @@ description: "ステートレスなエージェントエンジン、AgentState �
 | `getUserId()` | ユーザー識別子(匿名セッションでは null になり得る) |
 | `getContext()` / `contextMutable()` | 現在の会話履歴(ユーザー / アシスタント / ツール呼び出し / ツール結果) |
 | `getSummary()` | 圧縮された要約(コンパクションが有効な場合) |
-| `getPermissionContext()` | ツールのパーミッションルール —— [Permissions](./permission-system.md) を参照 |
+| `getPermissionContext()` | ツールのパーミッションルール —— [Permissions](/v2/ja/docs/building-blocks/permission-system) を参照 |
 | `getPlanModeContext()` | Plan Mode が有効かどうか、現在のプランファイルのパス |
 | `getTasksContext()` | `todo_write` のタスクリスト |
 | `getToolContext()` | アクティブな Toolkit のグループ(`activatedGroups`) |
@@ -109,9 +109,11 @@ HarnessAgent agent = HarnessAgent.builder()
         .build();
 ```
 
-:::{warning}
+<Warning>
+
 組み込みの `JsonFileAgentStateStore` / `InMemoryAgentStateStore` は単一ホストでのみ動作します。すでに `filesystem(SandboxFilesystemSpec)` または `filesystem(RemoteFilesystemSpec)`(分散ワークスペース)を選択している場合、HarnessAgent はビルド時にローカルの状態ストアを `IllegalStateException` で**拒否します**——サンドボックスの状態はレプリカ間で共有されなければなりません。`.distributedStore(...)`(例えば `RedisDistributedStore`)または `.stateStore(...)` で分散ストアを設定してください。
-:::
+
+</Warning>
 
 ### プロセスとマシンをまたいだリアルタイムの再開
 
@@ -152,7 +154,7 @@ agentB.call(nextMsg, RuntimeContext.builder()
 `sessionId` と `userId` は異なる問題を解決します。
 
 - **`sessionId`** —— これがどの会話であるか。独立した `AgentState` のスナップショット。
-- **`userId`** —— この会話をどのユーザーが所有しているか。どのユーザーの名前空間にファイルが配置されるかも左右します。[Filesystem](../harness/filesystem.md) を参照。
+- **`userId`** —— この会話をどのユーザーが所有しているか。どのユーザーの名前空間にファイルが配置されるかも左右します。[Filesystem](/v2/ja/docs/harness/filesystem) を参照。
 
 ```java
 agent.call(msg, RuntimeContext.builder()
@@ -205,9 +207,11 @@ agent.clearContext(RuntimeContext.builder()
 これは、そのセッションの現在のリクエストが完了した後に呼び出してください。実行中の呼び出しをキャンセルするものではなく、
 次の呼び出しはクリアされた会話コンテキストから開始されます。
 
-:::{note}
+<Note>
+
 1.0 の `Memory` インターフェース(`InMemoryMemory` / `LongTermMemory` など)は、2.0 では `@Deprecated(forRemoval = true)` です。新しいコードでは `AgentState.getContext()` と `AgentStateStore` を使ってください。`Memory` はソース互換のシムとしてのみ残されています。
-:::
+
+</Note>
 
 ### セッション単位の中断
 
@@ -225,9 +229,11 @@ agent.interrupt("alice", "session-001", Msg.userMsg("Please stop and summarise."
 
 レガシーな引数なしの `interrupt()` は、シングルセッションのシナリオでは引き続き動作します——現在アクティブなセッションの `InterruptControl` にルーティングされます。
 
-:::{note}
+<Note>
+
 `InterruptControl` はランタイム限定のシグナルであり、決して永続化されません。フェイルオーバー後に別のノードでセッションが再開された場合、中断フラグはクリアされた状態から始まります。別に用意された `AgentState.shutdownInterrupted` フラグ(こちらは**永続化されます**)は、そのセッションがグレースフルシャットダウンによって中断されたかどうかを記録します——エージェントは次回のロード時にこれを検出して復旧できます。
-:::
+
+</Note>
 
 ### 並行利用
 
@@ -264,9 +270,11 @@ Flux.merge(call1, call2).collectList().block();
 - **同じ `(userId, sessionId)`** → セッション単位の非同期ゲートが FIFO 順に呼び出しを直列化する——外部ロックなしに状態の一貫性が保証される。
 - **`interrupt(userId, sessionId)`** → 正確に1つのセッションを対象とし、他の実行中の呼び出しには影響しない。
 
-:::{tip}
+<Tip>
+
 メモリ上の状態キャッシュは、単一のエージェントインスタンスが処理してきた個別セッションの数に応じて増加します。ほとんどのデプロイ(数百セッション程度)ではこれは無視できます。非常に大規模なシナリオ(プロセスあたり数百万セッション)では、有限のインスタンスプールを持つエージェントファクトリのパターンを検討してください——ただし `AgentState` オブジェクトは軽量なので、これが必要になることはめったにありません。
-:::
+
+</Tip>
 
 ---
 
@@ -299,19 +307,23 @@ Msg result = agent.call(List.of(new UserMessage("Hi")), ctx).block();
 | `getExtra()` | 文字列属性マップへの直接アクセス(可変ビュー) |
 | `RuntimeContext.empty()` | 空のコンテキスト |
 
-:::{tip}
-**`AgentStateStore` はビルダー時にバインドされ、`RuntimeContext` によって呼び出しごとに切り替えることはできません。** 呼び出しごとに変わるのは、それがアドレスする `(userId, sessionId)` スロットです——ユーザー単位の分離には `userId`(あるいはストア上のカスタム `keyPrefix`)を設定してください。呼び出しごとに異なる状態ストアのインスタンスを渡そうとしないでください。
-:::
+<Tip>
 
-:::{tip}
+**`AgentStateStore` はビルダー時にバインドされ、`RuntimeContext` によって呼び出しごとに切り替えることはできません。** 呼び出しごとに変わるのは、それがアドレスする `(userId, sessionId)` スロットです——ユーザー単位の分離には `userId`(あるいはストア上のカスタム `keyPrefix`)を設定してください。呼び出しごとに異なる状態ストアのインスタンスを渡そうとしないでください。
+
+</Tip>
+
+<Tip>
+
 **Middleware とツールから `AgentState` にアクセスする:** 呼び出しの実行中は、`agent.getAgentState()` ではなく常に `RuntimeContext.resolveAgentState(ctx, agent)` を使ってください。並行実行下では、`agent.getAgentState()` は最後にアクティブだったセッションの状態を返します(複数の呼び出しが実行中の場合は任意の選択になります)が、`ctx.getAgentState()` は**この呼び出し**のセッションの状態を返します——これがほとんどの場合に求めているものです。
-:::
+
+</Tip>
 
 ---
 
 ## 関連ページ
 
-- [エージェント](./agent.md) —— 完全な `ReActAgent` API とビルダーのフィールド
-- [コンテキストのコンパクション](../harness/compaction.md) —— 会話の要約、ツール結果の退避、オーバーフロー時の復旧(ここで説明した AgentState の基盤の上に構築される)
-- [メモリ](../harness/memory.md) —— 長期記憶、バックグラウンドでのメンテナンス
-- [パーミッション](./permission-system.md) —— パーミッションルールの永続化
+- [エージェント](/v2/ja/docs/building-blocks/agent) —— 完全な `ReActAgent` API とビルダーのフィールド
+- [コンテキストのコンパクション](/v2/ja/docs/harness/compaction) —— 会話の要約、ツール結果の退避、オーバーフロー時の復旧(ここで説明した AgentState の基盤の上に構築される)
+- [メモリ](/v2/ja/docs/harness/memory) —— 長期記憶、バックグラウンドでのメンテナンス
+- [パーミッション](/v2/ja/docs/building-blocks/permission-system) —— パーミッションルールの永続化

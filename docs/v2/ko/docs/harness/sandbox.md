@@ -1,9 +1,9 @@
 ---
-title: "샌드박스(Sandbox)"
-description: "격리된 실행 + 호출 간 복구 + 멀티 레플리카 배포"
+title: 샌드박스(Sandbox)
+description: 격리된 실행 + 호출 간 복구 + 멀티 레플리카 배포
 ---
 
-> 세 가지 파일 시스템 모드 비교는 [파일 시스템](./filesystem.md)을 참고하라. 이 페이지는 샌드박스 모드의 사용법에 초점을 맞춘다.
+> 세 가지 파일 시스템 모드 비교는 [파일 시스템](/v2/ko/docs/harness/filesystem)을 참고하라. 이 페이지는 샌드박스 모드의 사용법에 초점을 맞춘다.
 
 ## 샌드박스가 해결하는 문제
 
@@ -295,6 +295,6 @@ Docker가 아닌 격리 환경(자체 호스팅 원격 실행기, 상용 샌드�
 
 ## 관련 문서
 
-- [파일 시스템](./filesystem.md) — 세 가지 선언적 모드 비교
-- [워크스페이스](./workspace.md) — `workspace/` 아래의 어떤 파일이 샌드박스로 동기화되는지
-- [아키텍처](./architecture.md) — 샌드박스 획득/해제가 call() 타임라인 어디에 위치하는지
+- [파일 시스템](/v2/ko/docs/harness/filesystem) — 세 가지 선언적 모드 비교
+- [워크스페이스](/v2/ko/docs/harness/workspace) — `workspace/` 아래의 어떤 파일이 샌드박스로 동기화되는지
+- [아키텍처](/v2/ko/docs/harness/architecture) — 샌드박스 획득/해제가 call() 타임라인 어디에 위치하는지

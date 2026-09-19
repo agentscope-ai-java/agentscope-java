@@ -1,6 +1,6 @@
 ---
-title: "Channel"
-description: "Channel을 통해 메시지를 라우팅하고, 세션을 관리하고, 이벤트를 스트리밍하기"
+title: Channel
+description: Channel을 통해 메시지를 라우팅하고, 세션을 관리하고, 이벤트를 스트리밍하기
 ---
 
 ## 하는 일
@@ -321,15 +321,15 @@ gw.stop();    // calls stop() on all channels
 
 AgentScope는 인기 있는 메시징 플랫폼을 위한 사용 준비된 Channel 어댑터를 확장 모듈로 제공한다.
 
-- [DingTalk](../../integration/channel/dingtalk.md) — Stream 프로토콜(영속 WebSocket)
-- [Feishu / Lark](../../integration/channel/feishu.md) — 이벤트 구독 콜백
-- [GitHub](../../integration/channel/github.md) — Issue / PR 댓글 webhook
-- [GitLab](../../integration/channel/gitlab.md) — Note hook
-- [WeCom](../../integration/channel/wecom.md) — 암호화된 콜백
+- [DingTalk](/v2/ko/integration/channel/dingtalk) — Stream 프로토콜(영속 WebSocket)
+- [Feishu / Lark](/v2/ko/integration/channel/feishu) — 이벤트 구독 콜백
+- [GitHub](/v2/ko/integration/channel/github) — Issue / PR 댓글 webhook
+- [GitLab](/v2/ko/integration/channel/gitlab) — Note hook
+- [WeCom](/v2/ko/integration/channel/wecom) — 암호화된 콜백
 
-자세한 내용은 [Channel 어댑터](../../integration/channel/index.md) 통합 개요를 참고한다.
+자세한 내용은 [Channel 어댑터](/v2/ko/integration/channel/index) 통합 개요를 참고한다.
 
 ## 관련 문서
 
-- [Subagent](./subagent.md) — 서브에이전트 선언과 spawn, 백그라운드 작업, 스트리밍 전달
-- [Architecture](./architecture.md) — 부모와 자식 agent가 어떻게 협력하는지
+- [Subagent](/v2/ko/docs/harness/subagent) — 서브에이전트 선언과 spawn, 백그라운드 작업, 스트리밍 전달
+- [Architecture](/v2/ko/docs/harness/architecture) — 부모와 자식 agent가 어떻게 협력하는지

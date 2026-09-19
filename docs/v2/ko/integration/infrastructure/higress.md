@@ -1,4 +1,6 @@
-# Higress AI 게이트웨이
+---
+title: Higress AI 게이트웨이
+---
 
 `agentscope-extensions-higress`는 [Higress](https://higress.io/)에서 MCP(Model Context Protocol)로 게시된 도구를 AgentScope로 가져옵니다. Higress는 게이트웨이 계층에서 도구 검색, 인증, 속도 제한, 관측 가능성을 처리하며, Agent는 그 결과로 만들어진 도구를 호출하기만 하면 됩니다.
 

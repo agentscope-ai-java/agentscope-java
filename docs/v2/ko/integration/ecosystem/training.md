@@ -1,4 +1,6 @@
-# Online Training
+---
+title: Online Training
+---
 
 `agentscope-extensions-training`은 Trinity 스타일의 트레이닝 백엔드를 AgentScope에 연결합니다: 프로덕션 트래픽을 샘플링하고, 트레이스를 수집하고, 보상(reward)을 계산하고, 주기적으로 트레이닝 작업을 커밋합니다 — 이렇게 루프를 완성합니다.
 

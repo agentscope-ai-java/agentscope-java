@@ -1,4 +1,6 @@
-# Scheduler
+---
+title: Scheduler
+---
 
 `agentscope-extensions-scheduler`는 Agent를 주기적으로 실행합니다 — 예를 들어 "매일 오전 8시에 daily-report Agent를 실행" 또는 "5초마다 health-check Agent를 실행"과 같은 방식입니다. 이 모듈은 통합된 `AgentScheduler` 인터페이스를 추상화하고 두 가지 구현을 제공합니다.
 

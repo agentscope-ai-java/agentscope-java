@@ -1,4 +1,6 @@
-# MySQL Skill Repository
+---
+title: MySQL Skill Repository
+---
 
 `agentscope-extensions-skill-mysql-repository`는 스킬을 완전한 CRUD 기능과 함께 MySQL에 저장합니다. 관리자 콘솔 / 비즈니스 시스템에서 편집하고 저장하면, 다음 읽기 시점에 Agent가 즉시 변경 사항을 반영합니다.
 

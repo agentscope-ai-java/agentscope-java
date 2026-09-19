@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: "Coding Agent: 後半戦 — 個人の生産性から組織のエンジニアリングシステムへ"
 ---
-
-# Coding Agent: 後半戦 — 個人の生産性から組織のエンジニアリングシステムへ
 
 今なお昔ながらのやり方でコードを手書きしている開発者は、無形文化財の継承者になる訓練をしているようなものだ。大多数はすでに Claude Code や Cursor のような Coding Agent を使っている。方向性は正しいが、シナリオが違えば解決策も違う — 個人の生産性のためにローカルに AI アシスタントをインストールすることと、組織内で AI 駆動のエンジニアリングコラボレーションシステムを構築することは、まったく異なる二つの次元である。前者にはすでに成熟したプロダクトがあるが、後者はまだ始まったばかりだ。本稿は後者についての話である。
 
@@ -207,4 +205,4 @@ Coding Agent 時代の前半は個人の生産性についてのものだった 
 
 本稿で触れた codingagent のサンプルは完全で読みやすいものだ。クローンして一度実行し、それからソースコードを読むことをお勧めする — ここで議論したすべてのエンジニアリング上の問題が、実際のコードにマッピングされている。
 
-さらに深く掘り下げる: [Harness アーキテクチャ](../docs/harness/architecture.md) · [Workspace](../docs/harness/workspace.md) · [Sandbox](../docs/harness/sandbox.md) · [コンテキスト Compaction](../docs/harness/compaction.md) · [Subagent](../docs/harness/subagent.md) · [Skill](../docs/harness/skill.md) · [Plan Mode](../docs/harness/plan-mode.md)
+さらに深く掘り下げる: [Harness アーキテクチャ](/v2/ja/docs/harness/architecture) · [Workspace](/v2/ja/docs/harness/workspace) · [Sandbox](/v2/ja/docs/harness/sandbox) · [コンテキスト Compaction](/v2/ja/docs/harness/compaction) · [Subagent](/v2/ja/docs/harness/subagent) · [Skill](/v2/ja/docs/harness/skill) · [Plan Mode](/v2/ja/docs/harness/plan-mode)

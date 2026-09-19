@@ -1,6 +1,6 @@
 ---
-title: "メッセージとイベント"
-description: "エージェント間通信とストリーミングのための中核データ抽象化"
+title: メッセージとイベント
+description: エージェント間通信とストリーミングのための中核データ抽象化
 ---
 
 メッセージとイベントは、AgentScope における2つの基本的なデータ構造です。
@@ -14,9 +14,11 @@ description: "エージェント間通信とストリーミングのための中
 
 `Msg`(`io.agentscope.core.message`)は、会話の1ターン——ユーザー入力、エージェントの返信、またはシステム指示——を表し、その内容は型付き `ContentBlock` の順序付きリストとしてモデル化されます。
 
-:::{tip}
+<Tip>
+
 1つのアシスタント `Msg` は、1回の完全な `call` サイクル(最終的な返信に至るまでの複数回の推論 + 行動のイテレーション)に対応します。
-:::
+
+</Tip>
 
 ### 構造
 
@@ -47,9 +49,11 @@ description: "エージェント間通信とストリーミングのための中
 | `ToolResultBlock` | `state`(`ToolResultState`)を持つツール結果 | ASSISTANT |
 | `HintBlock` | ユーザーコンテキストとしてループに注入される指示 | ASSISTANT |
 
-:::{note}
+<Note>
+
 ロールに関する制約は生成時に強制されます: `USER` はテキスト/データ/画像/音声/動画ブロックのみを許可し、`SYSTEM` は `TextBlock` のみを許可し、`ASSISTANT` はすべてのブロック種別を許可します。
-:::
+
+</Note>
 
 ### メッセージを作成する
 
@@ -130,7 +134,7 @@ if (msg.hasContentBlocks(ToolResultBlock.class)) {
 
 すべてのイベントは `getReplyId()` を運び、それを組み立て中のメッセージに結び付けます。1回の返信の中では、`getBlockId()` または `getToolCallId()` が、同じコンテンツブロックのライフサイクルに属するイベントの相関キーとして機能します。イベントは **start → delta → end** というパターンに従います。
 
-```{mermaid}
+```mermaid
 sequenceDiagram
     participant Client
     participant Agent
@@ -191,7 +195,8 @@ sequenceDiagram
 
 イベントは以下でグループ化されています。特に断りがない限り、すべてのイベントは組み立て中のメッセージに紐づける `getReplyId()` も運びます。
 
-  :::{dropdown} ライフサイクルイベント
+  <Accordion title="ライフサイクルイベント">
+
 **AgentStartEvent** —— エージェントが新しい返信を開始する。
 
     | メソッド | 型 | 説明 |
@@ -214,9 +219,11 @@ sequenceDiagram
     | `getReplyId()` | `String` | 返信メッセージの ID |
 
     **RequestStopEvent** —— middleware またはツールによって発行される早期停止リクエスト。
-:::
 
-  :::{dropdown} テキストストリーミングイベント
+  </Accordion>
+
+  <Accordion title="テキストストリーミングイベント">
+
 **TextBlockStartEvent** —— 新しいテキストブロックが開始する。
 
     | メソッド | 型 | 説明 |
@@ -238,20 +245,26 @@ sequenceDiagram
     |--------|------|-------------|
     | `getReplyId()` | `String` | 返信メッセージの ID |
     | `getBlockId()` | `String` | 現在の返信内でのテキストブロックの相関キー |
-:::
 
-  :::{dropdown} 思考ストリーミングイベント
+  </Accordion>
+
+  <Accordion title="思考ストリーミングイベント">
+
 **ThinkingBlockStartEvent / ThinkingBlockDeltaEvent / ThinkingBlockEndEvent** —— テキストストリーミングイベントと同じ形をしており、モデルの思考の連鎖に特化しています。その `blockId` も、返信にスコープされた相関キーとして同じ意味を持ちます。
-:::
 
-  :::{dropdown} データストリーミングイベント
+  </Accordion>
+
+  <Accordion title="データストリーミングイベント">
+
 **DataBlockStartEvent / DataBlockDeltaEvent / DataBlockEndEvent** —— テキストストリーミングイベントと同じ形をしており、画像 / 音声 / 動画のバイナリデータを運びます。
 
     - `DataBlockStartEvent`: `getMediaType()` が MIME タイプ(例: `"image/png"`)を返す。
     - `DataBlockDeltaEvent`: `getData()` が増分的な base64 エンコードデータを返す。
-:::
 
-  :::{dropdown} ツール呼び出しストリーミングイベント
+  </Accordion>
+
+  <Accordion title="ツール呼び出しストリーミングイベント">
+
 **ToolCallStartEvent** —— エージェントがツール呼び出しを開始する。
 
     | メソッド | 型 | 説明 |
@@ -263,9 +276,11 @@ sequenceDiagram
     **ToolCallDeltaEvent** —— 増分的なツール呼び出し引数が到着する。`getDelta()` は JSON の断片を返す。
 
     **ToolCallEndEvent** —— ツール呼び出しの引数が完了する。
-:::
 
-  :::{dropdown} ツール結果ストリーミングイベント
+  </Accordion>
+
+  <Accordion title="ツール結果ストリーミングイベント">
+
 **ToolResultStartEvent** —— ツールが実行を開始する(`toolCallId`、`toolCallName` を運ぶ)。
 
     **ToolResultTextDeltaEvent** —— ツールからの増分的なテキスト出力。`getDelta()` はテキストの断片を返す。
@@ -279,15 +294,19 @@ sequenceDiagram
     | `getReplyId()` | `String` | 返信メッセージの ID |
     | `getToolCallId()` | `String` | 対応するツール呼び出し ID |
     | `getState()` | `ToolResultState` | 最終状態: `SUCCESS`、`ERROR`、`INTERRUPTED`、`DENIED`、`RUNNING` |
-:::
 
-  :::{dropdown} モデル呼び出しイベント
+  </Accordion>
+
+  <Accordion title="モデル呼び出しイベント">
+
 **ModelCallStartEvent** —— モデル API 呼び出しが開始する(`modelName` を運ぶ)。
 
     **ModelCallEndEvent** —— モデル API 呼び出しが完了する(`inputTokens` / `outputTokens` を運ぶ)。
-:::
 
-  :::{dropdown} Human-in-the-Loop イベント
+  </Accordion>
+
+  <Accordion title="Human-in-the-Loop イベント">
+
 **RequireUserConfirmEvent** —— エージェントがユーザー確認のために一時停止する。
 
     | メソッド | 型 | 説明 |
@@ -323,9 +342,11 @@ sequenceDiagram
     | メソッド | 型 | 説明 |
     |--------|------|-------------|
     | `getDeniedToolCalls()` | `List<ToolUseBlock>` | 拒否されたツール呼び出し |
-:::
 
-  :::{dropdown} サブエージェントイベント
+  </Accordion>
+
+  <Accordion title="サブエージェントイベント">
+
 **SubagentExposedEvent** —— `agent_spawn(expose_to_user=true)` によって生成されたサブエージェントが、ユーザーがアドレス可能なエントリポイントとして公開された。SSE / ストリーミングのコンシューマーは、これを使って UI に新しい会話エントリを描画できる。
 
 | メソッド | 型 | 説明 |
@@ -334,7 +355,8 @@ sequenceDiagram
 | `getAgentId()` | `String` | サブエージェントのエージェント種別 ID |
 | `getSessionId()` | `String` | サブエージェントのセッション ID |
 | `getLabel()` | `String` | ユーザーに表示されるラベル(任意) |
-:::
+
+  </Accordion>
 
 ## イベントからメッセージを再構築する
 
@@ -369,9 +391,11 @@ agent.streamEvents(userMsg)
         .blockLast();
 ```
 
-:::{tip}
+<Tip>
+
 この分離により、デプロイの柔軟性が大きく高まります。バックエンドは SSE でイベントストリームをプッシュし、フロントエンドはクライアント側でメッセージを再構築します。接続が切れたとしても、任意のチェックポイントからイベントを再生すれば、メッセージ状態を正確に復元できます。
-:::
+
+</Tip>
 
 ### 例: ストリーミング UI
 
@@ -404,17 +428,21 @@ agent.streamEvents(new UserMessage("user", "このバグの修正を手伝って
 
 ## さらに読む
 
-::::{grid} 2
+<CardGroup cols={2}>
 
-:::{grid-item-card} エージェント
-:link: ./agent.html
+
+<Card title="エージェント" href="/v2/ja/docs/building-blocks/agent">
+
 
 エージェントが ReAct ループの中でどのようにイベントとメッセージを発行するか
-:::
-  :::{grid-item-card} コンテキスト
-:link: context.html
+
+</Card>
+  <Card title="コンテキスト" href="/v2/ja/docs/building-blocks/context">
+
 
 メッセージがどのように保存・永続化されるか
-:::
 
-::::
+  </Card>
+
+
+</CardGroup>

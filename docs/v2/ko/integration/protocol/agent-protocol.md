@@ -1,13 +1,15 @@
-# Agent Protocol
+---
+title: Agent Protocol
+---
 
-`agentscope-extensions-agent-protocol`은 AgentScope의 [Harness Agent](../../docs/harness/architecture.md)를 표준 [Agent Protocol](https://agentprotocol.ai/) HTTP API로 노출하여, 외부 시스템(CI, 다른 에이전트 플랫폼, 자동화 작업)이 구현 세부 사항을 알 필요 없이 통일된 계약으로 "작업(task)"을 제출할 수 있게 한다.
+`agentscope-extensions-agent-protocol`은 AgentScope의 [Harness Agent](/v2/ko/docs/harness/architecture)를 표준 [Agent Protocol](https://agentprotocol.ai/) HTTP API로 노출하여, 외부 시스템(CI, 다른 에이전트 플랫폼, 자동화 작업)이 구현 세부 사항을 알 필요 없이 통일된 계약으로 "작업(task)"을 제출할 수 있게 한다.
 
 ## 언제 사용하는가
 
 - 에이전트를 클라우드 함수처럼 원격으로 스케줄링하고 싶을 때.
 - 기존 팀이 Agent Protocol 클라이언트를 사용 중이어서 바로 연결하고 싶을 때.
 - Harness Agent를 Spring Boot 서비스에 임베드하면서 자동으로 노출되는 `/tasks` REST 엔드포인트를 원할 때.
-- 다른 Harness 부모가 HTTP로 호출하는 [원격 서브에이전트](../../docs/harness/subagent.md#원격-서브에이전트)를 호스팅할 때.
+- 다른 Harness 부모가 HTTP로 호출하는 [원격 서브에이전트](/v2/ko/docs/harness/subagent#원격-서브에이전트)를 호스팅할 때.
 
 ## 프로토콜 계층
 
@@ -265,7 +267,7 @@ RuntimeContext.builder()
 
 `tool_call_id`도 `toolCallId`의 별칭으로 허용된다. `agentscope.agent-protocol.hitl-enabled=true`(기본값)가 필요하다. 성공 시 `{ "task_id", "status": "running" }`을 반환한다.
 
-원격 HITL이 호출하는 부모 harness와 어떻게 상호작용하는지는 [원격 인가](../../docs/harness/subagent.md#원격-인가)에 문서화되어 있다.
+원격 HITL이 호출하는 부모 harness와 어떻게 상호작용하는지는 [원격 인가](/v2/ko/docs/harness/subagent#원격-인가)에 문서화되어 있다.
 
 ## 설정
 

@@ -1,8 +1,12 @@
-```{note}
-이 페이지는 [분산 스토리지 — Redis](../distributed/redis.md)로 대체되었습니다. 아래 내용은 참고용으로 남겨둡니다.
-```
+---
+title: Redis 상태 저장소
+---
 
-# Redis 상태 저장소
+<Note>
+
+이 페이지는 [분산 스토리지 — Redis](/v2/ko/integration/distributed/redis)로 대체되었습니다. 아래 내용은 참고용으로 남겨둡니다.
+
+</Note>
 
 `agentscope-extensions-redis`는 AgentScope 에이전트 상태를 Redis에 영속화합니다. 통합된 `RedisClientAdapter`는 **Jedis, Lettuce, Redisson**을 추상화하며, Standalone, Cluster, Sentinel 배포 모드를 모두 지원합니다.
 

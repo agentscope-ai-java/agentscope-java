@@ -1,4 +1,6 @@
-# ReMe
+---
+title: ReMe
+---
 
 `agentscope-extensions-reme`는 자체 호스팅되는 ReMe 메모리 서비스와 통합됩니다. 이 확장의 특징은 **궤적(trajectory) 기반** 메모리 추출과 **워크스페이스 수준**의 격리입니다.
 

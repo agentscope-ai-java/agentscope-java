@@ -1,5 +1,5 @@
 ---
-title: "워크스페이스(Workspace)"
+title: 워크스페이스(Workspace)
 description: "에이전트 정의와 진화를 위한 source of truth: 디렉터리 레이아웃, 워크스페이스-vs-API 등가성, 네이티브 멀티테넌트 격리, 파일 시스템 모드, 핵심 콘텐츠 심층 분석"
 ---
 
@@ -47,7 +47,7 @@ description: "에이전트 정의와 진화를 위한 source of truth: 디렉터
 
 이들이 하나의 트리 안에 공존하는 것은 순전히 배포 편의를 위해서다(디렉터리 하나를 복사하면 완전한 에이전트를 얻는다). 프레임워크 내부에서는 이들이 서로 다른 읽기/쓰기 경로를 거친다.
 
-> **`AgentState`는 워크스페이스 콘텐츠가 아니다 — 이 둘을 혼동하지 말라.** 에이전트가 대화 중간에 재개하기 위해 필요한 진행 중인 컨텍스트(대화 버퍼, 롤링 요약, 권한/도구/작업/플랜모드 하위 컨텍스트, 그리고 활성 계획 파일과 같은 워크스페이스 산출물을 가리키는 *메타데이터*)는 하나의 `AgentState` 문서로 직렬화되어 별도의 서브시스템인 **`AgentStateStore`**(기본값 `~/.agentscope/state/<agentId>/`, 워크스페이스 트리 바깥에 완전히 존재함)에 저장된다. 이 분리는 의도적이다: 워크스페이스는 영속적인 *파일 산출물*(절대 압축되지 않는 세션 로그, 계획 마크다운, 작업 기록, 메모리)을 담고, `AgentState`는 휘발성인 *런타임 컨텍스트 + 워크스페이스 메타데이터*를 담는다. 두 개의 스토어, 두 개의 생명주기 — [컨텍스트](../building-blocks/context.md) 참고.
+> **`AgentState`는 워크스페이스 콘텐츠가 아니다 — 이 둘을 혼동하지 말라.** 에이전트가 대화 중간에 재개하기 위해 필요한 진행 중인 컨텍스트(대화 버퍼, 롤링 요약, 권한/도구/작업/플랜모드 하위 컨텍스트, 그리고 활성 계획 파일과 같은 워크스페이스 산출물을 가리키는 *메타데이터*)는 하나의 `AgentState` 문서로 직렬화되어 별도의 서브시스템인 **`AgentStateStore`**(기본값 `~/.agentscope/state/<agentId>/`, 워크스페이스 트리 바깥에 완전히 존재함)에 저장된다. 이 분리는 의도적이다: 워크스페이스는 영속적인 *파일 산출물*(절대 압축되지 않는 세션 로그, 계획 마크다운, 작업 기록, 메모리)을 담고, `AgentState`는 휘발성인 *런타임 컨텍스트 + 워크스페이스 메타데이터*를 담는다. 두 개의 스토어, 두 개의 생명주기 — [컨텍스트](/v2/ko/docs/building-blocks/context) 참고.
 
 **3. 태생적으로 멀티테넌트다.** 워크스페이스 데이터(메모리, 세션, 작업, 스킬, 샌드박스 상태)는 단 하나의 `IsolationScope`로 버킷이 나뉜다 — 애플리케이션 수준의 분할 코드가 필요 없다. 이 scope가 누가 하나의 버킷을 공유할지를 결정한다.
 
@@ -58,13 +58,13 @@ description: "에이전트 정의와 진화를 위한 source of truth: 디렉터
 | `AGENT` | 이 에이전트의 모든 사용자 & 세션 | 공유 지식 베이스형 에이전트 |
 | `GLOBAL` | 전체 스토어 인스턴스에 대해 하나의 버킷 | 신중하게 사용할 것 — 모든 에이전트/사용자가 같은 슬롯을 두고 경쟁함 |
 
-선택된 scope는 파일 시스템 모드별로 서로 다르게 물리화된다(로컬 디스크의 경로 접두사, 공유 스토어의 KV 네임스페이스, 샌드박스의 샌드박스 상태 슬롯). 전체 시맨틱, 폴백 규칙, 동시성에 관한 사항은 [파일 시스템 — IsolationScope](./filesystem.md#isolationscope--사용자와-레플리카-간-버킷-분리)를 참고하라.
+선택된 scope는 파일 시스템 모드별로 서로 다르게 물리화된다(로컬 디스크의 경로 접두사, 공유 스토어의 KV 네임스페이스, 샌드박스의 샌드박스 상태 슬롯). 전체 시맨틱, 폴백 규칙, 동시성에 관한 사항은 [파일 시스템 — IsolationScope](/v2/ko/docs/harness/filesystem#isolationscope--사용자와-레플리카-간-버킷-분리)를 참고하라.
 
 > `IsolationScope`는 위의 **워크스페이스/파일 시스템** 버킷을 지배한다. `AgentState`는 그 자체의 독립적인 어드레싱 방식을 갖는다: scope와 무관하게 `AgentStateStore` 안에서 항상 `(userId, sessionId)`로 키가 지정된다.
 
 하나의 `HarnessAgent` 인스턴스가 사용자 간 데이터 유출 없이 수천 명의 동시 사용자를 서비스할 수 있다.
 
-**4. 워크스페이스는 파일 시스템으로부터 분리된다.** 동일한 디렉터리 레이아웃이 로컬 디스크, 공유 KV 스토어(Redis / JDBC), 또는 샌드박스 컨테이너 중 한 곳에 위치할 수 있다. 이 분리 덕분에 에이전트 코드를 건드리지 않고도 배포 형태를 전환할 수 있다. 세 가지 모드는 [파일 시스템](./filesystem.md)을 참고하라.
+**4. 워크스페이스는 파일 시스템으로부터 분리된다.** 동일한 디렉터리 레이아웃이 로컬 디스크, 공유 KV 스토어(Redis / JDBC), 또는 샌드박스 컨테이너 중 한 곳에 위치할 수 있다. 이 분리 덕분에 에이전트 코드를 건드리지 않고도 배포 형태를 전환할 수 있다. 세 가지 모드는 [파일 시스템](/v2/ko/docs/harness/filesystem)을 참고하라.
 
 ## 워크스페이스 디렉터리 레이아웃
 
@@ -92,7 +92,7 @@ description: "에이전트 정의와 진화를 위한 source of truth: 디렉터
         └── <sessionId>.json
 ```
 
-> **이 트리는 *논리적* 레이아웃이며, 고정된 디스크 상 경로가 아니다.** `.agentscope/workspace/...`로 그려져 있지만, 이는 오직 기본적인 로컬 배치일 뿐이다. 정확히 동일한 레이아웃이 물리적으로 **로컬 디스크**에, **원격 분산 스토어**(Redis / JDBC / OSS, `RemoteFilesystemSpec`을 통해)에 존재하거나, **샌드박스 컨테이너로 투영**(`SandboxFilesystemSpec`)될 수 있다 — 아래의 상대 경로들은 세 경우 모두에서 동일하며, 오직 백엔드 스토어만 바뀔 뿐 에이전트 코드는 바뀌지 않는다. 백엔드 스토어는 [파일 시스템](./filesystem.md)으로 선택하라; 이 문서의 모든 내용은 논리적 레이아웃을 기준으로 작성되었다.
+> **이 트리는 *논리적* 레이아웃이며, 고정된 디스크 상 경로가 아니다.** `.agentscope/workspace/...`로 그려져 있지만, 이는 오직 기본적인 로컬 배치일 뿐이다. 정확히 동일한 레이아웃이 물리적으로 **로컬 디스크**에, **원격 분산 스토어**(Redis / JDBC / OSS, `RemoteFilesystemSpec`을 통해)에 존재하거나, **샌드박스 컨테이너로 투영**(`SandboxFilesystemSpec`)될 수 있다 — 아래의 상대 경로들은 세 경우 모두에서 동일하며, 오직 백엔드 스토어만 바뀔 뿐 에이전트 코드는 바뀌지 않는다. 백엔드 스토어는 [파일 시스템](/v2/ko/docs/harness/filesystem)으로 선택하라; 이 문서의 모든 내용은 논리적 레이아웃을 기준으로 작성되었다.
 
 **실제로 작성해야 하는 것은 오직 `AGENTS.md`뿐이다**(이를 생략해도 에이전트는 여전히 실행된다 — 다만 페르소나 주입을 잃을 뿐이다). 나머지는 해당하는 기능을 켤 때마다 나타난다.
 
@@ -169,7 +169,7 @@ You are an XX assistant. Follow these behavior guidelines.
 
 ## 워크스페이스 콘텐츠가 로드되는 방식
 
-워크스페이스는 논리적 레이아웃이므로(위의 콜아웃 참고), "로딩"은 결코 평범한 로컬 디렉터리를 가정하지 않는다 — 모든 읽기는 설정된 `AbstractFilesystem`을 거치므로, 파일이 로컬 디스크에 있든, 원격 스토어에 있든, 샌드박스 안에 있든 동일한 로직이 동작한다. 아래의 [2계층 읽기](#2단계-읽기파일-시스템-우선--로컬-폴백)는 이 백엔드 독립성을 구체화한 것이며; [파일 시스템](./filesystem.md)은 각 모드가 물리적으로 경로를 어떻게 해석하는지를 다룬다.
+워크스페이스는 논리적 레이아웃이므로(위의 콜아웃 참고), "로딩"은 결코 평범한 로컬 디렉터리를 가정하지 않는다 — 모든 읽기는 설정된 `AbstractFilesystem`을 거치므로, 파일이 로컬 디스크에 있든, 원격 스토어에 있든, 샌드박스 안에 있든 동일한 로직이 동작한다. 아래의 [2계층 읽기](#2단계-읽기파일-시스템-우선--로컬-폴백)는 이 백엔드 독립성을 구체화한 것이며; [파일 시스템](/v2/ko/docs/harness/filesystem)은 각 모드가 물리적으로 경로를 어떻게 해석하는지를 다룬다.
 
 ### 턴마다의 시스템 프롬프트 조립
 
@@ -227,7 +227,7 @@ workspace/
         └── researcher.md             ← Alice에게만 보임
 ```
 
-`RuntimeContext.userId="alice"`로 호출되면, 프레임워크는 먼저 `alice/skills/code-reviewer/`를 찾고 없으면 `skills/code-reviewer/`로 폴백한다. 하위 계층에만 있는 고유한 스킬은 계속 보인다; 이름이 같을 때만 상위 계층에 가려진다. 전체 우선순위 표는 [스킬 — 충돌 해결](./skill.md#충돌-해결)에 있다.
+`RuntimeContext.userId="alice"`로 호출되면, 프레임워크는 먼저 `alice/skills/code-reviewer/`를 찾고 없으면 `skills/code-reviewer/`로 폴백한다. 하위 계층에만 있는 고유한 스킬은 계속 보인다; 이름이 같을 때만 상위 계층에 가려진다. 전체 우선순위 표는 [스킬 — 충돌 해결](/v2/ko/docs/harness/skill#충돌-해결)에 있다.
 
 #### 사용자별로 맞춤화된 하나의 에이전트 로직
 
@@ -245,7 +245,7 @@ workspace/
 
 ### 각 파일 시스템 모드에서의 로딩 동작
 
-워크스페이스는 논리적 레이아웃이다; 물리적 배치는 [파일 시스템](./filesystem.md)에 달려 있다. 같은 디렉터리라도 모드에 따라 로딩 방식이 달라진다 — 아래에서 설명한다.
+워크스페이스는 논리적 레이아웃이다; 물리적 배치는 [파일 시스템](/v2/ko/docs/harness/filesystem)에 달려 있다. 같은 디렉터리라도 모드에 따라 로딩 방식이 달라진다 — 아래에서 설명한다.
 
 **모드 1 · 공유 스토어(`RemoteFilesystemSpec`) — 템플릿 + 원격 오버라이드**
 
@@ -261,7 +261,7 @@ HarnessAgent agent = HarnessAgent.builder()
 ```
 
 - **로딩 방식**: 매 턴마다, `AGENTS.md` / `MEMORY.md` / `tools.json`은 원격 KV를 상위 계층으로, 워크스페이스 템플릿을 읽기 전용 하위 계층으로 하는 오버레이를 통해 제공된다. 로컬의 `<workspace>/AGENTS.md`는 **읽기 전용 시드**다 — 최초 부팅 시나 레플리카 간 동기화에 사용된다; 원격 KV에 같은 키로 사용자별 사본이 있으면 원격이 우선한다.
-- **라우팅**: `memory/` / `skills/` / `subagents/` / `knowledge/` / `agents/<id>/sessions/` / `agents/<id>/tasks/`는 `IsolationScope`별로 네임스페이스가 나뉜다(기본값 USER → `userId`당 하나의 네임스페이스; [파일 시스템 — IsolationScope](./filesystem.md#isolationscope--사용자와-레플리카-간-버킷-분리) 참고).
+- **라우팅**: `memory/` / `skills/` / `subagents/` / `knowledge/` / `agents/<id>/sessions/` / `agents/<id>/tasks/`는 `IsolationScope`별로 네임스페이스가 나뉜다(기본값 USER → `userId`당 하나의 네임스페이스; [파일 시스템 — IsolationScope](/v2/ko/docs/harness/filesystem#isolationscope--사용자와-레플리카-간-버킷-분리) 참고).
 - **모범 사례**: 팀이 합의한 `AGENTS.md` / `knowledge/` / 공유 `skills/`를 모든 레플리카의 로컬 디스크에 템플릿으로서 git-sync하라; 런타임 산출물(`MEMORY.md`, `memory/`, `agents/<id>/...`)은 KV에 쌓이도록 두라.
 
 **모드 2 · 샌드박스(`DockerFilesystemSpec` / K8s / E2B / AgentRun) — 투영 + 하이드레이션**
@@ -310,7 +310,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 ### 에이전트 상태 — 워크스페이스가 아니라 별도의 스토어
 
-`AgentState`는 `(userId, sessionId)`별 런타임 컨텍스트이며, 의도적으로 **워크스페이스 트리 밖에** 유지된다. `call()`이 완료되면, 이는 JSON으로 직렬화되어 설정된 [`AgentStateStore`](../../integration/session/index.md)를 통해 영속화되며, 해당 호출의 `(userId, sessionId)`로 주소가 지정된다. 같은 `(userId, sessionId)`로 다음 `call()`이 오면 이를 다시 불러온다.
+`AgentState`는 `(userId, sessionId)`별 런타임 컨텍스트이며, 의도적으로 **워크스페이스 트리 밖에** 유지된다. `call()`이 완료되면, 이는 JSON으로 직렬화되어 설정된 [`AgentStateStore`](/v2/ko/integration/session/index)를 통해 영속화되며, 해당 호출의 `(userId, sessionId)`로 주소가 지정된다. 같은 `(userId, sessionId)`로 다음 `call()`이 오면 이를 다시 불러온다.
 
 기본적으로 `HarnessAgent`는 워크스페이스 **바깥**의 `~/.agentscope/state/<agentId>/`를 루트로 하는 `JsonFileAgentStateStore`를 사용한다(기준 경로는 `agentscope.state.home` 시스템 프로퍼티로 오버라이드 가능), 그래서 런타임 상태는 워크스페이스 데이터와 분리된 채로 유지된다. `.stateStore(...)`를 통해 다른 스토어를 설정할 수 있다.
 
@@ -323,7 +323,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 > 기본 `JsonFileAgentStateStore`는 단일 머신 전용이다. 멀티 레플리카 프로덕션에서는 분산 스토어(`RedisAgentStateStore` / `MysqlAgentStateStore` / …)로 전환해야 한다. `filesystem(SandboxFilesystemSpec)` 또는 `filesystem(RemoteFilesystemSpec)`을 설정했는데 분산 상태 스토어로 교체하지 않았다면, `build()`는 `IllegalStateException`을 던진다 — 런타임 상태를 단일 장애점으로 만들지 말라는 강제 알림이다.
 
-전체 세부 사항(복구 흐름, 크로스 노드 지속, `(userId, sessionId)` 어드레싱)은 [컨텍스트](../building-blocks/context.md)에 있다.
+전체 세부 사항(복구 흐름, 크로스 노드 지속, `(userId, sessionId)` 어드레싱)은 [컨텍스트](/v2/ko/docs/building-blocks/context)에 있다.
 
 ### 메모리(장기)
 
@@ -345,7 +345,7 @@ workspace/
 읽기 경로:
 
 - 프레임워크 자체가 `MEMORY.md`를 읽는다(2계층; 파일 시스템 우선).
-- 에이전트는 더 오래된 항목을 위해 능동적으로 `memory_search` / `memory_get`을 호출할 수 있다. [메모리](./memory.md) 참고.
+- 에이전트는 더 오래된 항목을 위해 능동적으로 `memory_search` / `memory_get`을 호출할 수 있다. [메모리](/v2/ko/docs/harness/memory) 참고.
 
 ### 네임스페이스 격리가 물리적 위치로 매핑되는 방식
 
@@ -367,11 +367,11 @@ workspace/
 
 | 채널 | 위치 | 켜는 법 | 누적되는 방식 | 심층 분석 |
 |---------|----------------|------------|----------------|-----------|
-| **장기 메모리** | `MEMORY.md` + `memory/YYYY-MM-DD.md` | `.compaction(...)` | `MemoryFlushMiddleware`가 압축 전 대화 접두부에서 사실을 추출; 스로틀링된 백그라운드 작업이 이를 병합 + 중복 제거하여 `MEMORY.md`로 만들고, 매 턴 다시 주입됨 | [메모리](./memory.md) |
-| **자가 학습 스킬** | `skills/`, `skills/_drafts/`, `skills/.archive/` | `.enableSkillManageTool(...)` | 에이전트가 동작한 패턴으로부터 스킬 초안을 작성하기 위해 `propose_skill`을 호출 → 선택적 승격 게이트가 이를 승인 → 백그라운드 curator가 사용되지 않는 스킬을 stale(30일)로 표시하고 아카이브(90일)함 | [스킬 — 자가 학습 루프](./skill.md#자가-학습-루프선택-사항) |
-| **계획** | `plans/PLAN.md` | `.enablePlanMode()` | 읽기 전용 계획 단계가 `plan_write`를 통해 계획을 작성함; 호출 간에도 영속화되며 실행 단계를 이끌어, 의도를 행동으로부터 분리함 | [플랜 모드](./plan-mode.md) |
-| **오프로드된 도구 결과** | 워크스페이스 아래의 eviction 디렉터리 | `.toolResultEviction(...)` | 단일 도구 결과가 임계값(기본 80K자)을 초과하면, 전체 출력이 디스크에 기록되고 컨텍스트 내 메시지는 head/tail 미리보기 + `read_file` 포인터로 대체됨 | [압축](./compaction.md) |
-| **세션 로그** | `agents/<agentId>/sessions/`(워크스페이스) | 기본적으로 켜짐 | 매 `call()`이 절대 압축되지 않는 JSONL 로그에 추가됨; `session_search` / `session_history`가 이를 조회함 | [컨텍스트](../building-blocks/context.md) |
+| **장기 메모리** | `MEMORY.md` + `memory/YYYY-MM-DD.md` | `.compaction(...)` | `MemoryFlushMiddleware`가 압축 전 대화 접두부에서 사실을 추출; 스로틀링된 백그라운드 작업이 이를 병합 + 중복 제거하여 `MEMORY.md`로 만들고, 매 턴 다시 주입됨 | [메모리](/v2/ko/docs/harness/memory) |
+| **자가 학습 스킬** | `skills/`, `skills/_drafts/`, `skills/.archive/` | `.enableSkillManageTool(...)` | 에이전트가 동작한 패턴으로부터 스킬 초안을 작성하기 위해 `propose_skill`을 호출 → 선택적 승격 게이트가 이를 승인 → 백그라운드 curator가 사용되지 않는 스킬을 stale(30일)로 표시하고 아카이브(90일)함 | [스킬 — 자가 학습 루프](/v2/ko/docs/harness/skill#자가-학습-루프선택-사항) |
+| **계획** | `plans/PLAN.md` | `.enablePlanMode()` | 읽기 전용 계획 단계가 `plan_write`를 통해 계획을 작성함; 호출 간에도 영속화되며 실행 단계를 이끌어, 의도를 행동으로부터 분리함 | [플랜 모드](/v2/ko/docs/harness/plan-mode) |
+| **오프로드된 도구 결과** | 워크스페이스 아래의 eviction 디렉터리 | `.toolResultEviction(...)` | 단일 도구 결과가 임계값(기본 80K자)을 초과하면, 전체 출력이 디스크에 기록되고 컨텍스트 내 메시지는 head/tail 미리보기 + `read_file` 포인터로 대체됨 | [압축](/v2/ko/docs/harness/compaction) |
+| **세션 로그** | `agents/<agentId>/sessions/`(워크스페이스) | 기본적으로 켜짐 | 매 `call()`이 절대 압축되지 않는 JSONL 로그에 추가됨; `session_search` / `session_history`가 이를 조회함 | [컨텍스트](/v2/ko/docs/building-blocks/context) |
 
 통합된 아이디어: **에이전트는 당신이 별도의 저장소를 연결하지 않아도 실행 간에 개선된다.** 메모리, 스킬, 계획, 세션 로그, 오프로드된 결과 모두 워크스페이스 안의 파일일 뿐이다 — 이들은 이 페이지의 다른 모든 것과 동일한 테넌트별 격리, 동일한 2계층 읽기, 동일한 파일 시스템 모드 이식성을 갖는다. (휘발성인 `AgentState` 런타임 컨텍스트는 유일한 예외다 — 이는 워크스페이스가 아니라 별도의 `AgentStateStore`에 존재한다; [런타임 데이터와 메모리는 어떻게 저장되는가](#런타임-데이터와-메모리는-어떻게-저장되는가) 참고.)
 
@@ -395,7 +395,7 @@ skills/code-reviewer/
 3. `workspace/skills/` — 워크스페이스 공유
 4. `<userId>/skills/` — 사용자별(위 모든 것을 오버라이드)
 
-하위 계층의 고유한 스킬은 계속 보인다; 이름이 같은 스킬은 상위 계층에 가려진다. 매 턴마다, `DynamicSkillMiddleware`는 재병합하여 `<available_skills>` 블록(이름 + description만)을 시스템 프롬프트에 렌더링한다. 에이전트는 관련이 있을 때 전체 세부 내용을 가져오기 위해 `load_skill_through_path`를 호출한다. 전체 메커니즘은 [스킬](./skill.md)에 있다.
+하위 계층의 고유한 스킬은 계속 보인다; 이름이 같은 스킬은 상위 계층에 가려진다. 매 턴마다, `DynamicSkillMiddleware`는 재병합하여 `<available_skills>` 블록(이름 + description만)을 시스템 프롬프트에 렌더링한다. 에이전트는 관련이 있을 때 전체 세부 내용을 가져오기 위해 `load_skill_through_path`를 호출한다. 전체 메커니즘은 [스킬](/v2/ko/docs/harness/skill)에 있다.
 
 ### `subagents/`
 
@@ -414,7 +414,7 @@ You are a code review subagent…
 ```
 
 로딩: `AgentSpecLoader`는 빌드 시점에 `workspace/subagents/*.md`를 **비재귀적으로** 스캔하며, `.subagent(SubagentDeclaration...)`을 통해 프로그래밍적으로 등록한 선언들과 병합한다. 메인 에이전트는 `agent_spawn agent_id="reviewer" task="..."`를 통해 이들을 호출한다.
-전체 세부 사항(동기 vs 백그라운드, 원격 서브에이전트, 스트림 전달, 작업 저장소)은 [서브에이전트](./subagent.md)에 있다.
+전체 세부 사항(동기 vs 백그라운드, 원격 서브에이전트, 스트림 전달, 작업 저장소)은 [서브에이전트](/v2/ko/docs/harness/subagent)에 있다.
 
 ### `tools.json`
 
@@ -459,7 +459,7 @@ plans/
 └── PLAN.md           ← current plan written by plan_write
 ```
 
-참고: `PlanModeContext`(계획 단계가 활성화되어 있는지, 현재 계획 파일 경로)는 `AgentState`에 위치한다 — 이는 **런타임 상태**이며 `AgentStateStore`(기본값 `~/.agentscope/state/<agentId>/`, 워크스페이스 바깥)를 통해 영속화된다. `plans/` 아래의 파일은 오직 마크다운 콘텐츠 그 자체일 뿐이다. [플랜 모드](./plan-mode.md) 참고.
+참고: `PlanModeContext`(계획 단계가 활성화되어 있는지, 현재 계획 파일 경로)는 `AgentState`에 위치한다 — 이는 **런타임 상태**이며 `AgentStateStore`(기본값 `~/.agentscope/state/<agentId>/`, 워크스페이스 바깥)를 통해 영속화된다. `plans/` 아래의 파일은 오직 마크다운 콘텐츠 그 자체일 뿐이다. [플랜 모드](/v2/ko/docs/harness/plan-mode) 참고.
 
 ### `agents/<agentId>/`
 
@@ -476,7 +476,7 @@ agents/<agentId>/
 
 > 직렬화된 `AgentState`(`agent_state`)는 기본적으로 워크스페이스에 위치하지 **않는다** — 이는 설정된 `AgentStateStore`(기본값 `~/.agentscope/state/<agentId>/`)에 있다. 위의 대화 로그와 작업 기록만이 워크스페이스에 남는다.
 
-크로스 노드 복구 / 멀티 레플리카 배포에서는 이 데이터가 공유되어야 한다(`RedisAgentStateStore` + `RemoteFilesystemSpec`, 또는 분산 상태를 가진 샌드박스 중 하나). [컨텍스트](../building-blocks/context.md)와 [파일 시스템](./filesystem.md)을 참고하라.
+크로스 노드 복구 / 멀티 레플리카 배포에서는 이 데이터가 공유되어야 한다(`RedisAgentStateStore` + `RemoteFilesystemSpec`, 또는 분산 상태를 가진 샌드박스 중 하나). [컨텍스트](/v2/ko/docs/building-blocks/context)와 [파일 시스템](/v2/ko/docs/harness/filesystem)을 참고하라.
 
 ### `knowledge/`
 
@@ -503,10 +503,10 @@ knowledge/
 
 ## 관련 문서
 
-- [아키텍처](./architecture.md) — 시스템 프롬프트가 어떻게 조립되고 각 기능이 어떻게 협력하는지
-- [파일 시스템](./filesystem.md) — 워크스페이스가 물리적으로 어디에 위치하는지(로컬 / 샌드박스 / 공유 스토어), `IsolationScope`, 멀티유저 격리
-- [컨텍스트](../building-blocks/context.md) — `AgentState`와 `AgentStateStore` 영속화, 크로스 노드 복구
-- [메모리](./memory.md) — `MEMORY.md` / `memory/`가 어떻게 생성되고 유지되는지, 압축, 에빅션
-- [스킬](./skill.md) — 4단계 합성, 자가 학습 루프, `<available_skills>` 블록
-- [서브에이전트](./subagent.md) — `subagents/` 선언, 동기 vs 백그라운드, 스트림 전달
-- [플랜 모드](./plan-mode.md) — `plans/` 파일, 읽기 전용 단계, HITL 종료
+- [아키텍처](/v2/ko/docs/harness/architecture) — 시스템 프롬프트가 어떻게 조립되고 각 기능이 어떻게 협력하는지
+- [파일 시스템](/v2/ko/docs/harness/filesystem) — 워크스페이스가 물리적으로 어디에 위치하는지(로컬 / 샌드박스 / 공유 스토어), `IsolationScope`, 멀티유저 격리
+- [컨텍스트](/v2/ko/docs/building-blocks/context) — `AgentState`와 `AgentStateStore` 영속화, 크로스 노드 복구
+- [메모리](/v2/ko/docs/harness/memory) — `MEMORY.md` / `memory/`가 어떻게 생성되고 유지되는지, 압축, 에빅션
+- [스킬](/v2/ko/docs/harness/skill) — 4단계 합성, 자가 학습 루프, `<available_skills>` 블록
+- [서브에이전트](/v2/ko/docs/harness/subagent) — `subagents/` 선언, 동기 vs 백그라운드, 스트림 전달
+- [플랜 모드](/v2/ko/docs/harness/plan-mode) — `plans/` 파일, 읽기 전용 단계, HITL 종료

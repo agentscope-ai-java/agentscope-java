@@ -1,6 +1,6 @@
 ---
 title: "컨텍스트 & AgentState"
-description: "상태 비저장 에이전트 엔진, AgentState 생명주기, 상태 영속화, RuntimeContext"
+description: 상태 비저장 에이전트 엔진, AgentState 생명주기, 상태 영속화, RuntimeContext
 ---
 
 ## 상태 비저장 에이전트 엔진
@@ -32,7 +32,7 @@ description: "상태 비저장 에이전트 엔진, AgentState 생명주기, 상
 
 ## AgentState
 
-[`AgentStateStore`](../../../en/integration/session/index.md)는 **`AgentState`**(`io.agentscope.core.state.AgentState`) — 에이전트를 재시작 가능하게 만드는 모든 것의 완전한 스냅샷 — 를 영속화합니다:
+[`AgentStateStore`](/v2/en/integration/session/index)는 **`AgentState`**(`io.agentscope.core.state.AgentState`) — 에이전트를 재시작 가능하게 만드는 모든 것의 완전한 스냅샷 — 를 영속화합니다:
 
 | `AgentState` 필드 | 내용 |
 |---|---|
@@ -40,7 +40,7 @@ description: "상태 비저장 에이전트 엔진, AgentState 생명주기, 상
 | `getUserId()` | 사용자 식별자 (익명 세션의 경우 null 가능) |
 | `getContext()` / `contextMutable()` | 현재 대화 이력 (사용자 / 어시스턴트 / 도구 호출 / 도구 결과) |
 | `getSummary()` | 압축된 요약 (압축이 활성화된 경우) |
-| `getPermissionContext()` | 도구 권한 규칙 — [권한](../../../en/docs/building-blocks/permission-system.md) 참고 |
+| `getPermissionContext()` | 도구 권한 규칙 — [권한](/v2/en/docs/building-blocks/permission-system) 참고 |
 | `getPlanModeContext()` | Plan 모드 활성화 여부, 현재 플랜 파일 경로 |
 | `getTasksContext()` | `todo_write` 작업 목록 |
 | `getToolContext()` | 활성화된 툴킷 그룹 (`activatedGroups`) |
@@ -109,9 +109,11 @@ HarnessAgent agent = HarnessAgent.builder()
         .build();
 ```
 
-:::{warning}
+<Warning>
+
 내장 `JsonFileAgentStateStore` / `InMemoryAgentStateStore`는 단일 호스트 전용입니다. 이미 `filesystem(SandboxFilesystemSpec)` 또는 `filesystem(RemoteFilesystemSpec)`(분산 워크스페이스)을 선택했다면, HarnessAgent는 빌드 시점에 `IllegalStateException`으로 로컬 상태 저장소를 **거부**합니다 — 샌드박스 상태는 레플리카 간에 공유되어야 합니다. `.distributedStore(...)`(예: `RedisDistributedStore`) 또는 `.stateStore(...)`를 통해 분산 저장소를 구성하세요.
-:::
+
+</Warning>
 
 ### 프로세스와 머신 간 실시간 재개
 
@@ -152,7 +154,7 @@ agentB.call(nextMsg, RuntimeContext.builder()
 `sessionId`와 `userId`는 서로 다른 문제를 해결합니다:
 
 - **`sessionId`** — 어떤 대화인가; 독립적인 `AgentState` 스냅샷.
-- **`userId`** — 이 대화를 소유한 사용자; 어떤 사용자의 네임스페이스 파일에 저장되는지도 결정함 — [파일시스템](../../../en/docs/harness/filesystem.md) 참고.
+- **`userId`** — 이 대화를 소유한 사용자; 어떤 사용자의 네임스페이스 파일에 저장되는지도 결정함 — [파일시스템](/v2/en/docs/harness/filesystem) 참고.
 
 ```java
 agent.call(msg, RuntimeContext.builder()
@@ -205,9 +207,11 @@ agent.clearContext(RuntimeContext.builder()
 세션의 현재 요청이 완료된 후에 호출하세요. 이는 진행 중인 호출을 취소하지 않습니다;
 다음 호출은 지워진 대화 컨텍스트로 시작됩니다.
 
-:::{note}
+<Note>
+
 1.0의 `Memory` 인터페이스(`InMemoryMemory` / `LongTermMemory` 등)는 2.0에서 `@Deprecated(forRemoval = true)`입니다. 새 코드는 `AgentState.getContext()`와 `AgentStateStore`를 사용해야 합니다; `Memory`는 소스 호환성 shim으로만 남아 있습니다.
-:::
+
+</Note>
 
 ### 세션별 인터럽트
 
@@ -225,9 +229,11 @@ agent.interrupt("alice", "session-001", Msg.userMsg("Please stop and summarise."
 
 레거시 인자 없는 `interrupt()`는 단일 세션 시나리오에서 여전히 동작합니다 — 현재 활성화된 세션의 `InterruptControl`로 라우팅됩니다.
 
-:::{note}
+<Note>
+
 `InterruptControl`은 런타임 전용 신호입니다; 절대 영속화되지 않습니다. 세션이 장애 조치 후 다른 노드에서 재개되면, 인터럽트 플래그는 초기화된 상태로 시작합니다. (영속화**되는**) 별도의 `AgentState.shutdownInterrupted` 플래그는 세션이 정상 종료(graceful shutdown)로 인해 인터럽트되었는지를 기록하며 — 에이전트는 다음 로드 시 이를 감지하고 복구할 수 있습니다.
-:::
+
+</Note>
 
 ### 동시 사용
 
@@ -264,9 +270,11 @@ Flux.merge(call1, call2).collectList().block();
 - **동일한 `(userId, sessionId)`** → 세션별 비동기 게이트가 FIFO 순서로 호출을 직렬화 — 외부 잠금 없이도 상태 일관성이 보장됨.
 - **`interrupt(userId, sessionId)`** → 정확히 하나의 세션만 대상으로 하며, 그 외 진행 중인 호출에는 영향 없음.
 
-:::{tip}
+<Tip>
+
 메모리 내 상태 캐시는 단일 에이전트 인스턴스가 처리한 서로 다른 세션 수만큼 커집니다. 대부분의 배포(수백 개 세션)에서는 무시할 수 있는 수준입니다. 매우 대규모 시나리오(프로세스당 수백만 세션)의 경우 제한된 인스턴스 풀을 가진 에이전트 팩토리 패턴을 고려하세요 — 다만 `AgentState` 객체는 가볍기 때문에 이런 경우는 드뭅니다.
-:::
+
+</Tip>
 
 ---
 
@@ -299,19 +307,23 @@ Msg result = agent.call(List.of(new UserMessage("Hi")), ctx).block();
 | `getExtra()` | 문자열 속성 맵에 대한 직접 접근 (가변 뷰) |
 | `RuntimeContext.empty()` | 빈 컨텍스트 |
 
-:::{tip}
-**`AgentStateStore`는 빌더 시점에 바인딩되며, `RuntimeContext`를 통해 호출마다 전환할 수 없습니다.** 호출마다 실제로 달라지는 것은 그것이 지정하는 `(userId, sessionId)` 슬롯입니다 — 사용자별 격리를 위해서는 `userId`(또는 저장소의 커스텀 `keyPrefix`)를 설정하고, 각 호출에 서로 다른 상태 저장소 인스턴스를 넘기려 하지 마세요.
-:::
+<Tip>
 
-:::{tip}
+**`AgentStateStore`는 빌더 시점에 바인딩되며, `RuntimeContext`를 통해 호출마다 전환할 수 없습니다.** 호출마다 실제로 달라지는 것은 그것이 지정하는 `(userId, sessionId)` 슬롯입니다 — 사용자별 격리를 위해서는 `userId`(또는 저장소의 커스텀 `keyPrefix`)를 설정하고, 각 호출에 서로 다른 상태 저장소 인스턴스를 넘기려 하지 마세요.
+
+</Tip>
+
+<Tip>
+
 **미들웨어와 도구에서 `AgentState`에 접근하기:** 호출 실행 중에는 항상 `agent.getAgentState()`가 아니라 `RuntimeContext.resolveAgentState(ctx, agent)`를 사용하세요. 동시성 상황에서 `agent.getAgentState()`는 마지막으로 활성화된 세션의 상태를 반환합니다(여러 호출이 진행 중일 때는 임의의 선택입니다), 반면 `ctx.getAgentState()`는 **현재 호출**의 세션에 대한 상태를 반환합니다 — 거의 항상 이것이 원하는 값입니다.
-:::
+
+</Tip>
 
 ---
 
 ## 관련 페이지
 
-- [에이전트](./agent.md) — 전체 `ReActAgent` API와 빌더 필드
-- [컨텍스트 압축](../../../en/docs/harness/compaction.md) — 대화 요약, 도구 결과 제거, 오버플로 복구 (여기서 설명한 AgentState 기반 위에 구축됨)
-- [메모리](../../../en/docs/harness/memory.md) — 장기 메모리, 백그라운드 유지 관리
-- [권한](../../../en/docs/building-blocks/permission-system.md) — 권한 규칙의 영속화
+- [에이전트](/v2/ko/docs/building-blocks/agent) — 전체 `ReActAgent` API와 빌더 필드
+- [컨텍스트 압축](/v2/en/docs/harness/compaction) — 대화 요약, 도구 결과 제거, 오버플로 복구 (여기서 설명한 AgentState 기반 위에 구축됨)
+- [메모리](/v2/en/docs/harness/memory) — 장기 메모리, 백그라운드 유지 관리
+- [권한](/v2/en/docs/building-blocks/permission-system) — 권한 규칙의 영속화

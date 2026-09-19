@@ -1,9 +1,9 @@
 ---
-title: "Sandbox"
-description: "分離実行 + 呼び出しをまたぐ復旧 + マルチレプリカデプロイ"
+title: Sandbox
+description: 分離実行 + 呼び出しをまたぐ復旧 + マルチレプリカデプロイ
 ---
 
-> 3つのファイルシステムモードの比較については [Filesystem](./filesystem.md) を参照してください。このページはサンドボックスモードの使い方に焦点を当てます。
+> 3つのファイルシステムモードの比較については [Filesystem](/v2/ja/docs/harness/filesystem) を参照してください。このページはサンドボックスモードの使い方に焦点を当てます。
 
 ## サンドボックスが解決すること
 
@@ -295,6 +295,6 @@ Docker 以外の分離環境(自前ホストのリモートエグゼキュータ
 
 ## 関連ページ
 
-- [Filesystem](./filesystem.md) — 3つの宣言的モードの比較
-- [Workspace](./workspace.md) — `workspace/` 配下のどのファイルがサンドボックスに同期されるか
-- [Architecture](./architecture.md) — call() のタイムライン上でサンドボックスの取得/解放がどこに位置するか
+- [Filesystem](/v2/ja/docs/harness/filesystem) — 3つの宣言的モードの比較
+- [Workspace](/v2/ja/docs/harness/workspace) — `workspace/` 配下のどのファイルがサンドボックスに同期されるか
+- [Architecture](/v2/ja/docs/harness/architecture) — call() のタイムライン上でサンドボックスの取得/解放がどこに位置するか

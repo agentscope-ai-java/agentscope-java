@@ -1,4 +1,6 @@
-# AgentScope Studio
+---
+title: AgentScope Studio
+---
 
 `agentscope-extensions-studio`는 Agent를 [AgentScope Studio](https://github.com/agentscope-ai/agentscope-studio)와 통합합니다: 모든 Agent 호출이 시각적 디버깅, 트레이스 리플레이, human-in-the-loop 입력을 위해 Studio로 전송됩니다.
 

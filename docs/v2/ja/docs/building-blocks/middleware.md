@@ -1,6 +1,6 @@
 ---
-title: "Middleware"
-description: "エージェントのライフサイクルにおける主要なポイントで振る舞いをインターセプトし、拡張する"
+title: Middleware
+description: エージェントのライフサイクルにおける主要なポイントで振る舞いをインターセプトし、拡張する
 ---
 
 ## 概要
@@ -33,9 +33,11 @@ onAgent/
     └── onActing(ツール呼び出しごと)
 ```
 
-:::{note}
+<Note>
+
 `onActing` はエージェントランタイム内のツール実行のみをラップします。外部実行によってエージェントの外で実行されるツールは、`onActing` によって追跡されません。
-:::
+
+</Note>
 
 ## Middleware を組み込む
 
@@ -257,7 +259,7 @@ public class FullObservabilityMiddleware implements MiddlewareBase {
 
 ### RuntimeContext の読み取り
 
-すべての `MiddlewareBase` hook は、この `call` / `stream` にバインドされた [`RuntimeContext`](./agent.md#runtimecontext-呼び出しごとのコンテキスト) を第2引数として受け取ります——セッションフィールドや型付き/文字列の属性を読み取ったり、下流の hook やツールに値を伝えるために書き戻したりできます。
+すべての `MiddlewareBase` hook は、この `call` / `stream` にバインドされた [`RuntimeContext`](/v2/ja/docs/building-blocks/agent#runtimecontext-呼び出しごとのコンテキスト) を第2引数として受け取ります——セッションフィールドや型付き/文字列の属性を読み取ったり、下流の hook やツールに値を伝えるために書き戻したりできます。
 
 ```java
 import io.agentscope.core.agent.Agent;
@@ -469,9 +471,11 @@ public class ModelFallbackMiddleware implements MiddlewareBase {
 }
 ```
 
-:::{tip}
+<Tip>
+
 単純なプライマリ→バックアップのフォールバックであれば、`ReActAgent.Builder` はすでに `fallbackModel(...)` と `maxRetries(...)` を直接公開しています——middleware は不要です。
-:::
+
+</Tip>
 
 ### すべてのツールが拒否された場合にエージェントを停止する
 

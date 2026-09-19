@@ -1,4 +1,6 @@
-# DeepSeek モデル
+---
+title: DeepSeek モデル
+---
 
 `agentscope-extensions-model-openai` は、OpenAI 互換のモデルスタックを通じて第一級の DeepSeek サポートを提供します。OpenAI モデル拡張モジュールを追加し、`ModelRegistry` で `deepseek:<model>` を使用してください。
 

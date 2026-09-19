@@ -1,4 +1,6 @@
-# DeepSeek Model
+---
+title: DeepSeek Model
+---
 
 `agentscope-extensions-model-openai`는 OpenAI 호환 모델 스택을 통해 정식 DeepSeek 지원을 제공합니다. OpenAI 모델 확장 모듈을 추가한 다음, `ModelRegistry`와 함께 `deepseek:<model>`을 사용하세요.
 

@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: "設定駆動からビジネスネイティブへ: AgentScope によるエンタープライズグレードのエージェント開発実践"
 ---
-
-# 設定駆動からビジネスネイティブへ: AgentScope によるエンタープライズグレードのエージェント開発実践
 
 ## 01 背景
 
@@ -918,7 +916,7 @@ HTTP Header (X-Temperature, etc.) > DB JSON field (modelParams) > DEFAULT consta
 
 完全なライフサイクルのパフォーマンスプロファイル表は、各ステージ(`createAgent` → `hasMemory` → `onEnter` → `saveAgent` → `removeSession`)のレイテンシと DB 操作をまとめています。
 
-これら 4 つのメソッドが合わさって、financeAgent の軽量なランタイムを構成しています。`createAgent` は軽量な作成を解決し(< 1ms、DB アクセスゼロ)、`hasMemory` は軽量な検知を解決し(インデックスヒット)、`saveAgent` は軽量な永続化を解決し(インクリメンタルな書き込み)、`removeSession` は軽量なクリーンアップを解決します(バッチ削除)。
+これら 4 つのメソッドが合わさって、financeAgent の軽量なランタイムを構成しています。`createAgent` は軽量な作成を解決し(&lt; 1ms、DB アクセスゼロ)、`hasMemory` は軽量な検知を解決し(インデックスヒット)、`saveAgent` は軽量な永続化を解決し(インクリメンタルな書き込み)、`removeSession` は軽量なクリーンアップを解決します(バッチ削除)。
 
 ##### 5.1.4.3 エンジニアリンググレードのヒューマンインザループ(SPI3)
 

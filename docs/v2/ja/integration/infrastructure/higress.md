@@ -1,4 +1,6 @@
-# Higress AI Gateway
+---
+title: Higress AI Gateway
+---
 
 `agentscope-extensions-higress` は、[Higress](https://higress.io/) 上で MCP (Model Context Protocol) として公開されたツールを AgentScope に取り込みます。Higress はゲートウェイ層でツール検索、認証、レート制限、可観測性を処理し、Agent は結果として得られたツールを呼び出すだけです。
 

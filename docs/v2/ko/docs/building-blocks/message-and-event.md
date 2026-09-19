@@ -1,6 +1,6 @@
 ---
 title: "메시지 & 이벤트"
-description: "에이전트 통신과 스트리밍을 위한 핵심 데이터 추상화"
+description: 에이전트 통신과 스트리밍을 위한 핵심 데이터 추상화
 ---
 
 메시지와 이벤트는 AgentScope에서 두 가지 근본적인 데이터 구조입니다.
@@ -14,9 +14,11 @@ description: "에이전트 통신과 스트리밍을 위한 핵심 데이터 추
 
 `Msg`(`io.agentscope.core.message`)는 사용자 입력, 에이전트 응답, 또는 시스템 지침 등 대화의 한 턴을 나타내며, 콘텐츠는 타입이 지정된 `ContentBlock`의 순서 있는 목록으로 모델링됩니다.
 
-:::{tip}
+<Tip>
+
 하나의 어시스턴트 `Msg`는 하나의 완전한 `call` 사이클(최종 응답에 이르기까지의 여러 추론 + 행동 반복)에 대응합니다.
-:::
+
+</Tip>
 
 ### 구조
 
@@ -47,9 +49,11 @@ description: "에이전트 통신과 스트리밍을 위한 핵심 데이터 추
 | `ToolResultBlock` | `state`(`ToolResultState`)를 가진 도구 결과 | ASSISTANT |
 | `HintBlock` | 사용자 컨텍스트로서 루프에 주입되는 지침 | ASSISTANT |
 
-:::{note}
+<Note>
+
 역할 제약은 생성 시점에 강제됩니다: `USER`는 text/data/image/audio/video 블록만 허용합니다; `SYSTEM`은 `TextBlock`만 허용합니다; `ASSISTANT`는 모든 블록 타입을 허용합니다.
-:::
+
+</Note>
 
 ### 메시지 생성
 
@@ -130,7 +134,7 @@ if (msg.hasContentBlocks(ToolResultBlock.class)) {
 
 모든 이벤트는 조립 중인 메시지와 연결하는 `getReplyId()`를 가집니다. 한 응답 내에서, `getBlockId()` 또는 `getToolCallId()`는 동일한 콘텐츠 블록 생명주기에 속하는 이벤트들의 상관관계 키(correlation key) 역할을 합니다. 이벤트는 **start → delta → end** 패턴을 따릅니다:
 
-```{mermaid}
+```mermaid
 sequenceDiagram
     participant Client
     participant Agent
@@ -191,7 +195,8 @@ sequenceDiagram
 
 이벤트는 아래에서 그룹별로 정리되어 있습니다; 별도 명시가 없는 한, 모든 이벤트는 조립 중인 메시지와 연결하는 `getReplyId()`도 가집니다.
 
-  :::{dropdown} 생명주기 이벤트
+  <Accordion title="생명주기 이벤트">
+
 **AgentStartEvent** — 에이전트가 새로운 응답을 시작합니다.
 
     | 메서드 | 타입 | 설명 |
@@ -214,9 +219,11 @@ sequenceDiagram
     | `getReplyId()` | `String` | 응답 메시지 ID |
 
     **RequestStopEvent** — 미들웨어나 도구에 의해 발생한 조기 중단 요청.
-:::
 
-  :::{dropdown} 텍스트 스트리밍 이벤트
+  </Accordion>
+
+  <Accordion title="텍스트 스트리밍 이벤트">
+
 **TextBlockStartEvent** — 새로운 텍스트 블록이 시작됩니다.
 
     | 메서드 | 타입 | 설명 |
@@ -238,20 +245,26 @@ sequenceDiagram
     |--------|------|-------------|
     | `getReplyId()` | `String` | 응답 메시지 ID |
     | `getBlockId()` | `String` | 현재 응답 내 텍스트 블록 상관관계 키 |
-:::
 
-  :::{dropdown} 사고 스트리밍 이벤트
+  </Accordion>
+
+  <Accordion title="사고 스트리밍 이벤트">
+
 **ThinkingBlockStartEvent / ThinkingBlockDeltaEvent / ThinkingBlockEndEvent** — 텍스트 스트리밍 이벤트와 동일한 형태이며, 모델의 사고 과정(chain of thought)에 특화되어 있습니다. `blockId`는 텍스트와 동일하게 응답 범위의 상관관계 키 의미를 가집니다.
-:::
 
-  :::{dropdown} 데이터 스트리밍 이벤트
+  </Accordion>
+
+  <Accordion title="데이터 스트리밍 이벤트">
+
 **DataBlockStartEvent / DataBlockDeltaEvent / DataBlockEndEvent** — 텍스트 스트리밍 이벤트와 동일한 형태이며, 이미지 / 오디오 / 비디오 바이너리 데이터를 담습니다:
 
     - `DataBlockStartEvent`: `getMediaType()`은 MIME 타입을 반환합니다 (예: `"image/png"`).
     - `DataBlockDeltaEvent`: `getData()`는 점진적인 base64 인코딩 데이터를 반환합니다.
-:::
 
-  :::{dropdown} 도구 호출 스트리밍 이벤트
+  </Accordion>
+
+  <Accordion title="도구 호출 스트리밍 이벤트">
+
 **ToolCallStartEvent** — 에이전트가 도구 호출을 시작합니다.
 
     | 메서드 | 타입 | 설명 |
@@ -263,9 +276,11 @@ sequenceDiagram
     **ToolCallDeltaEvent** — 점진적인 도구 호출 인자가 도착합니다; `getDelta()`는 JSON 조각을 반환합니다.
 
     **ToolCallEndEvent** — 도구 호출 인자가 완성됩니다.
-:::
 
-  :::{dropdown} 도구 결과 스트리밍 이벤트
+  </Accordion>
+
+  <Accordion title="도구 결과 스트리밍 이벤트">
+
 **ToolResultStartEvent** — 도구 실행이 시작됩니다 (`toolCallId`, `toolCallName`을 담음).
 
     **ToolResultTextDeltaEvent** — 도구로부터의 점진적인 텍스트 출력; `getDelta()`는 텍스트 조각을 반환합니다.
@@ -279,15 +294,19 @@ sequenceDiagram
     | `getReplyId()` | `String` | 응답 메시지 ID |
     | `getToolCallId()` | `String` | 일치하는 도구 호출 ID |
     | `getState()` | `ToolResultState` | 최종 상태: `SUCCESS`, `ERROR`, `INTERRUPTED`, `DENIED`, `RUNNING` |
-:::
 
-  :::{dropdown} 모델 호출 이벤트
+  </Accordion>
+
+  <Accordion title="모델 호출 이벤트">
+
 **ModelCallStartEvent** — 모델 API 호출이 시작됩니다 (`modelName`을 담음).
 
     **ModelCallEndEvent** — 모델 API 호출이 완료됩니다 (`inputTokens` / `outputTokens`를 담음).
-:::
 
-  :::{dropdown} Human-in-the-loop 이벤트
+  </Accordion>
+
+  <Accordion title="Human-in-the-loop 이벤트">
+
 **RequireUserConfirmEvent** — 에이전트가 사용자 확인을 위해 일시 중지됩니다.
 
     | 메서드 | 타입 | 설명 |
@@ -323,9 +342,11 @@ sequenceDiagram
     | 메서드 | 타입 | 설명 |
     |--------|------|-------------|
     | `getDeniedToolCalls()` | `List<ToolUseBlock>` | 거부된 도구 호출 |
-:::
 
-  :::{dropdown} 서브에이전트 이벤트
+  </Accordion>
+
+  <Accordion title="서브에이전트 이벤트">
+
 **SubagentExposedEvent** — `agent_spawn(expose_to_user=true)`를 통해 생성된 서브에이전트가 사용자가 접근 가능한 진입점으로 노출되었습니다. SSE / 스트리밍 소비자는 이를 사용해 UI에 새로운 대화 항목을 렌더링할 수 있습니다.
 
 | 메서드 | 타입 | 설명 |
@@ -334,7 +355,8 @@ sequenceDiagram
 | `getAgentId()` | `String` | 서브에이전트의 에이전트 타입 ID |
 | `getSessionId()` | `String` | 서브에이전트의 세션 ID |
 | `getLabel()` | `String` | 사용자에게 보이는 라벨 (선택 사항) |
-:::
+
+  </Accordion>
 
 ## 이벤트로부터 메시지 재구성
 
@@ -369,9 +391,11 @@ agent.streamEvents(userMsg)
         .blockLast();
 ```
 
-:::{tip}
+<Tip>
+
 이러한 분리는 배포를 유연하게 만듭니다: 백엔드는 SSE를 통해 이벤트 스트림을 푸시하고, 프런트엔드는 클라이언트 측에서 메시지를 재구성합니다. 연결이 끊기더라도, 어떤 체크포인트에서든 이벤트를 재생하면 메시지 상태를 정확히 복원할 수 있습니다.
-:::
+
+</Tip>
 
 ### 예제: 스트리밍 UI
 
@@ -404,17 +428,21 @@ agent.streamEvents(new UserMessage("user", "Help me fix this bug"))
 
 ## 더 읽어보기
 
-::::{grid} 2
+<CardGroup cols={2}>
 
-:::{grid-item-card} 에이전트
-:link: ./agent.html
+
+<Card title="에이전트" href="/v2/ko/docs/building-blocks/agent">
+
 
 ReAct 루프에서 에이전트가 이벤트와 메시지를 방출하는 방법
-:::
-  :::{grid-item-card} 컨텍스트
-:link: context.html
+
+</Card>
+  <Card title="컨텍스트" href="/v2/ko/docs/building-blocks/context">
+
 
 메시지가 저장되고 영속화되는 방법
-:::
 
-::::
+  </Card>
+
+
+</CardGroup>

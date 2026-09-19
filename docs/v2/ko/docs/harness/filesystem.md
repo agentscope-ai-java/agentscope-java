@@ -1,5 +1,5 @@
 ---
-title: "파일 시스템(Filesystem)"
+title: 파일 시스템(Filesystem)
 description: "세 가지 배포 모드: 로컬 + shell / 공유 스토어 / 샌드박스; IsolationScope 차원; 멀티유저 격리; 각 모드에서 스킬과 도구가 동작하는 방식"
 ---
 
@@ -177,7 +177,7 @@ HarnessAgent agent = HarnessAgent.builder()
 | `kubernetesClient(KubernetesClient)` | 커스텀 fabric8 클라이언트 | kubeconfig 자동 로드 |
 | `snapshotSpec(SandboxSnapshotSpec)` | 스냅샷 전략(PVC와의 트레이드오프는 샌드박스 페이지 참고) | `NoopSnapshotSpec` |
 
-`apiUrl`과 `gateway*` 모두 설정하지 않으면 `kubectl port-forward`를 이용한 로컬 터널이 사용된다(개발용으로 적합). 런타임 이미지는 [런타임 이미지 계약](./sandbox.md#런타임-이미지-계약)을 충족해야 한다. **워크스페이스 영속성은 템플릿에 설정된 PVC에 달려 있다** — [샌드박스 - Kubernetes 상태 영속성](./sandbox.md#kubernetes-상태-영속성-pvc가-첫-번째-계층이다)을 참고하라.
+`apiUrl`과 `gateway*` 모두 설정하지 않으면 `kubectl port-forward`를 이용한 로컬 터널이 사용된다(개발용으로 적합). 런타임 이미지는 [런타임 이미지 계약](/v2/ko/docs/harness/sandbox#런타임-이미지-계약)을 충족해야 한다. **워크스페이스 영속성은 템플릿에 설정된 PVC에 달려 있다** — [샌드박스 - Kubernetes 상태 영속성](/v2/ko/docs/harness/sandbox#kubernetes-상태-영속성-pvc가-첫-번째-계층이다)을 참고하라.
 
 #### E2B 샌드박스
 
@@ -523,9 +523,9 @@ HarnessAgent.builder()
 
 ## 관련 문서
 
-- [샌드박스](./sandbox.md) — 모드 2의 런타임 세부 사항(컨테이너 생명주기, 스냅샷 복구 체인)
-- [워크스페이스](./workspace.md) — 디렉터리 레이아웃, 로딩 메커니즘, 2계층 읽기의 "하위 계층"
-- [컨텍스트](../building-blocks/context.md) — `AgentState`와 `AgentStateStore`, `(userId, sessionId)` 어드레싱
-- [스킬](./skill.md) — 4단계 합성, 자가 학습 루프, `<available_skills>` 블록
-- [도구](../building-blocks/tool.md) — `read_file` / `write_file` / `execute` 파라미터
-- [아키텍처](./architecture.md) — 파일 시스템과 런타임 컨텍스트가 협력하는 방식
+- [샌드박스](/v2/ko/docs/harness/sandbox) — 모드 2의 런타임 세부 사항(컨테이너 생명주기, 스냅샷 복구 체인)
+- [워크스페이스](/v2/ko/docs/harness/workspace) — 디렉터리 레이아웃, 로딩 메커니즘, 2계층 읽기의 "하위 계층"
+- [컨텍스트](/v2/ko/docs/building-blocks/context) — `AgentState`와 `AgentStateStore`, `(userId, sessionId)` 어드레싱
+- [스킬](/v2/ko/docs/harness/skill) — 4단계 합성, 자가 학습 루프, `<available_skills>` 블록
+- [도구](/v2/ko/docs/building-blocks/tool) — `read_file` / `write_file` / `execute` 파라미터
+- [아키텍처](/v2/ko/docs/harness/architecture) — 파일 시스템과 런타임 컨텍스트가 협력하는 방식

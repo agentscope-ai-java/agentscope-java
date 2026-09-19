@@ -1,4 +1,6 @@
-# Simple Knowledge
+---
+title: Simple Knowledge
+---
 
 `agentscope-extensions-rag-simple` は「DIY でエンドツーエンドに行う」RAG 実装です。ドキュメントリーダー、チャンク分割戦略、embedding アダプター、そして 5 種類のすぐ使えるベクトルストアアダプターがまとめて含まれています。
 

@@ -1,6 +1,6 @@
 ---
-title: "미들웨어"
-description: "주요 생명주기 시점에서 에이전트 동작을 가로채고 확장합니다"
+title: 미들웨어
+description: 주요 생명주기 시점에서 에이전트 동작을 가로채고 확장합니다
 ---
 
 ## 개요
@@ -33,9 +33,11 @@ onAgent/
     └── onActing (도구 호출별)
 ```
 
-:::{note}
+<Note>
+
 `onActing`은 에이전트 런타임 내부의 도구 실행만 감쌉니다. 외부 실행을 통해 에이전트 밖에서 실행되는 도구는 `onActing`으로 추적되지 않습니다.
-:::
+
+</Note>
 
 ## 미들웨어 장착
 
@@ -257,7 +259,7 @@ public class FullObservabilityMiddleware implements MiddlewareBase {
 
 ### RuntimeContext 읽기
 
-모든 `MiddlewareBase` 훅은 이 `call` / `stream`에 바인딩된 [`RuntimeContext`](./agent.md#runtimecontext-호출별-컨텍스트)를 두 번째 인자로 받습니다 — 세션 필드와 타입/문자열 속성을 읽을 수 있으며, 하위 훅과 도구로 값을 전달하기 위해 다시 쓸 수도 있습니다.
+모든 `MiddlewareBase` 훅은 이 `call` / `stream`에 바인딩된 [`RuntimeContext`](/v2/ko/docs/building-blocks/agent#runtimecontext-호출별-컨텍스트)를 두 번째 인자로 받습니다 — 세션 필드와 타입/문자열 속성을 읽을 수 있으며, 하위 훅과 도구로 값을 전달하기 위해 다시 쓸 수도 있습니다.
 
 ```java
 import io.agentscope.core.agent.Agent;
@@ -469,9 +471,11 @@ public class ModelFallbackMiddleware implements MiddlewareBase {
 }
 ```
 
-:::{tip}
+<Tip>
+
 단순한 주 모델→백업 모델 폴백의 경우, `ReActAgent.Builder`는 이미 `fallbackModel(...)`과 `maxRetries(...)`를 직접 제공합니다 — 미들웨어가 필요하지 않습니다.
-:::
+
+</Tip>
 
 ### 모든 도구가 거부되었을 때 에이전트 중지
 

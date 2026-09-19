@@ -1,12 +1,14 @@
-# メモリ
+---
+title: メモリ
+---
 
 `LongTermMemory` は、複数のターンやセッションにまたがってユーザーの好み、事実、重要な要点を永続化するための AgentScope のインターフェースです。`agentscope-extensions-*` リポジトリには、主要なメモリストア向けにすぐ使える実装が同梱されています。
 
 | 拡張機能 | バックエンド | 最適な用途 |
 | --- | --- | --- |
-| [Mem0](mem0.md) | [Mem0](https://mem0.ai/) Platform / セルフホスト | マルチテナント分離とメタデータフィルタリングを備えた汎用セマンティックメモリ |
-| [Bailian](bailian.md) | Alibaba Cloud Bailian メモリサービス | リランク / 判定 / 書き換え機能を備えたクラウドマネージド型メモリ |
-| [ReMe](reme.md) | セルフホスト型 ReMe サービス | トラジェクトリ要約機能を備えたワークスペースレベルのメモリ |
+| [Mem0](/v2/ja/integration/memory/mem0) | [Mem0](https://mem0.ai/) Platform / セルフホスト | マルチテナント分離とメタデータフィルタリングを備えた汎用セマンティックメモリ |
+| [Bailian](/v2/ja/integration/memory/bailian) | Alibaba Cloud Bailian メモリサービス | リランク / 判定 / 書き換え機能を備えたクラウドマネージド型メモリ |
+| [ReMe](/v2/ja/integration/memory/reme) | セルフホスト型 ReMe サービス | トラジェクトリ要約機能を備えたワークスペースレベルのメモリ |
 
 3つすべてが同じ `io.agentscope.core.memory.LongTermMemory` インターフェースを実装しており、Agent への組み込み方法も同じです。
 

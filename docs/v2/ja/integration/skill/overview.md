@@ -1,16 +1,18 @@
-# Skill Repository
+---
+title: Skill Repository
+---
 
-`AgentSkill` は、再利用可能な「skill」を記述するための AgentScope の Markdown + リソースファイル形式です（[Harness · Skill](../../docs/harness/skill.md) を参照）。`AgentSkillRepository` インターフェースは、外部ストレージから skill をロードし、`Toolkit` / `ReActAgent` に渡します。
+`AgentSkill` は、再利用可能な「skill」を記述するための AgentScope の Markdown + リソースファイル形式です（[Harness · Skill](/v2/ja/docs/harness/skill) を参照）。`AgentSkillRepository` インターフェースは、外部ストレージから skill をロードし、`Toolkit` / `ReActAgent` に渡します。
 
 `agentscope-extensions-*` リポジトリは、以下のすぐに使える実装を提供します。
 
 | 拡張機能 | バックエンド | 最適な用途 |
 | --- | --- | --- |
-| [Git Repository](git-repository.md) | リモート Git リポジトリ | Git ベースのバージョン管理とレビュー |
-| [MySQL Repository](mysql-repository.md) | MySQL データベース | 管理コンソール / 業務システム経由のオンライン編集 |
-| [PostgreSQL Repository](postgresql-repository.md) | PostgreSQL データベース | 既存の PostgreSQL インフラ、オンライン編集 |
+| [Git Repository](/v2/ja/integration/skill/git-repository) | リモート Git リポジトリ | Git ベースのバージョン管理とレビュー |
+| [MySQL Repository](/v2/ja/integration/skill/mysql-repository) | MySQL データベース | 管理コンソール / 業務システム経由のオンライン編集 |
+| [PostgreSQL Repository](/v2/ja/integration/skill/postgresql-repository) | PostgreSQL データベース | 既存の PostgreSQL インフラ、オンライン編集 |
 
-> Nacos も `AgentSkillRepository` の実装を提供しています。[Nacos](../infrastructure/nacos.md) を参照してください。
+> Nacos も `AgentSkillRepository` の実装を提供しています。[Nacos](/v2/ja/integration/infrastructure/nacos) を参照してください。
 
 ## 配線
 

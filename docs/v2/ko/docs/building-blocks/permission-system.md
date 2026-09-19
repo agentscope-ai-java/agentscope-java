@@ -1,6 +1,6 @@
 ---
-title: "Permission System"
-description: "agent가 어떤 도구를 언제 실행할 수 있는지에 대한 세밀한 제어"
+title: Permission System
+description: agent가 어떤 도구를 언제 실행할 수 있는지에 대한 세밀한 제어
 ---
 
 ## 개요
@@ -13,7 +13,7 @@ description: "agent가 어떤 도구를 언제 실행할 수 있는지에 대한
 - **Mode** — 설정 시점에 정해지는 전역 정적 정책으로, 어떤 규칙에도 매칭되지 않는 호출의 기본 동작을 결정한다(예: `EXPLORE`는 agent를 읽기 전용으로 만들고, `DONT_ASK`는 규칙에 매칭되지 않는 것을 조용히 거부한다).
 - **Built-in Checks** — 실제 입력을 기반으로 도구 자체가 수행하는 런타임 분석(`ToolBase#checkPermissions`에 구현)이다. 이는 사전 설정된 패턴이 아니라 런타임 검사이므로 **우회할 수 없다** — mode나 rules의 적용을 받지 않는다.
 
-```{mermaid}
+```mermaid
 sequenceDiagram
     participant LLM
     participant PS as Permission System
@@ -41,8 +41,9 @@ sequenceDiagram
     end
 ```
 
-:::{dropdown} 상세 결정 흐름
-```{mermaid}
+<Accordion title="상세 결정 흐름">
+
+```mermaid
 flowchart TD
     A([Tool Call]) --> B{Deny Rules?}
     B -->|Match| DENY([DENY])
@@ -75,11 +76,14 @@ flowchart TD
     style ASK2 fill:#ffd43b,color:#333
     style ASK3 fill:#ffd43b,color:#333
 ```
-:::
 
-:::{note}
+</Accordion>
+
+<Note>
+
 deny 규칙과 위험 경로 검사는 **우회할 수 없다** — `BYPASS` 모드에서도 적용된다.
-:::
+
+</Note>
 
 ## Permission Mode
 
@@ -95,8 +99,10 @@ deny 규칙과 위험 경로 검사는 **우회할 수 없다** — `BYPASS` 모
 
 agent 빌더에서 `permissionContext(...)`를 통해 mode를 설정한다.
 
-::::{tab-set}
-:::{tab-item} 초기 설정
+<Tabs>
+
+<Tab title="초기 설정">
+
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.permission.PermissionContextState;
@@ -115,8 +121,10 @@ ReActAgent agent =
                 .permissionContext(permCtx)
                 .build();
 ```
-:::
-:::{tab-item} 작업 디렉터리를 사용하는 ACCEPT_EDITS
+
+</Tab>
+<Tab title="작업 디렉터리를 사용하는 ACCEPT_EDITS">
+
 ```java
 import io.agentscope.core.permission.AdditionalWorkingDirectory;
 import io.agentscope.core.permission.PermissionContextState;
@@ -130,8 +138,10 @@ PermissionContextState permCtx =
                         new AdditionalWorkingDirectory("/my/project", "userSettings"))
                 .build();
 ```
-:::
-::::
+
+</Tab>
+
+</Tabs>
 
 ## Permission Rule
 
@@ -341,7 +351,7 @@ if (result != null && result.getGenerateReason() == GenerateReason.PERMISSION_AS
 
 이런 상황에서 agent를 멈추려면, `AllToolsDeniedEvent`를 관찰하고 `RequestStopEvent`를 발생시키는 `onActing` middleware를 붙이면 된다. 정지 후에는 `Msg.getGenerateReason()`이 `ALL_TOOLS_DENIED`를 반환한다.
 
-구현 방법은 [Middleware — 모든 도구가 거부되었을 때 agent 정지하기](./middleware.md#stop-agent-when-all-tools-are-denied)를 참고한다.
+구현 방법은 [Middleware — 모든 도구가 거부되었을 때 agent 정지하기](/v2/ko/docs/building-blocks/middleware#모든-도구가-거부되었을-때-에이전트-중지)를 참고한다.
 ### 스트리밍 모드
 
 `streamEvents()`를 사용할 때는 반환된 `Msg`에서 `ToolUseBlock`을 추출할 필요가 없다 — 이벤트 스트림이 대기 중인 도구 호출을 직접 담은 `RequireUserConfirmEvent`를 전달한다.
@@ -422,8 +432,10 @@ PermissionContextState headless =
 
 아래 예시들은 전형적인 배포 시나리오에 맞춰 `permissionContext`를 구성하는 방법을 보여준다. 각 레시피는 하나의 mode와 해당 사용 사례에 맞춘 규칙 집합을 결합한다.
 
-::::{tab-set}
-:::{tab-item} 읽기 전용 탐색
+<Tabs>
+
+<Tab title="읽기 전용 탐색">
+
 ```java
 // EXPLORE mode: agent freely calls read-only tools; all writes are auto-denied.
 PermissionContextState explore =
@@ -439,8 +451,10 @@ ReActAgent explorer =
                 .permissionContext(explore)
                 .build();
 ```
-:::
-:::{tab-item} 무인 자동화
+
+</Tab>
+<Tab title="무인 자동화">
+
 ```java
 import io.agentscope.core.permission.PermissionBehavior;
 import io.agentscope.core.permission.PermissionRule;
@@ -467,8 +481,10 @@ ReActAgent ciAgent =
                 .build();
 // Only explicitly allowed commands run; everything else is silently denied.
 ```
-:::
-:::{tab-item} 위험한 명령 차단
+
+</Tab>
+<Tab title="위험한 명령 차단">
+
 ```java
 PermissionContextState bypassWithDeny =
         PermissionContextState.builder()
@@ -484,5 +500,7 @@ PermissionContextState bypassWithDeny =
                 .build();
 // Everything except the explicitly denied tools runs (deny rules can't be bypassed).
 ```
-:::
-::::
+
+</Tab>
+
+</Tabs>

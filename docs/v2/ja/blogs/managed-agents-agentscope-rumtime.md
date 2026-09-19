@@ -1,5 +1,5 @@
 ---
-hide-toc: true
+title: "リリース計画 Agent: このデモではテキストのドラフトを生成するだけ"
 ---
 
 Managed Agents は、agent をクラウド環境で実行させる: 一方で、推論、オーケストレーション、Harness 管理といったコアのステージはクラウドによって統一的にホストされるため、アーキテクチャの安定性とランタイムの品質はプラットフォームによって保証される。もう一方で、長時間実行のタスクはもはやローカルデバイスがオンラインであり続けることに依存しない — 個人のコンピュータがシャットダウンされても、タスクはクラウドで実行され続けられる。
@@ -70,22 +70,21 @@ AgentScope 2.0 のモデル抽象化、ツールと MCP、メッセージとイ�
 
 1. **コントロールプレーン**
 
-<!-- 这是一张图片，ocr 内容为：CONTROL PLANE ARCHITECTURE CLIENTS CLI CURL/SDK CONSOLE API GATEWAY ROUTE BY APL SURFACE CONTROL APIS DATA APLS CONTROL PLANE DATA PLANE DATA PLANE APLS(COLLAPSED) DEFINITIONS AGENT/ENV SESSION CREATE SESSIONS .EVENTS. SSE +MEMORY/VAULT SKILLSMCP VERSIONED AGENT HARNESS LOOP - STATE RESTORE READ AGENT/ENV FROM CP ENVIRONMENT ACL/SHARES RESOURCES.TOOLS DATA PLANE APIS CONTROL PLANE API GATEWAY AGENT VERSIONS,ENVIRONMENTS,MEMORY/ ALSO PUBLIC(SESSIONS/EVENTS/SSE); FRONT DOOR FOR CLI/ CONSOLE / CURL;ROUTES VAULT/ACL,SESSION CREATE. COLLAPSED HERE-SEE DIAGRAM 2. CONTROL VS DATA APLS. -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785141394899-a68e0d3b-e16b-44be-9a29-4e61f163463f.png)
 
 2. **データプレーン**
 
-<!-- 这是一张图片，ocr 内容为：DATA PLANE ARCHITECTURE HANDS-TOOL EXECUTION BOUNDARY BRAIN- REASONING & ORCHESTRATION CLOUD MANAGED SANDBOX SESSION/EVENTS API TYPESANDBOX .BRAIN INITIATES E2B/FC API USER.MESSAGE . INTERRUPT/HITL CLOUD SANDBOX E2BFILESYSTEMSPEC ISOLATED FS CREATE /TIMEOUT SESSIONTURNRUNNER TYPESANDBOX FS+SHELL CALLS WORKSPACE ROOT TURN LEASE `STATUS - BUILD/ CACHE BRAIN INITIATES AGENTSCOPE KERNEL MODEL HARNESSAGENT TOOL DECISIONS REACT/STREAMEVENTS SELF-HOSTED WORKER HOOKS.COMPACTION TEXT/THINKING TYPESELF_HOSTED OUTBOUND ONLY NO BRAIN INGRESS TYPE-SELF_HOSTED SCHEMAONLYTOOL WORK QUEUE OUTBOUND WORKER EVENTLOG AGENTSTATESTORE POLL/ACK/HEARTBEAT SUSPEND TURN RESTORE BY SESSION AGENT. PERSISTED AGENT.TOOL_USE CUSTOMER WORKER EXECUTE FS/SHELL POST USER.TOOL_RESULT.RESUME BRAIN CONTROL-PLANE REFS AGENT VERSION `ENVIRONMENT MEMORY / VAULT PATH CONTRAST SELF-HOSTED WORKER CLOUD MANAGED SANDBOX ENVIRONMENT TYPE-SELF HOSTED.TOOLS ARE SCHEMA-ONLY ON BRAIN;WORKER POLLS, ENVIRONMENT TYPE-SANDBOX.BRAIN CALLS E2B-COMPATIBLE APLS;PLATFORM OWNS SANDBOX LIFECYCLE.NO CUSTOMER WORKER. EXECUTES,POSTS USER.TOOL_RESULT TO RESUME. -->
+
 ![](https://intranetproxy.alipay.com/skylark/lark/0/2026/png/54037/1785141716807-8d15ef5f-4d56-4c24-958a-caf553476262.png)
 
 #### コアデータフロー
 
 クライアントは(session/event)インターフェースを通じて、タスクリクエストを Managed データプレーン(Brain)に送信する。Brain は共有状態から Agent を復元し、推論とオーケストレーションのフロー全体を実行する。途中でツール呼び出しがあれば、Brain は Environment の設定に従ってツール呼び出しリクエストを Worker にルーティングする(それは managed サンドボックス環境、ユーザー管理のサンドボックス環境などでありうる)。
 
-<!-- 这是一个文本绘图，源码为：flowchart LR
-  C[Client / Console] -->|Session + Events + SSE| DP[Managed Data Plane]
+|Session + Events + SSE| DP[Managed Data Plane]
   CP[Control Plane<br/>Agent / Environment / ACL] -->|versioned references| DP
-  DP <--> DB[(JDBC<br/>events / state / leases)]
+  DP &lt;--> DB[(JDBC<br/>events / state / leases)]
   DP --> B[HarnessAgent Brain]
   B --> M[Model]
   B -->|local tools| L[Brain host FS / shell]
@@ -150,7 +149,6 @@ echo "AGENT_ID=$AGENT_ID"
 ```
 
 
-
 次は三つの worker モードのデモンストレーションだ。同じ Agent、同じ Brain の推論とオーケストレーション環境が、三つの異なる Hands パスで動作する:
 
 | モード | ツールがどこで実行されるか | 誰がツール呼び出しを開始するか | データ境界 | 典型的な用途 |
@@ -166,17 +164,7 @@ echo "AGENT_ID=$AGENT_ID"
 
 Local モードは開発とデバッグに最適である。Session、Harness の推論、モデルのリクエスト、ツールの実行はすべて Managed クラスタによって開始され、ファイルと shell は Brain プロセスに見えるローカル環境に直接着地する。
 
-<!-- 这是一个文本绘图，源码为：sequenceDiagram
-  participant Client as Client
-  participant API as Managed_API
-  participant Brain as HarnessAgent_Brain
-  participant Model as Model
-  participant LocalFS as Local_FS_Shell
-
-  Client->>API: POST sessions + user.message
-  API->>Brain: turn lease + build HarnessAgent
-  Brain->>Model: stream / tool decisions
-  Model-->>Brain: tool_use / text
+>Brain: tool_use / text
   Brain->>LocalFS: read_file / shell on host namespace
   LocalFS-->>Brain: tool_result
   Brain-->>API: agent.* + session.status_idle
@@ -189,17 +177,7 @@ Local モードは開発とデバッグに最適である。Session、Harness �
 
 Cloud Sandbox は、ホストされた Brain を維持しつつ、ファイルと shell を隔離されたサンドボックスに移動させる。Harness の推論、モデルのリクエスト、ツール呼び出しの開始者は依然として Managed クラスタにあるが、実際のコマンド実行とファイル I/O は FC Sandbox / E2B 互換の環境で行われる。
 
-<!-- 这是一个文本绘图，源码为：sequenceDiagram
-  participant Client as Client
-  participant API as Managed_API
-  participant Brain as HarnessAgent_Brain
-  participant Model as Model
-  participant E2B as FC_Sandbox_E2B
-
-  Client->>API: user.message
-  API->>Brain: HarnessAgent + type=sandbox
-  Brain->>Model: reasoning
-  Model-->>Brain: tool_use
+>Brain: tool_use
   Note over Brain,E2B: Brain initiates sandbox lifecycle and tool calls
   Brain->>E2B: E2B-compatible API FS/shell
   E2B-->>Brain: tool_result
@@ -214,18 +192,7 @@ Cloud Sandbox の管理境界は三つのアクションに分解できる: **�
 
 Self-hosted は Hands をさらに顧客環境へと移動させる。Brain は Managed クラスタ内で引き続き Harness の推論を完了させるが、ツールタスクはキューに入り、顧客側の Worker によって能動的にアウトバウンドでポーリングされる。Worker はローカルの Workspace またはサンドボックスを管理し、結果を Brain に返す。このプロセス全体を通じて、Brain は顧客のネットワークに入る必要がない。
 
-<!-- 这是一个文本绘图，源码为：sequenceDiagram
-  participant Client as Client
-  participant API as Managed_API
-  participant Brain as HarnessAgent_Brain
-  participant Model as Model
-  participant Q as WorkQueue
-  participant Worker as Customer_Worker
-
-  Client->>API: user.message
-  API->>Brain: type=self_hosted
-  Brain->>Model: reasoning
-  Model-->>Brain: tool_use
+>Brain: tool_use
   Brain->>Q: enqueue work + persist agent.tool_use
   Brain-->>Client: requires_action / suspended
   Worker->>Q: poll with EnvKey
@@ -271,7 +238,6 @@ OPS_BODY=$(jq -n '{
   }]
 }')
 
-# リリース計画 Agent: このデモではテキストのドラフトを生成するだけ
 OPS=$(curl -fsS -X POST "$BASE/api/agents" \
   -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \

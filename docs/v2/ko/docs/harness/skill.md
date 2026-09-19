@@ -1,6 +1,6 @@
 ---
-title: "스킬(Skill)"
-description: "4단계 스킬 합성, 스킬 마켓플레이스, 자가 학습 루프"
+title: 스킬(Skill)
+description: 4단계 스킬 합성, 스킬 마켓플레이스, 자가 학습 루프
 ---
 
 스킬은 패키징된 하나의 능력이다. `SKILL.md`(목적 + 에이전트가 읽을 지침)를 담은 디렉터리이며, 참고 문서, 스크립트, 샘플이 선택적으로 포함될 수 있다. 에이전트에게 건네주면 관련이 있을 때 알아서 사용한다.
@@ -170,13 +170,13 @@ workspace/
 
 이렇게 하려면 호출자가 `RuntimeContext`에서 `userId="alice"`를 전달해야 한다.
 
-`workspace/<userId>/skills/`는 **논리적 경로**이며, 반드시 "로컬 디스크 위의 디렉터리"인 것은 아니다. 스킬 파일은 `AbstractFilesystem` 추상화를 통해 읽고 쓰이며, 실제로 어디에 물리적으로 저장되는지는 설정한 [파일 시스템 모드](./filesystem.md)에 달려 있다 — 따라서 사용자별 스킬 격리는 스토리지 백엔드와 분리되어 있다.
+`workspace/<userId>/skills/`는 **논리적 경로**이며, 반드시 "로컬 디스크 위의 디렉터리"인 것은 아니다. 스킬 파일은 `AbstractFilesystem` 추상화를 통해 읽고 쓰이며, 실제로 어디에 물리적으로 저장되는지는 설정한 [파일 시스템 모드](/v2/ko/docs/harness/filesystem)에 달려 있다 — 따라서 사용자별 스킬 격리는 스토리지 백엔드와 분리되어 있다.
 
 - **로컬 + shell** — 호스트 디스크 위의 실제 `workspace/alice/skills/...`.
 - **공유 스토어(원격 파일 시스템)** — `skills/` 접두사가 KV 스토어로 라우팅된다; 사용자별 격리는 네임스페이스 키 `agents/<agentId>/users/alice/skills/...`로 나타나며, 레플리카 간에 일관되고, 관리 콘솔의 수정 사항은 다음 추론 스텝부터 반영된다.
 - **샌드박스(샌드박스 파일 시스템)** — 호스트 쪽 사용자 디렉터리는 샌드박스 시작 시 워크스페이스 투영을 통해 컨테이너의 `/workspace`로 하이드레이션되므로, 에이전트는 샌드박스 안에서도 동일한 사본을 읽는다.
 
-어떤 모드를 실행하든, `<userId>/skills/`는 동일한 우선순위로 공유 버전을 오버라이드한다. 모드별 격리 키, 물리적 표현, `userId`의 역할에 대한 자세한 내용은 [파일 시스템](./filesystem.md#멀티-유저-격리가-동작하는-방식)을 참고하라.
+어떤 모드를 실행하든, `<userId>/skills/`는 동일한 우선순위로 공유 버전을 오버라이드한다. 모드별 격리 키, 물리적 표현, `userId`의 역할에 대한 자세한 내용은 [파일 시스템](/v2/ko/docs/harness/filesystem#멀티-유저-격리가-동작하는-방식)을 참고하라.
 
 ## 충돌 해결
 
@@ -331,7 +331,7 @@ agent.promoteSkill("notes-taker", "alice")                   // 초안을 수동
 
 ## 샌드박스에서 스킬 실행하기
 
-[샌드박스 모드](./filesystem.md#모드-2-샌드박스sandboxfilesystemspec-계열)에서는 모든 파일 작업과 셸 명령이 격리된 컨테이너 안에서 실행된다 — 호스트는 전혀 영향을 받지 않는다. 이로 인해 한 가지 문제가 생긴다: 스킬의 스크립트(`scripts/run-checks.sh`, `scripts/foo.py` 등)는 호스트에서 작성되지만, 에이전트는 이를 컨테이너 안에서 실행해야 한다. Harness는 "실체화 → 투영 → 컨테이너 내부 실행"이라는 3단계 파이프라인으로 이를 투명하게 처리한다. 아래에서 하나씩 분석한다.
+[샌드박스 모드](/v2/ko/docs/harness/filesystem#모드-2-샌드박스sandboxfilesystemspec-계열)에서는 모든 파일 작업과 셸 명령이 격리된 컨테이너 안에서 실행된다 — 호스트는 전혀 영향을 받지 않는다. 이로 인해 한 가지 문제가 생긴다: 스킬의 스크립트(`scripts/run-checks.sh`, `scripts/foo.py` 등)는 호스트에서 작성되지만, 에이전트는 이를 컨테이너 안에서 실행해야 한다. Harness는 "실체화 → 투영 → 컨테이너 내부 실행"이라는 3단계 파이프라인으로 이를 투명하게 처리한다. 아래에서 하나씩 분석한다.
 
 ### 어떤 스킬이 샌드박스에 들어가는가
 
@@ -390,7 +390,7 @@ execute_shell_command("python3 /workspace/skills/code-reviewer/scripts/run-check
 
 ### 호출 간 스크립트 부작용 유지하기
 
-스크립트가 의존성을 설치하거나 산출물을 생성하고(`npm install`, `pip install`, 빌드 출력), 다음 `call()`에서도 그것을 유지하고 싶다면, 샌드박스에 [스냅샷](./filesystem.md#스냅샷-전략)(`snapshotSpec(...)`)을 지정하라. 스냅샷은 `/workspace` 전체를 캡처한다; 같은 scope 키의 다음 호출은 먼저 스냅샷을 복원한 뒤 투영을 그 위에 덧씌우므로, 설치했던 것을 다시 설치할 필요가 없다.
+스크립트가 의존성을 설치하거나 산출물을 생성하고(`npm install`, `pip install`, 빌드 출력), 다음 `call()`에서도 그것을 유지하고 싶다면, 샌드박스에 [스냅샷](/v2/ko/docs/harness/filesystem#스냅샷-전략)(`snapshotSpec(...)`)을 지정하라. 스냅샷은 `/workspace` 전체를 캡처한다; 같은 scope 키의 다음 호출은 먼저 스냅샷을 복원한 뒤 투영을 그 위에 덧씌우므로, 설치했던 것을 다시 설치할 필요가 없다.
 
 ### 참고: SKILL.md 읽기는 샌드박스가 필요 없다
 
@@ -412,6 +412,6 @@ execute_shell_command("python3 /workspace/skills/code-reviewer/scripts/run-check
 
 ## 관련 문서
 
-- [워크스페이스](./workspace.md) — `skills/`의 전체 레이아웃
-- [파일 시스템](./filesystem.md) — 멀티테넌트 격리와 사용자별 버킷 분리
-- [아키텍처](./architecture.md) — 매 추론 스텝마다 스킬 집합이 어떻게 재구성되는지
+- [워크스페이스](/v2/ko/docs/harness/workspace) — `skills/`의 전체 레이아웃
+- [파일 시스템](/v2/ko/docs/harness/filesystem) — 멀티테넌트 격리와 사용자별 버킷 분리
+- [아키텍처](/v2/ko/docs/harness/architecture) — 매 추론 스텝마다 스킬 집합이 어떻게 재구성되는지

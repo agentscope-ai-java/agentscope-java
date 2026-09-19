@@ -1,4 +1,6 @@
-# Redis
+---
+title: Redis
+---
 
 `agentscope-extensions-redis` は、フルスタックの Redis 分散ストレージを提供します — マルチレプリカの本番デプロイに推奨されるストアです。
 

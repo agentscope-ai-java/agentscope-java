@@ -1,14 +1,16 @@
-# RAG ナレッジベース
+---
+title: RAG ナレッジベース
+---
 
 `io.agentscope.core.rag.Knowledge` は、外部のナレッジベースを組み込むための AgentScope のインターフェースです。Agent は推論の過程でこれを使ってドキュメントを検索し、そのドキュメントをモデルに渡します。`agentscope-extensions-*` リポジトリには複数の実装が用意されています。
 
 | 拡張 | タイプ | 最適な用途 |
 | --- | --- | --- |
-| [Simple](simple.md) | セルフマネージド: embedding + ベクトルストア | 自前のベクトルストアを使う（PgVector / Milvus / Qdrant / Elasticsearch / インメモリ） |
-| [Bailian](bailian.md) | アリババクラウド Bailian ナレッジベース | Bailian がホストするエンタープライズ KB を使う |
-| [Dify](dify.md) | Dify データセット | すでに Dify で KB コンテンツを管理している |
-| [HayStack](haystack.md) | セルフホスト HayStack RAG | 既存の HayStack パイプラインがある |
-| [RAGFlow](ragflow.md) | RAGFlow サービス | OCR / ナレッジグラフが必要な複雑なドキュメント |
+| [Simple](/v2/ja/integration/rag/simple) | セルフマネージド: embedding + ベクトルストア | 自前のベクトルストアを使う（PgVector / Milvus / Qdrant / Elasticsearch / インメモリ） |
+| [Bailian](/v2/ja/integration/rag/bailian) | アリババクラウド Bailian ナレッジベース | Bailian がホストするエンタープライズ KB を使う |
+| [Dify](/v2/ja/integration/rag/dify) | Dify データセット | すでに Dify で KB コンテンツを管理している |
+| [HayStack](/v2/ja/integration/rag/haystack) | セルフホスト HayStack RAG | 既存の HayStack パイプラインがある |
+| [RAGFlow](/v2/ja/integration/rag/ragflow) | RAGFlow サービス | OCR / ナレッジグラフが必要な複雑なドキュメント |
 
 ## どこでも同じ組み込み方
 

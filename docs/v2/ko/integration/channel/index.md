@@ -1,14 +1,16 @@
-# 채널 어댑터
+---
+title: 채널 어댑터
+---
 
-이 확장 기능들은 Harness [Channel](../../docs/harness/channel.md) 인터페이스를 통해 Agent를 실제 메시징 플랫폼에 연결합니다. 각 어댑터는 플랫폼별 인증, 웹훅 검증, 메시지 파싱, 응답 전달을 처리하므로 Agent 코드는 플랫폼에 종속되지 않게 유지됩니다.
+이 확장 기능들은 Harness [Channel](/v2/ko/docs/harness/channel) 인터페이스를 통해 Agent를 실제 메시징 플랫폼에 연결합니다. 각 어댑터는 플랫폼별 인증, 웹훅 검증, 메시지 파싱, 응답 전달을 처리하므로 Agent 코드는 플랫폼에 종속되지 않게 유지됩니다.
 
 | 확장 | 플랫폼 | 전송 방식 |
 | --- | --- | --- |
-| [DingTalk](dingtalk.md) | DingTalk (钉钉) | Stream 프로토콜 (영구 WebSocket) |
-| [Feishu](feishu.md) | Feishu / Lark (飞书) | Event subscription 콜백 (HTTP) |
-| [GitHub](github.md) | GitHub | Webhook (HTTP) |
-| [GitLab](gitlab.md) | GitLab | Webhook (HTTP) |
-| [WeCom](wecom.md) | WeCom (企业微信) | 암호화된 콜백 (HTTP) |
+| [DingTalk](/v2/ko/integration/channel/dingtalk) | DingTalk (钉钉) | Stream 프로토콜 (영구 WebSocket) |
+| [Feishu](/v2/ko/integration/channel/feishu) | Feishu / Lark (飞书) | Event subscription 콜백 (HTTP) |
+| [GitHub](/v2/ko/integration/channel/github) | GitHub | Webhook (HTTP) |
+| [GitLab](/v2/ko/integration/channel/gitlab) | GitLab | Webhook (HTTP) |
+| [WeCom](/v2/ko/integration/channel/wecom) | WeCom (企业微信) | 암호화된 콜백 (HTTP) |
 
 ## 작동 방식
 

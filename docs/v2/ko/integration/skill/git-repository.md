@@ -1,4 +1,6 @@
-# Git Skill Repository
+---
+title: Git Skill Repository
+---
 
 `agentscope-extensions-skill-git-repository`는 원격 Git 저장소를 스킬 저장소로 취급합니다. 매 읽기마다 가벼운 원격 ref 확인을 수행하며, 원격 HEAD가 변경된 경우에만 pull을 수행합니다 — 유휴 상태에서는 거의 오버헤드가 없습니다.
 

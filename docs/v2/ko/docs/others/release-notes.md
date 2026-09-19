@@ -1,9 +1,9 @@
 ---
-title: "릴리스 노트"
-description: "AgentScope Java의 버전별 변경 기록"
+title: 릴리스 노트
+description: AgentScope Java의 버전별 변경 기록
 ---
 
-이 페이지는 AgentScope Java 2.0의 버전별 변경 사항을 추적합니다. 1.x로부터의 전체 마이그레이션 가이드는 [V1 마이그레이션 가이드](../change-log.md)를 참고하세요.
+이 페이지는 AgentScope Java 2.0의 버전별 변경 사항을 추적합니다. 1.x로부터의 전체 마이그레이션 가이드는 [V1 마이그레이션 가이드](/v2/ko/docs/change-log)를 참고하세요.
 
 ---
 
@@ -13,7 +13,7 @@ description: "AgentScope Java의 버전별 변경 기록"
 
 AgentScope Java 2.0.1은 2.0.0 GA 이후 첫 번째 유지보수 릴리스입니다. 모델 프로바이더 생태계를 확장하고, Harness 서브에이전트 / HITL / 권한 동작을 강화하며, 프로덕션에 치명적인 일련의 문제들을 수정합니다.
 
-**빠른 링크:** [Quickstart](../quickstart.md) | [V1 마이그레이션 가이드](../change-log.md) | [프로덕션으로 가기](going-to-production.md)
+**빠른 링크:** [Quickstart](/v2/ko/docs/quickstart) | [V1 마이그레이션 가이드](/v2/ko/docs/change-log) | [프로덕션으로 가기](/v2/ko/docs/others/going-to-production)
 
 ### 추가됨
 
@@ -135,7 +135,7 @@ AgentScope Java 2.0.1은 2.0.0 GA 이후 첫 번째 유지보수 릴리스입니
 
 AgentScope Java 2.0.0이 이제 정식 출시(Generally Available)되었습니다. 이는 2.0 라인의 첫 번째 프로덕션 준비 릴리스이며, AgentScope Java가 "투명한 개발"에서 "시스템 엔지니어링"으로 진화하는 여정의 이정표입니다.
 
-**빠른 링크:** [Quickstart](../quickstart.md) | [V1 마이그레이션 가이드](../change-log.md) | [프로덕션으로 가기](going-to-production.md)
+**빠른 링크:** [Quickstart](/v2/ko/docs/quickstart) | [V1 마이그레이션 가이드](/v2/ko/docs/change-log) | [프로덕션으로 가기](/v2/ko/docs/others/going-to-production)
 
 ### 2.0 핵심 설계 개요
 
@@ -396,7 +396,7 @@ Qwen / OpenAI / Anthropic / Gemini / DeepSeek / Ollama를 아우르는 통합 Cr
 
 ### 추가됨
 
-- **`projectWritable` 모드**(`LocalFilesystemSpec`) — 활성화되면, 에이전트의 파일 쓰기가 경로에 따라 라우팅됩니다: 워크스페이스 메타데이터(`MEMORY.md`, `agents/`, `skills/` 등)는 워크스페이스로 가고, 그 외(코드, 설정)는 프로젝트 디렉터리에 놓입니다. 코드 생성 에이전트를 위해 설계되었습니다. [Filesystem · 프로젝트 쓰기 가능 모드](../harness/filesystem.md#프로젝트-쓰기-가능-모드projectwritable)를 참고하세요
+- **`projectWritable` 모드**(`LocalFilesystemSpec`) — 활성화되면, 에이전트의 파일 쓰기가 경로에 따라 라우팅됩니다: 워크스페이스 메타데이터(`MEMORY.md`, `agents/`, `skills/` 등)는 워크스페이스로 가고, 그 외(코드, 설정)는 프로젝트 디렉터리에 놓입니다. 코드 생성 에이전트를 위해 설계되었습니다. [Filesystem · 프로젝트 쓰기 가능 모드](/v2/ko/docs/harness/filesystem#프로젝트-쓰기-가능-모드projectwritable)를 참고하세요
 - **런타임 권한 모드 전환** — 런타임에 세션별로 권한 모드를 동적으로 조정하기 위한 새로운 `HarnessAgent.setPermissionMode()` / `getPermissionMode()`
 - **서브에이전트 이벤트 스트림 전달** — `streamEvents()`가 이제 자식 에이전트의 중간 이벤트(`TextBlockDelta`, `ToolCallStart` 등)를 실시간으로 전달하며, 각 이벤트는 발생 에이전트를 식별하는 `source` 경로를 담습니다
 - **`AgentEvent.source` 필드** — 모든 `AgentEvent` 인스턴스가 이제 `source` 필드를 가져, 동일한 이벤트 스트림 내에서 메인 에이전트 이벤트(`source = null`)와 서브에이전트 이벤트(`source = "main/researcher"` 경로 형식)를 구분할 수 있으며, 구독자 측에서 별도 상태 없이 디먹싱할 수 있습니다
@@ -436,4 +436,4 @@ Qwen / OpenAI / Anthropic / Gemini / DeepSeek / Ollama를 아우르는 통합 Cr
 - 엔터프라이즈급 분산 배포(멀티 테넌트 격리, 샌드박스 실행, 권한 시스템, 세션 복구)
 - 코어 프레임워크 재설계(이벤트 스트림, 메시지 모델, Middleware, HITL)
 
-전체 1.x → 2.0 변경 목록은 [V1 마이그레이션 가이드](../change-log.md)를 참고하세요.
+전체 1.x → 2.0 변경 목록은 [V1 마이그레이션 가이드](/v2/ko/docs/change-log)를 참고하세요.

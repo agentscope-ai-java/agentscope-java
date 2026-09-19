@@ -1,4 +1,6 @@
-# Gemini モデル
+---
+title: Gemini モデル
+---
 
 `agentscope-extensions-model-gemini` は、Gemini API を通じて Google Gemini モデルを統合し、明示的な設定により Vertex AI 経路もサポートします。
 
@@ -49,4 +51,4 @@ Spring Boot アプリケーションでは Gemini スターターを使用でき
 </dependency>
 ```
 
-ビルダーの全オプション、フォーマッター、認証情報、レジストリコンテキストの詳細については [Model](../../docs/building-blocks/model.md) を参照してください。
+ビルダーの全オプション、フォーマッター、認証情報、レジストリコンテキストの詳細については [Model](/v2/ja/docs/building-blocks/model) を参照してください。

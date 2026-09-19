@@ -1,4 +1,6 @@
-# 분산 스토리지 (Distributed Store)
+---
+title: 분산 스토리지 (Distributed Store)
+---
 
 AgentScope는 분산 영속성이 필요한 모든 컴포넌트를 `DistributedStore` 인터페이스 아래로 통합합니다. 단 한 줄의 설정으로 에이전트 상태, 워크스페이스 파일 시스템, 샌드박스 스냅샷, 동시성 락을 동일한 분산 스토어로 전환할 수 있습니다.
 
@@ -80,9 +82,9 @@ Explicit builder methods (.stateStore(), .snapshotSpec() on FilesystemSpec, etc.
 
 ## 스토어 문서
 
-- [Redis](redis.md) — 전체 기능을 모두 지원하며, 다중 레플리카 프로덕션 환경에 권장됩니다
-- [MySQL / JDBC](mysql.md) — 기존 관계형 데이터베이스 인프라를 사용하는 경우에 적합합니다
-- [Alibaba Cloud OSS](oss.md) — 오브젝트 스토리지로, 대용량 스냅샷에 가장 적합합니다
+- [Redis](/v2/ko/integration/distributed/redis) — 전체 기능을 모두 지원하며, 다중 레플리카 프로덕션 환경에 권장됩니다
+- [MySQL / JDBC](/v2/ko/integration/distributed/mysql) — 기존 관계형 데이터베이스 인프라를 사용하는 경우에 적합합니다
+- [Alibaba Cloud OSS](/v2/ko/integration/distributed/oss) — 오브젝트 스토리지로, 대용량 스냅샷에 가장 적합합니다
 
 ## aistio 호스팅 스토어
 

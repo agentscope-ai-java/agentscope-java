@@ -1,13 +1,15 @@
 ---
-title: "コンテキスト圧縮"
-description: "重要な情報を失うことなく、会話をモデルのトークン予算内に収める"
+title: コンテキスト圧縮
+description: 重要な情報を失うことなく、会話をモデルのトークン予算内に収める
 ---
 
-:::{note}
-このページでは、`HarnessAgent` が会話をモデルのトークン予算内に収めるために使う戦略――**コンテキスト圧縮**――を扱います。これは [Context & AgentState](../building-blocks/context.md) で説明されているステートレスなエンジン設計と `AgentState` の永続化の上に成り立っています。まだ読んでいなければ先にそちらを読んでください――圧縮は、永続化層が保存・復元するのと同じ `AgentState` に対して動作します。
+<Note>
+
+このページでは、`HarnessAgent` が会話をモデルのトークン予算内に収めるために使う戦略――**コンテキスト圧縮**――を扱います。これは [Context & AgentState](/v2/ja/docs/building-blocks/context) で説明されているステートレスなエンジン設計と `AgentState` の永続化の上に成り立っています。まだ読んでいなければ先にそちらを読んでください――圧縮は、永続化層が保存・復元するのと同じ `AgentState` に対して動作します。
 
 **両者がどう連携するか**:圧縮はメモリ上で `AgentState.contextMutable()` を変更します。ステートストアは呼び出しの最後に更新後の `AgentState` を書き込みます。この2つの経路は独立していますが、常にこの順序で実行されます――ステートストアが目にするのは圧縮後の状態です。
-:::
+
+</Note>
 
 モデルのトークン予算は有限です。長時間続く会話は、事前に積極的に圧縮するか、最終的にモデルのハードリミットに衝突するかのどちらかです。`HarnessAgent` はフルセットの圧縮スタックを同梱しており、`.compaction(...)` / `.toolResultEviction(...)` でオプトインします。
 
@@ -35,7 +37,7 @@ HarnessAgent.builder()
     .build();
 ```
 
-デフォルトの要約プロンプトは内容を `SESSION INTENT / SUMMARY / ARTIFACTS / NEXT STEPS` に整理します――エンジニアリングやオーケストレーション向けのエージェントでうまく機能します。`CompactionConfig` は、要約用の LLM 呼び出しに専用モデルを指定する `.model(...)` もサポートしています(未設定の場合はエージェントのプライマリモデルにフォールバックします)。完全な設定サーフェス(`triggerTokens`、`keepTokens`、`flushBeforeCompact`、`offloadBeforeCompact`、`model`、`TruncateArgsConfig`)と要約プロンプトのテンプレートは [Memory — 圧縮を有効にする](./memory.md#圧縮を有効にする) にあり、ここでは重複掲載しません。
+デフォルトの要約プロンプトは内容を `SESSION INTENT / SUMMARY / ARTIFACTS / NEXT STEPS` に整理します――エンジニアリングやオーケストレーション向けのエージェントでうまく機能します。`CompactionConfig` は、要約用の LLM 呼び出しに専用モデルを指定する `.model(...)` もサポートしています(未設定の場合はエージェントのプライマリモデルにフォールバックします)。完全な設定サーフェス(`triggerTokens`、`keepTokens`、`flushBeforeCompact`、`offloadBeforeCompact`、`model`、`TruncateArgsConfig`)と要約プロンプトのテンプレートは [Memory — 圧縮を有効にする](/v2/ja/docs/harness/memory#圧縮を有効にする) にあり、ここでは重複掲載しません。
 
 ### 2. 大きなツール結果の退避(`ToolResultEvictionMiddleware`)
 
@@ -49,7 +51,7 @@ HarnessAgent.builder()
 
 `read_file` / `write_file` / `edit_file` / `list_files` / `memory_*` / `session_search` はデフォルトで除外されます――これらは自己ページネーションするか、小さいペイロードしか返さないためです。`grep_files` と `glob_files` は結果件数の上限を強制しますが、個々のマッチが異常に大きい場合の第二のセーフティネットとして退避の対象には残ります。**シェルの `execute` は意図的に除外されていません**。コマンド出力はいくらでも大きくなり得るためです。
 
-詳細は [Memory — 大きなツール実行結果のオフロード](./memory.md#大きなツール実行結果のオフロード) にあります。
+詳細は [Memory — 大きなツール結果のオフロード](/v2/ja/docs/harness/memory#大きなツール結果のオフロード) にあります。
 
 ### 3. オーバーフローのセーフティネット
 
@@ -79,15 +81,15 @@ CompactionConfig.builder()
 
 同様に、`offloadBeforeCompact`(デフォルト `true`)は要約の前に**生のメッセージ**を非圧縮の `*.log.jsonl` に書き込むため、`session_search` は引き続きそこへアクセスできます。
 
-> 完全な Memory サブシステム――二層構造、バックグラウンドメンテナンス(アーカイブ、マージ)、記憶ツール――は [Memory](./memory.md) にあります。圧縮と記憶はよく一緒に使われますが、独立したスイッチを持ちます。
+> 完全な Memory サブシステム――二層構造、バックグラウンドメンテナンス(アーカイブ、マージ)、記憶ツール――は [Memory](/v2/ja/docs/harness/memory) にあります。圧縮と記憶はよく一緒に使われますが、独立したスイッチを持ちます。
 
 ## 圧縮が触れないもの
 
 `ConversationCompactor` は `AgentState.contextMutable()` 内の**会話メッセージリスト**にのみ作用します。以下は他の `AgentState` フィールドに存在し、**要約の影響を受けません**。
 
-- **プランモードの状態**(`AgentState.getPlanModeContext()`):プランモードがアクティブかどうか、現在のプランファイルのパス。プランファイル自体はワークスペースの `plans/` 配下にあり、プランモード独自のライフサイクルによって管理されます。[Plan Mode](./plan-mode.md) を参照してください。
-- **サブエージェントのバックグラウンドタスク**(`task_id`、ステータス、結果):`<workspace>/agents/<parentAgentId>/tasks/<sessionId>.json` に保存され、`TaskRepository` によって管理されます。完了した結果は次の推論ターンでシステムリマインダーとして親に注入し返されます――これらは**会話メッセージストリームには入らない**ため、要約はそれらに触れることができません。[Subagent — バックグラウンドタスクのストレージ](./subagent.md#バックグラウンドタスクのストレージ) を参照してください。
-- **`todo_write` タスクリスト**(`AgentState.getTasksContext()`):独立したフィールドで、`AgentState` と一緒に永続化されますが、圧縮の経路には含まれません。[Plan Mode — `todo_write` との連携](./plan-mode.md#todo_write-との連携) を参照してください。
+- **プランモードの状態**(`AgentState.getPlanModeContext()`):プランモードがアクティブかどうか、現在のプランファイルのパス。プランファイル自体はワークスペースの `plans/` 配下にあり、プランモード独自のライフサイクルによって管理されます。[Plan Mode](/v2/ja/docs/harness/plan-mode) を参照してください。
+- **サブエージェントのバックグラウンドタスク**(`task_id`、ステータス、結果):`<workspace>/agents/<parentAgentId>/tasks/<sessionId>.json` に保存され、`TaskRepository` によって管理されます。完了した結果は次の推論ターンでシステムリマインダーとして親に注入し返されます――これらは**会話メッセージストリームには入らない**ため、要約はそれらに触れることができません。[Subagent — バックグラウンドタスクのストレージ](/v2/ja/docs/harness/subagent#バックグラウンドタスクのストレージ) を参照してください。
+- **`todo_write` タスクリスト**(`AgentState.getTasksContext()`):独立したフィールドで、`AgentState` と一緒に永続化されますが、圧縮の経路には含まれません。[Plan Mode — `todo_write` との連携](/v2/ja/docs/harness/plan-mode#todo_write-との連携) を参照してください。
 - **パーミッションルール**(`getPermissionContext()`):独立したフィールドで、自己永続化します。
 
 これらはそれぞれ独自のステートマシンと復旧経路を持っており、圧縮の経路はそれらにとって透過的です――プランや実行中のバックグラウンドタスクを失う心配をせずに `.compaction(...)` を有効にできます。
@@ -106,9 +108,9 @@ CompactionConfig.builder()
 
 ## 関連ページ
 
-- [Context & AgentState](../building-blocks/context.md) — ステートレスなエンジン設計、`AgentState` の構造、状態の永続化、`RuntimeContext`
-- [Architecture](./architecture.md) — 1つの呼び出しの中でコンテキスト、状態の永続化、ワークスペースがどう協調するか
-- [Memory](./memory.md) — 長期記憶、完全な圧縮設定、大きなツール結果のオフロード、バックグラウンドメンテナンス
-- [Plan Mode](./plan-mode.md) — プラン状態の独立した永続化と復旧
-- [Subagent](./subagent.md) — バックグラウンドタスクがどこに存在し、ノードの移行をどう生き延びるか
-- [Filesystem](./filesystem.md) — `userId` に基づくマルチテナントのパス分離
+- [Context & AgentState](/v2/ja/docs/building-blocks/context) — ステートレスなエンジン設計、`AgentState` の構造、状態の永続化、`RuntimeContext`
+- [Architecture](/v2/ja/docs/harness/architecture) — 1つの呼び出しの中でコンテキスト、状態の永続化、ワークスペースがどう協調するか
+- [Memory](/v2/ja/docs/harness/memory) — 長期記憶、完全な圧縮設定、大きなツール結果のオフロード、バックグラウンドメンテナンス
+- [Plan Mode](/v2/ja/docs/harness/plan-mode) — プラン状態の独立した永続化と復旧
+- [Subagent](/v2/ja/docs/harness/subagent) — バックグラウンドタスクがどこに存在し、ノードの移行をどう生き延びるか
+- [Filesystem](/v2/ja/docs/harness/filesystem) — `userId` に基づくマルチテナントのパス分離

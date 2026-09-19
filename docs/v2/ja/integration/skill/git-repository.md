@@ -1,4 +1,6 @@
-# Git Skill Repository
+---
+title: Git Skill Repository
+---
 
 `agentscope-extensions-skill-git-repository` は、リモートの Git リポジトリを skill リポジトリとして扱います。読み取りのたびに軽量なリモート ref チェックを実行し、リモート HEAD が変化したときだけ pull します — アイドル時のオーバーヘッドはほぼゼロです。
 

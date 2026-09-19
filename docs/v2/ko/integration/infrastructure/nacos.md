@@ -1,4 +1,6 @@
-# Nacos
+---
+title: Nacos
+---
 
 `agentscope-extensions-nacos`는 [Nacos](https://nacos.io/)를 AgentScope의 통합 제어 플레인으로 사용하여 A2A Agent를 등록 및 탐색하고, 프롬프트를 핫로드하며, 스킬을 호스팅합니다. 세 개의 하위 모듈로 구성되어 있으므로 필요한 것만 선택해서 사용하세요.
 
@@ -103,5 +105,5 @@ AgentSkill skill = repo.getSkill("calculator");
 
 ## 함께 쓰기 좋은 조합
 
-- [A2A](../protocol/a2a.md): Nacos 기반 `AgentRegistry`를 `AgentScopeA2aServer.builder().agentRegistry(...)`에 주입하여 시작 시 클러스터 전체에 AgentCard를 게시합니다.
-- [스킬 저장소](../skill/): Git/MySQL `AgentSkillRepository`와 공존시켜 여러 소스로부터 Toolkit을 구성합니다.
+- [A2A](/v2/ko/integration/protocol/a2a): Nacos 기반 `AgentRegistry`를 `AgentScopeA2aServer.builder().agentRegistry(...)`에 주입하여 시작 시 클러스터 전체에 AgentCard를 게시합니다.
+- [스킬 저장소](/v2/ko/integration/skill/index): Git/MySQL `AgentSkillRepository`와 공존시켜 여러 소스로부터 Toolkit을 구성합니다.

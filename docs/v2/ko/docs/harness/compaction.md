@@ -1,13 +1,15 @@
 ---
-title: "컨텍스트 압축"
-description: "중요한 정보를 잃지 않으면서 대화를 모델의 토큰 예산 안에 유지하기"
+title: 컨텍스트 압축
+description: 중요한 정보를 잃지 않으면서 대화를 모델의 토큰 예산 안에 유지하기
 ---
 
-:::{note}
-이 페이지는 **컨텍스트 압축** — `HarnessAgent`가 대화를 모델의 토큰 예산 안에 유지하기 위해 사용하는 전략들 — 을 다룬다. 이는 [Context & AgentState](../building-blocks/context.md)에서 설명한 상태 없는(stateless) 엔진 설계와 `AgentState` 지속성 위에 세워져 있다. 아직 읽지 않았다면 그 페이지를 먼저 읽어 보라 — 압축은 지속성 계층이 저장하고 복원하는 것과 동일한 `AgentState`에 대해 동작한다.
+<Note>
+
+이 페이지는 **컨텍스트 압축** — `HarnessAgent`가 대화를 모델의 토큰 예산 안에 유지하기 위해 사용하는 전략들 — 을 다룬다. 이는 [Context & AgentState](/v2/ko/docs/building-blocks/context)에서 설명한 상태 없는(stateless) 엔진 설계와 `AgentState` 지속성 위에 세워져 있다. 아직 읽지 않았다면 그 페이지를 먼저 읽어 보라 — 압축은 지속성 계층이 저장하고 복원하는 것과 동일한 `AgentState`에 대해 동작한다.
 
 **두 경로가 협력하는 방식**: 압축은 메모리 상의 `AgentState.contextMutable()`을 변경하고, 상태 저장소는 call이 끝날 때 갱신된 `AgentState`를 기록한다. 두 경로는 독립적이지만 항상 이 순서로 실행된다 — 상태 저장소가 보는 것은 언제나 압축 이후의 상태다.
-:::
+
+</Note>
 
 모델의 토큰 예산은 유한하다. 오래 실행되는 대화는 선제적으로 압축되거나, 결국 모델의 하드 리밋에 부딪히게 된다. `HarnessAgent`는 완전한 압축 스택을 제공하며 — `.compaction(...)` / `.toolResultEviction(...)`으로 선택적으로 켤 수 있다.
 
@@ -35,7 +37,7 @@ HarnessAgent.builder()
     .build();
 ```
 
-기본 요약 프롬프트는 내용을 `SESSION INTENT / SUMMARY / ARTIFACTS / NEXT STEPS`로 정리한다 — 엔지니어링/오케스트레이션 agent에 잘 맞는다. `CompactionConfig`는 요약용 LLM 호출에 전용 모델을 지정하는 `.model(...)`도 지원한다(설정하지 않으면 agent의 주 모델로 대체된다). 전체 설정 항목(`triggerTokens`, `keepTokens`, `flushBeforeCompact`, `offloadBeforeCompact`, `model`, `TruncateArgsConfig`)과 요약 프롬프트 템플릿은 [Memory — 압축 활성화하기](./memory.md#enable-compaction)에 있으며, 여기서는 중복해서 다루지 않는다.
+기본 요약 프롬프트는 내용을 `SESSION INTENT / SUMMARY / ARTIFACTS / NEXT STEPS`로 정리한다 — 엔지니어링/오케스트레이션 agent에 잘 맞는다. `CompactionConfig`는 요약용 LLM 호출에 전용 모델을 지정하는 `.model(...)`도 지원한다(설정하지 않으면 agent의 주 모델로 대체된다). 전체 설정 항목(`triggerTokens`, `keepTokens`, `flushBeforeCompact`, `offloadBeforeCompact`, `model`, `TruncateArgsConfig`)과 요약 프롬프트 템플릿은 [Memory — 압축 활성화하기](/v2/ko/docs/harness/memory#압축-활성화)에 있으며, 여기서는 중복해서 다루지 않는다.
 
 ### 2. 큰 도구 결과 축출(`ToolResultEvictionMiddleware`)
 
@@ -49,7 +51,7 @@ HarnessAgent.builder()
 
 `read_file` / `write_file` / `edit_file` / `list_files` / `memory_*` / `session_search`는 기본적으로 제외된다 — 이들은 스스로 페이지네이션을 하거나 아주 작은 페이로드만 반환하기 때문이다. `grep_files`와 `glob_files`는 결과 개수 제한을 강제하지만, 개별 매치가 유독 클 때를 대비한 2차 안전망으로서 여전히 축출 대상이 될 수 있다. **셸 `execute`는 명령 출력이 임의로 커질 수 있기 때문에 의도적으로 제외 대상에서 빠져 있다.**
 
-자세한 내용은 [Memory — 큰 도구 결과 오프로딩](./memory.md#large-tool-result-offloading)에 있다.
+자세한 내용은 [Memory — 큰 도구 결과 오프로딩](/v2/ko/docs/harness/memory#대용량-도구-결과-오프로딩)에 있다.
 
 ### 3. Overflow 안전망
 
@@ -79,15 +81,15 @@ CompactionConfig.builder()
 
 마찬가지로 `offloadBeforeCompact`(기본값 `true`)는 요약 전에 **원본 메시지**를 압축되지 않은 `*.log.jsonl`에 기록하므로, `session_search`가 여전히 이에 접근할 수 있다.
 
-> 전체 Memory 서브시스템 — 2계층 구조, 백그라운드 유지보수(아카이브, 병합), memory 도구 — 은 [Memory](./memory.md)에 있다. 압축과 memory는 함께 쓰이는 경우가 많지만 스위치는 독립적이다.
+> 전체 Memory 서브시스템 — 2계층 구조, 백그라운드 유지보수(아카이브, 병합), memory 도구 — 은 [Memory](/v2/ko/docs/harness/memory)에 있다. 압축과 memory는 함께 쓰이는 경우가 많지만 스위치는 독립적이다.
 
 ## 압축이 건드리지 않는 것
 
 `ConversationCompactor`는 오직 `AgentState.contextMutable()` 안의 **대화 메시지 목록**만을 다룬다. 다음은 다른 `AgentState` 필드에 있으며 **요약의 영향을 받지 않는다**.
 
-- **Plan Mode 상태**(`AgentState.getPlanModeContext()`): plan 모드가 활성 상태인지, 현재 plan 파일 경로. plan 파일 자체는 워크스페이스의 `plans/` 아래에 있으며 Plan Mode 자체의 생명주기로 관리된다. [Plan Mode](./plan-mode.md)를 참고한다.
-- **서브에이전트 백그라운드 작업**(`task_id`, 상태, 결과): `<workspace>/agents/<parentAgentId>/tasks/<sessionId>.json`에 저장되며 `TaskRepository`가 관리한다. 완료된 결과는 다음 추론 턴에서 system reminder를 통해 부모에게 다시 주입된다 — 이들은 대화 메시지 스트림에 **들어가지 않으므로** 요약이 이를 건드릴 수 없다. [Subagent — 백그라운드 작업 저장소](./subagent.md#background-task-storage)를 참고한다.
-- **`todo_write` 작업 목록**(`AgentState.getTasksContext()`): 독립된 필드로, `AgentState`와 함께 지속되지만 압축 경로에는 포함되지 않는다. [Plan Mode — `todo_write`와의 상호작용](./plan-mode.md#interaction-with-todo_write)을 참고한다.
+- **Plan Mode 상태**(`AgentState.getPlanModeContext()`): plan 모드가 활성 상태인지, 현재 plan 파일 경로. plan 파일 자체는 워크스페이스의 `plans/` 아래에 있으며 Plan Mode 자체의 생명주기로 관리된다. [Plan Mode](/v2/ko/docs/harness/plan-mode)를 참고한다.
+- **서브에이전트 백그라운드 작업**(`task_id`, 상태, 결과): `<workspace>/agents/<parentAgentId>/tasks/<sessionId>.json`에 저장되며 `TaskRepository`가 관리한다. 완료된 결과는 다음 추론 턴에서 system reminder를 통해 부모에게 다시 주입된다 — 이들은 대화 메시지 스트림에 **들어가지 않으므로** 요약이 이를 건드릴 수 없다. [Subagent — 백그라운드 작업 저장소](/v2/ko/docs/harness/subagent#백그라운드-작업-저장소)를 참고한다.
+- **`todo_write` 작업 목록**(`AgentState.getTasksContext()`): 독립된 필드로, `AgentState`와 함께 지속되지만 압축 경로에는 포함되지 않는다. [Plan Mode — `todo_write`와의 상호작용](/v2/ko/docs/harness/plan-mode#todo_write와의-상호작용)을 참고한다.
 - **권한 규칙**(`getPermissionContext()`): 독립된 필드로, 스스로 지속된다.
 
 이들 각각은 자기만의 상태 머신과 복구 경로를 가지고 있으며, 압축 트랙은 이들에게 투명하다 — plan이나 진행 중인 백그라운드 작업을 잃을 걱정 없이 `.compaction(...)`을 켤 수 있다.
@@ -106,9 +108,9 @@ CompactionConfig.builder()
 
 ## 관련 문서
 
-- [Context & AgentState](../building-blocks/context.md) — 상태 없는 엔진 설계, `AgentState` 구조, 상태 지속성, `RuntimeContext`
-- [Architecture](./architecture.md) — 하나의 call 안에서 컨텍스트, 상태 지속성, 워크스페이스가 어떻게 협력하는지
-- [Memory](./memory.md) — 장기 기억, 전체 압축 설정, 큰 도구 결과 오프로딩, 백그라운드 유지보수
-- [Plan Mode](./plan-mode.md) — plan 상태의 독립적인 지속성과 복구
-- [Subagent](./subagent.md) — 백그라운드 작업이 어디에 있고 노드 마이그레이션을 어떻게 견디는지
-- [Filesystem](./filesystem.md) — `userId` 기반의 다중 테넌트 경로 격리
+- [Context & AgentState](/v2/ko/docs/building-blocks/context) — 상태 없는 엔진 설계, `AgentState` 구조, 상태 지속성, `RuntimeContext`
+- [Architecture](/v2/ko/docs/harness/architecture) — 하나의 call 안에서 컨텍스트, 상태 지속성, 워크스페이스가 어떻게 협력하는지
+- [Memory](/v2/ko/docs/harness/memory) — 장기 기억, 전체 압축 설정, 큰 도구 결과 오프로딩, 백그라운드 유지보수
+- [Plan Mode](/v2/ko/docs/harness/plan-mode) — plan 상태의 독립적인 지속성과 복구
+- [Subagent](/v2/ko/docs/harness/subagent) — 백그라운드 작업이 어디에 있고 노드 마이그레이션을 어떻게 견디는지
+- [Filesystem](/v2/ko/docs/harness/filesystem) — `userId` 기반의 다중 테넌트 경로 격리

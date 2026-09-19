@@ -1,6 +1,6 @@
 ---
-title: "ツール"
-description: "エージェントが呼び出せる能力を定義・登録・管理する"
+title: ツール
+description: エージェントが呼び出せる能力を定義・登録・管理する
 ---
 
 ## 概要
@@ -70,9 +70,11 @@ Toolkit toolkit = new Toolkit();
 toolkit.registerTool(new io.agentscope.core.tool.builtin.TodoTools());
 ```
 
-:::{note}
+<Note>
+
 追加のツールグループやスキルが存在する場合、`Toolkit` は `reset_tools` メタツールと `load_skill_through_path` スキルビューアツールを自動的に登録します——手動でインスタンス化する必要はありません。[自己管理型ツール](#自己管理型ツール) と [スキル](#スキル) を参照してください。
-:::
+
+</Note>
 
 ### カスタムツール(アノテーションベース)
 
@@ -175,7 +177,7 @@ public class WebSearchTool extends ToolBase {
 
 外部実行ツールは、実際の作業をエージェントのランタイムの外部——典型的には人間のオペレーターや外部システム——に委譲します。エージェントは `RequireExternalExecutionEvent` を発行して一時停止します。次の呼び出しで対応する `ToolResultBlock` がフィードバックされると、エージェントは処理を続ける前に、同じ `replyId` を持つ `ExternalExecutionResultEvent` を発行します。
 
-このパターンは [human-in-the-loop](./agent.md#human-in-the-loop) フローの基盤です——一部の操作には人間の承認や人間による実行が必要です。
+このパターンは [human-in-the-loop](/v2/ja/docs/building-blocks/agent#human-in-the-loop) フローの基盤です——一部の操作には人間の承認や人間による実行が必要です。
 
 外部ツールを作成するには、`externalTool` を `true` に設定し、`callAsync` の実装を省略します:
 
@@ -217,7 +219,7 @@ public class HumanApprovalTool extends ToolBase {
 
 ## コンテキストを受け取る
 
-`agent.call(msgs, runtimeContext)` に渡された [`RuntimeContext`](./agent.md#runtimecontext-呼び出しごとのコンテキスト) は、その返信内のすべてのツール呼び出しへ転送されます。ツールはこれを2つの方法で読み取れます: アノテーションベースのツールは自動注入によって、`ToolBase.callAsync` は `ToolCallParam` によってです。
+`agent.call(msgs, runtimeContext)` に渡された [`RuntimeContext`](/v2/ja/docs/building-blocks/agent#runtimecontext-呼び出しごとのコンテキスト) は、その返信内のすべてのツール呼び出しへ転送されます。ツールはこれを2つの方法で読み取れます: アノテーションベースのツールは自動注入によって、`ToolBase.callAsync` は `ToolCallParam` によってです。
 
 ### 自動注入(`@Tool` メソッド)
 
@@ -313,8 +315,10 @@ MCP ツールは、衝突を避けるために `mcp__{server_name}__{tool_name}`
 
 `McpClientBuilder` を使って `McpClientWrapper` を構築し、それを `Toolkit` に登録します:
 
-::::{tab-set}
-:::{tab-item} STDIO
+<Tabs>
+
+<Tab title="STDIO">
+
 ```java
 import io.agentscope.core.tool.Toolkit;
 import io.agentscope.core.tool.mcp.McpClientBuilder;
@@ -330,8 +334,10 @@ McpClientWrapper filesystem =
 Toolkit toolkit = new Toolkit();
 toolkit.registerMcpClient(filesystem).block();
 ```
-:::
-:::{tab-item} Streamable HTTP
+
+</Tab>
+<Tab title="Streamable HTTP">
+
 ```java
 import io.agentscope.core.tool.Toolkit;
 import io.agentscope.core.tool.mcp.McpClientBuilder;
@@ -347,8 +353,10 @@ McpClientWrapper weather =
 Toolkit toolkit = new Toolkit();
 toolkit.registerMcpClient(weather).block();
 ```
-:::
-:::{tab-item} SSE
+
+</Tab>
+<Tab title="SSE">
+
 ```java
 import io.agentscope.core.tool.mcp.McpClientBuilder;
 import io.agentscope.core.tool.mcp.McpClientWrapper;
@@ -362,8 +370,10 @@ McpClientWrapper search =
 Toolkit toolkit = new Toolkit();
 toolkit.registerMcpClient(search).block();
 ```
-:::
-::::
+
+</Tab>
+
+</Tabs>
 
 実行可能な例: `agentscope-examples/documentation/.../mcp/McpStdioExample.java`、`mcp/McpSseExample.java`、`mcp/McpStreamableHttpExample.java`。
 
@@ -426,9 +436,11 @@ ReActAgent agent =
 1. 要求されたコンテンツ(`SKILL.md` の Markdown、または指定されたリソースファイル)を返します。
 2. **スキルを有効化します** —— 関連するツールグループが `Toolkit` 内で有効化され、そのスキルにバンドルされたツールが、そのターンの残りの間呼び出し可能になります。要求された `path` が存在しない場合、ビューアはエラーを返し、利用可能なリソースパスの一覧(`SKILL.md` を先頭に)を提示するので、エージェントは再試行できます。
 
-:::{note}
+<Note>
+
 スキルはツールではありません——エージェントはそれを直接呼び出すことができません。エージェントはまず `load_skill_through_path` 経由で指示を読み、その後、他のツールを使ってそれを実行しなければなりません。
-:::
+
+</Note>
 
 ### スキルのスクリプト実行:シェルツールを設定する
 
@@ -558,33 +570,41 @@ basic 以外のツールグループが少なくとも1つ存在し、`enableMet
 - 新たにアクティブになった各グループについて、その説明と(提供されていれば)指示がメタツールの戻り値に組み込まれ、正しい使い方をエージェントに伝えます。
 - 非アクティブなグループのツールはエージェントのツールスキーマに現れず、アクティブなツールセットのためのコンテキストをより多く残します。
 
-:::{warning}
+<Warning>
+
 メタツールの入力は、差分ではなく、すべてのグループの**最終状態**を表します。明示的に `true` に設定されなかったグループは、以前の状態に関わらず非アクティブ化されます。
-:::
+
+</Warning>
 
 ## さらに読む
 
-::::{grid} 2
+<CardGroup cols={2}>
 
-:::{grid-item-card} エージェント
-:link: ./agent.html
+
+<Card title="エージェント" href="/v2/ja/docs/building-blocks/agent">
+
 
 エージェントが ReAct ループの中でどのようにツール呼び出しをオーケストレーションするか
-:::
-  :::{grid-item-card} パーミッションシステム
-:link: ./permission-system.html
+
+</Card>
+  <Card title="パーミッションシステム" href="/v2/ja/docs/building-blocks/permission-system">
+
 
 どのツールが、いつ実行されるかをきめ細かく制御する
-:::
-  :::{grid-item-card} Middleware
-:link: ./middleware.html
+
+  </Card>
+  <Card title="Middleware" href="/v2/ja/docs/building-blocks/middleware">
+
 
 オニオン型の middleware を使ってツール呼び出しをインターセプトし、書き換える
-:::
-  :::{grid-item-card} Human-in-the-Loop
-:link: ./agent.html#human-in-the-loop
+
+  </Card>
+  <Card title="Human-in-the-Loop" href="/v2/ja/docs/building-blocks/agent#human-in-the-loop">
+
 
 外部実行ツールと承認ワークフロー
-:::
 
-::::
+  </Card>
+
+
+</CardGroup>

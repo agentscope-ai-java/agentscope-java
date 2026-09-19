@@ -1,4 +1,6 @@
-# DashScope モデル
+---
+title: DashScope モデル
+---
 
 `agentscope-extensions-model-dashscope` は、Alibaba Cloud DashScope の Qwen モデルを統合し、マルチモーダルおよび推論機能を備えた Qwen モデルを含みます。
 
@@ -56,4 +58,4 @@ Spring Boot アプリケーションでは DashScope スターターを使用で
 </dependency>
 ```
 
-ビルダーの全オプション、フォーマッター、認証情報、レジストリコンテキストの詳細については [Model](../../docs/building-blocks/model.md) を参照してください。
+ビルダーの全オプション、フォーマッター、認証情報、レジストリコンテキストの詳細については [Model](/v2/ja/docs/building-blocks/model) を参照してください。

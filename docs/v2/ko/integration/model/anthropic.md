@@ -1,4 +1,6 @@
-# Anthropic Model
+---
+title: Anthropic Model
+---
 
 `agentscope-extensions-model-anthropic`는 Anthropic 전용 포맷터 및 요청 DTO 지원을 포함하여 Anthropic Claude 모델을 통합합니다.
 
@@ -49,4 +51,4 @@ Spring Boot 애플리케이션에서는 Anthropic 스타터를 사용할 수 있
 </dependency>
 ```
 
-전체 빌더 옵션, 포맷터, 자격 증명, 레지스트리 컨텍스트에 대한 세부 내용은 [Model](../../docs/building-blocks/model.md)에서 다룹니다.
+전체 빌더 옵션, 포맷터, 자격 증명, 레지스트리 컨텍스트에 대한 세부 내용은 [Model](/v2/ko/docs/building-blocks/model)에서 다룹니다.

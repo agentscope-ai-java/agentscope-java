@@ -1,6 +1,6 @@
 ---
-title: "Skill"
-description: "四層のスキル合成、スキルマーケットプレイス、自己学習ループ"
+title: Skill
+description: 四層のスキル合成、スキルマーケットプレイス、自己学習ループ
 ---
 
 スキルとはパッケージ化された能力です:`SKILL.md`(目的とエージェントが読む指示)、任意のリファレンスドキュメント、スクリプト、サンプルを含むディレクトリです。エージェントに渡せば、関連するときにそれを使うようになります。
@@ -170,13 +170,13 @@ workspace/
 
 これには、呼び出し元が `RuntimeContext` に `userId="alice"` を渡す必要があります。
 
-`workspace/<userId>/skills/` は**論理パス**であり、必ずしも「ローカルディスク上のディレクトリ」ではありません。スキルファイルは `AbstractFilesystem` の抽象化を通じて読み書きされ、それらが物理的にどこに置かれるかは設定した[ファイルシステムモード](./filesystem.md)次第です――そのため、ユーザーごとのスキル分離はストレージのバックエンドから切り離されています。
+`workspace/<userId>/skills/` は**論理パス**であり、必ずしも「ローカルディスク上のディレクトリ」ではありません。スキルファイルは `AbstractFilesystem` の抽象化を通じて読み書きされ、それらが物理的にどこに置かれるかは設定した[ファイルシステムモード](/v2/ja/docs/harness/filesystem)次第です――そのため、ユーザーごとのスキル分離はストレージのバックエンドから切り離されています。
 
 - **ローカル+シェル** — 文字通りホストディスク上の `workspace/alice/skills/...`。
 - **共有ストア(リモートファイルシステム)** — `skills/` プレフィックスは KV ストアにルーティングされます;ユーザーごとの分離は、レプリカ間で一貫した名前空間キー `agents/<agentId>/users/alice/skills/...` として現れ、管理コンソールからの編集は次の推論ステップで有効になります。
 - **サンドボックス(サンドボックスファイルシステム)** — ホスト側のユーザーディレクトリは、サンドボックス起動時にワークスペース投影を通じてコンテナの `/workspace` にハイドレートされるため、エージェントはサンドボックス内で同じコピーを読み取ります。
 
-どのモードで動かしていても、`<userId>/skills/` は同じ優先度で共有版を上書きします。モードごとの分離キー、物理的な表現、そして `userId` の役割については、[Filesystem](./filesystem.md#マルチユーザー分離の仕組み) を参照してください。
+どのモードで動かしていても、`<userId>/skills/` は同じ優先度で共有版を上書きします。モードごとの分離キー、物理的な表現、そして `userId` の役割については、[Filesystem](/v2/ja/docs/harness/filesystem#マルチユーザー分離の仕組み) を参照してください。
 
 ## 競合の解決
 
@@ -331,7 +331,7 @@ agent.promoteSkill("notes-taker", "alice")                   // manually promote
 
 ## サンドボックスでスキルを実行する
 
-[サンドボックスモード](./filesystem.md#モード2-サンドボックスsandboxfilesystemspec-ファミリー) では、すべてのファイル操作とシェルコマンドが分離されたコンテナ内で実行されます――ホストは無傷のままです。これは問題を生みます:スキルのスクリプト(`scripts/run-checks.sh`、`scripts/foo.py` など)はホスト上で書かれていますが、エージェントはそれらをコンテナ内で実行しなければなりません。Harness は「物質化 → 投影 → コンテナ内実行」という三段階のパイプラインで、これを透過的にします。以下で分解して説明します。
+[サンドボックスモード](/v2/ja/docs/harness/filesystem#モード2サンドボックスsandboxfilesystemspec-ファミリー) では、すべてのファイル操作とシェルコマンドが分離されたコンテナ内で実行されます――ホストは無傷のままです。これは問題を生みます:スキルのスクリプト(`scripts/run-checks.sh`、`scripts/foo.py` など)はホスト上で書かれていますが、エージェントはそれらをコンテナ内で実行しなければなりません。Harness は「物質化 → 投影 → コンテナ内実行」という三段階のパイプラインで、これを透過的にします。以下で分解して説明します。
 
 ### どのスキルがサンドボックスに行き着くか
 
@@ -390,7 +390,7 @@ execute_shell_command("python3 /workspace/skills/code-reviewer/scripts/run-check
 
 ### 呼び出しをまたいでスクリプトの副作用を永続化する
 
-スクリプトが依存関係をインストールしたり成果物を生成したりして(`npm install`、`pip install`、ビルド出力)、それらを次の `call()` でも残したい場合は、サンドボックスに[スナップショット](./filesystem.md#スナップショット戦略)(`snapshotSpec(...)`)を与えてください。スナップショットは `/workspace` 全体をキャプチャします;同じスコープキーへの次の呼び出しは、まずスナップショットを復元し、その上に投影を重ねるため、インストール済みの依存関係を再インストールする必要はありません。
+スクリプトが依存関係をインストールしたり成果物を生成したりして(`npm install`、`pip install`、ビルド出力)、それらを次の `call()` でも残したい場合は、サンドボックスに[スナップショット](/v2/ja/docs/harness/filesystem#スナップショット戦略)(`snapshotSpec(...)`)を与えてください。スナップショットは `/workspace` 全体をキャプチャします;同じスコープキーへの次の呼び出しは、まずスナップショットを復元し、その上に投影を重ねるため、インストール済みの依存関係を再インストールする必要はありません。
 
 ### 注意:SKILL.md を読むのにサンドボックスは不要
 
@@ -412,6 +412,6 @@ execute_shell_command("python3 /workspace/skills/code-reviewer/scripts/run-check
 
 ## 関連ページ
 
-- [Workspace](./workspace.md) — `skills/` の全体レイアウト
-- [Filesystem](./filesystem.md) — マルチテナント分離とユーザーごとのバケット分け
-- [Architecture](./architecture.md) — スキルセットが各推論ステップでどう再構築されるか
+- [Workspace](/v2/ja/docs/harness/workspace) — `skills/` の全体レイアウト
+- [Filesystem](/v2/ja/docs/harness/filesystem) — マルチテナント分離とユーザーごとのバケット分け
+- [Architecture](/v2/ja/docs/harness/architecture) — スキルセットが各推論ステップでどう再構築されるか

@@ -1,8 +1,12 @@
-```{note}
-このページは [分散ストレージ — OSS](../distributed/oss.md) に統合されました。以下の内容は参考のために残しています。
-```
+---
+title: OSS ステートストア
+---
 
-# OSS ステートストア
+<Note>
+
+このページは [分散ストレージ — OSS](/v2/ja/integration/distributed/oss) に統合されました。以下の内容は参考のために残しています。
+
+</Note>
 
 `agentscope-extensions-oss` は AgentScope のエージェント状態を Alibaba Cloud Object Storage Service (OSS) に永続化します。大容量データや Alibaba Cloud エコシステムに最適です。
 

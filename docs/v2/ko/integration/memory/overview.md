@@ -1,12 +1,14 @@
-# Memory
+---
+title: Memory
+---
 
 `LongTermMemory`는 여러 턴과 세션에 걸쳐 사용자 선호, 사실, 핵심 요점을 영속화하기 위한 AgentScope 인터페이스입니다. `agentscope-extensions-*` 저장소는 주요 메모리 저장소에 대해 바로 사용할 수 있는 구현체를 제공합니다.
 
 | 확장 | 백엔드 | 적합한 용도 |
 | --- | --- | --- |
-| [Mem0](mem0.md) | [Mem0](https://mem0.ai/) Platform / 자체 호스팅 | 멀티테넌트 격리와 메타데이터 필터링을 갖춘 범용 시맨틱 메모리 |
-| [Bailian](bailian.md) | 알리바바 클라우드 바이리안 메모리 서비스 | rerank / judge / rewrite 기능을 갖춘 클라우드 관리형 메모리 |
-| [ReMe](reme.md) | 자체 호스팅 ReMe 서비스 | 궤적(trajectory) 요약 기능을 갖춘 워크스페이스 수준 메모리 |
+| [Mem0](/v2/ko/integration/memory/mem0) | [Mem0](https://mem0.ai/) Platform / 자체 호스팅 | 멀티테넌트 격리와 메타데이터 필터링을 갖춘 범용 시맨틱 메모리 |
+| [Bailian](/v2/ko/integration/memory/bailian) | 알리바바 클라우드 바이리안 메모리 서비스 | rerank / judge / rewrite 기능을 갖춘 클라우드 관리형 메모리 |
+| [ReMe](/v2/ko/integration/memory/reme) | 자체 호스팅 ReMe 서비스 | 궤적(trajectory) 요약 기능을 갖춘 워크스페이스 수준 메모리 |
 
 세 가지 모두 동일한 `io.agentscope.core.memory.LongTermMemory` 인터페이스를 구현하며, Agent에 연결하는 방법도 동일합니다.
 

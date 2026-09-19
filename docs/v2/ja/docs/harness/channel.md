@@ -1,6 +1,6 @@
 ---
-title: "Channel"
-description: "Channel を通じてメッセージをルーティングし、セッションを管理し、イベントをストリーミングする"
+title: Channel
+description: Channel を通じてメッセージをルーティングし、セッションを管理し、イベントをストリーミングする
 ---
 
 ## それぞれが何をするか
@@ -321,15 +321,15 @@ gw.stop();    // calls stop() on all channels
 
 AgentScope は、拡張モジュールとして人気のメッセージングプラットフォーム向けにすぐ使える Channel アダプターを提供しています。
 
-- [DingTalk](../../integration/channel/dingtalk.md) — Stream プロトコル(持続的な WebSocket)
-- [Feishu / Lark](../../integration/channel/feishu.md) — イベント購読コールバック
-- [GitHub](../../integration/channel/github.md) — Issue / PR コメントの webhook
-- [GitLab](../../integration/channel/gitlab.md) — Note hook
-- [WeCom](../../integration/channel/wecom.md) — 暗号化コールバック
+- [DingTalk](/v2/ja/integration/channel/dingtalk) — Stream プロトコル(持続的な WebSocket)
+- [Feishu / Lark](/v2/ja/integration/channel/feishu) — イベント購読コールバック
+- [GitHub](/v2/ja/integration/channel/github) — Issue / PR コメントの webhook
+- [GitLab](/v2/ja/integration/channel/gitlab) — Note hook
+- [WeCom](/v2/ja/integration/channel/wecom) — 暗号化コールバック
 
-詳細は [Channel アダプター](../../integration/channel/index.md) の統合概要を参照してください。
+詳細は [Channel アダプター](/v2/ja/integration/channel/index) の統合概要を参照してください。
 
 ## 関連ページ
 
-- [Subagent](./subagent.md) — サブエージェントの宣言と spawn、バックグラウンドタスク、ストリーミング転送
-- [Architecture](./architecture.md) — 親エージェントと子エージェントがどう協調するか
+- [Subagent](/v2/ja/docs/harness/subagent) — サブエージェントの宣言と spawn、バックグラウンドタスク、ストリーミング転送
+- [Architecture](/v2/ja/docs/harness/architecture) — 親エージェントと子エージェントがどう協調するか

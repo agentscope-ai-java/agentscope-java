@@ -1,4 +1,6 @@
-# HayStack Knowledge
+---
+title: HayStack Knowledge
+---
 
 `agentscope-extensions-rag-haystack`은 AgentScope를 [HayStack](https://haystack.deepset.ai/) RAG 서비스에 연결합니다. 문서 관리와 인덱싱은 HayStack 측에서 이루어지며, AgentScope는 그 검색 API만 호출합니다.
 

@@ -1,8 +1,12 @@
-```{note}
-このページは [分散ストレージ — Redis](../distributed/redis.md) に統合されました。以下の内容は参考のために残しています。
-```
+---
+title: Redis ステートストア
+---
 
-# Redis ステートストア
+<Note>
+
+このページは [分散ストレージ — Redis](/v2/ja/integration/distributed/redis) に統合されました。以下の内容は参考のために残しています。
+
+</Note>
 
 `agentscope-extensions-redis` は AgentScope のエージェント状態を Redis に永続化します。統一された `RedisClientAdapter` が **Jedis、Lettuce、Redisson** を抽象化し、Standalone、Cluster、Sentinel のデプロイモードをカバーします。
 

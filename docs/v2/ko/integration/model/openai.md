@@ -1,4 +1,6 @@
-# OpenAI 모델
+---
+title: OpenAI 모델
+---
 
 `agentscope-extensions-model-openai`는 OpenAI Chat Completions 스타일 모델을 통합합니다. 또한 DeepSeek, GLM, Kimi, MiniMax 등 와이어 포맷이 OpenAI API를 따르는 OpenAI 호환 엔드포인트에도 사용하는 모듈입니다.
 
@@ -49,4 +51,4 @@ Spring Boot 애플리케이션은 OpenAI starter를 사용할 수 있습니다:
 </dependency>
 ```
 
-전체 빌더 옵션, formatter, 자격 증명(credentials), 레지스트리 컨텍스트에 대한 세부 내용은 [Model](../../docs/building-blocks/model.md)에서 다룹니다.
+전체 빌더 옵션, formatter, 자격 증명(credentials), 레지스트리 컨텍스트에 대한 세부 내용은 [Model](/v2/ko/docs/building-blocks/model)에서 다룹니다.

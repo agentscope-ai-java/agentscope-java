@@ -1,4 +1,6 @@
-# PostgreSQL Skill Repository
+---
+title: PostgreSQL Skill Repository
+---
 
 `agentscope-extensions-skill-postgresql-repository` は、skill を PostgreSQL に完全な CRUD 付きで保存します。管理コンソール / 業務システムで編集して保存すれば、Agent は次の読み取り時にすぐ変更を反映します。
 

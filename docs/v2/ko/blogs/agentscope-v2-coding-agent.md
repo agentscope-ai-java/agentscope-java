@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: "코딩 에이전트: 후반전 — 개인 생산성에서 조직형 엔지니어링 시스템으로"
 ---
-
-# 코딩 에이전트: 후반전 — 개인 생산성에서 조직형 엔지니어링 시스템으로
 
 아직도 옛날 방식으로 손수 코드를 작성하는 개발자는 사실상 무형문화재 전수자가 되기 위한 훈련을 받는 것과 다름없다. 대다수는 이미 Claude Code나 Cursor 같은 코딩 에이전트를 사용하고 있다. 방향은 맞지만 시나리오가 다르므로 해법도 달라진다 — 개인 생산성을 위해 로컬에 AI 어시스턴트를 설치하는 것과, 조직 내부에 AI 기반 엔지니어링 협업 시스템을 구축하는 것은 완전히 차원이 다른 문제다. 전자는 이미 성숙한 제품들이 존재하지만, 후자는 이제 막 시작된 영역이다. 이 글은 후자에 관한 이야기다.
 
@@ -207,4 +205,4 @@ Open SWE는 Deep Agents의 `task` 도구로 서브에이전트 디스패치를 �
 
 이 글에서 언급한 codingagent 예제는 완전하고 읽기 쉬운 샘플이다. 클론해서 한 번 실행해 본 뒤 소스 코드를 읽어보기를 권한다 — 여기서 논의한 모든 엔지니어링 문제가 실제 코드에 어떻게 매핑되는지 확인할 수 있다.
 
-더 깊이 파고들기: [Harness Architecture](../docs/harness/architecture.md) · [Workspace](../docs/harness/workspace.md) · [Sandbox](../docs/harness/sandbox.md) · [Context Compaction](../docs/harness/compaction.md) · [Subagent](../docs/harness/subagent.md) · [Skill](../docs/harness/skill.md) · [Plan Mode](../docs/harness/plan-mode.md)
+더 깊이 파고들기: [Harness Architecture](/v2/ko/docs/harness/architecture) · [Workspace](/v2/ko/docs/harness/workspace) · [Sandbox](/v2/ko/docs/harness/sandbox) · [Context Compaction](/v2/ko/docs/harness/compaction) · [Subagent](/v2/ko/docs/harness/subagent) · [Skill](/v2/ko/docs/harness/skill) · [Plan Mode](/v2/ko/docs/harness/plan-mode)

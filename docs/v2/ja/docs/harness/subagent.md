@@ -1,6 +1,6 @@
 ---
-title: "サブエージェント"
-description: "サブエージェントの宣言、同期/バックグラウンド呼び出し、自動プッシュバック、リモートサブエージェント、ストリーミング転送"
+title: サブエージェント
+description: サブエージェントの宣言、同期/バックグラウンド呼び出し、自動プッシュバック、リモートサブエージェント、ストリーミング転送
 ---
 
 ## 役割
@@ -237,7 +237,7 @@ chat.sendStream(SendOptions.userId("user-1"), "researcher を spawn して AI �
 chat.sendToSubagent(subagentId, "特に LLM エージェントに焦点を当ててください").block();
 ```
 
-これは「分岐」シナリオに便利です: 親が専門のサブエージェントを spawn し、ユーザーはその専門エージェントと独立して会話を続けます。Channel 側の完全な API については [Channel — 公開されたサブエージェントとの対話](./channel.md#公開されたサブエージェントとの対話) を参照してください。
+これは「分岐」シナリオに便利です: 親が専門のサブエージェントを spawn し、ユーザーはその専門エージェントと独立して会話を続けます。Channel 側の完全な API については [Channel — 公開されたサブエージェントとの対話](/v2/ja/docs/harness/channel#公開されたサブエージェントとの対話) を参照してください。
 
 ### 有効化する方法
 
@@ -253,7 +253,7 @@ HarnessAgent agent = HarnessAgent.builder()
 ChatUiChannel chat = agent.channel(ChatUiChannel.create());
 ```
 
-Channel のバインディングがない場合、`agent_spawn` の `expose_to_user=true` は黙って無視されます——サブエージェントは通常どおり動作しますが、ユーザーには公開されません。`GatewayBootstrap` を使ったマルチエージェント構成については、[Channel — GatewayBootstrap でのスレッド公開](./channel.md#gatewaybootstrap-でのスレッド公開) を参照してください。
+Channel のバインディングがない場合、`agent_spawn` の `expose_to_user=true` は黙って無視されます——サブエージェントは通常どおり動作しますが、ユーザーには公開されません。`GatewayBootstrap` を使ったマルチエージェント構成については、[Channel — GatewayBootstrap でのスレッド公開](/v2/ja/docs/harness/channel#gatewaybootstrap-でのスレッド公開) を参照してください。
 
 ### コードから公開を制御する
 
@@ -309,7 +309,7 @@ HarnessAgent agent = HarnessAgent.builder()
 ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // recovery は自動的に配線される
 ```
 
-`subagentId` はストアに永続化され、サブエージェント自身の会話はセッション単位で分散 `AgentStateStore` から再読み込みされます——そのため、後続のメッセージが別のノードに届いたとしても、ユーザーは*同じ*サブエージェントと会話し続けることができます。マルチエージェントの `GatewayBootstrap` では `.distributedStore(...)` を渡してください(渡さない場合はメインエージェントの設定を継承します)。デプロイに関するガイダンス——`subagentId` を稼働中のノードへ戻すルーティング(スティッキールーティング)を含む——は [本番投入](../others/going-to-production.md) にあります。
+`subagentId` はストアに永続化され、サブエージェント自身の会話はセッション単位で分散 `AgentStateStore` から再読み込みされます——そのため、後続のメッセージが別のノードに届いたとしても、ユーザーは*同じ*サブエージェントと会話し続けることができます。マルチエージェントの `GatewayBootstrap` では `.distributedStore(...)` を渡してください(渡さない場合はメインエージェントの設定を継承します)。デプロイに関するガイダンス——`subagentId` を稼働中のノードへ戻すルーティング(スティッキールーティング)を含む——は [本番投入](/v2/ja/docs/others/going-to-production) にあります。
 
 ## エージェントに新しいサブエージェント仕様を書かせる
 
@@ -356,7 +356,7 @@ ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // recovery は自�
 | `remoteStreaming` | `true`(未設定時) | 親が `streamEvents()` を使う場合、リモートタスクの SSE イベントを、`source` タグと `metadata.taskId` / `metadata.parentSessionId`(harness の `TaskRecord` / 親セッションと同じ ID)を付けて親のストリームへ転送する |
 | `remoteStreamDetail` | `FULL` | リモートのイベントストリームのうち、どこまでを転送するか —— [リモートストリーミングの詳細度](#リモートストリーミングの詳細度) を参照 |
 | `remoteAskPolicy` | `DENY` | リモートのツール確認(HITL)リクエストをどう解決するか —— [リモート認可](#リモート認可) を参照 |
-| `remoteContextAttributes` | なし | すべての送信で `context.attributes` として送られる静的な呼び出し側属性。呼び出しごとの値をマージするには、親の `RuntimeContext` の `AgentSpawnTool.CTX_REMOTE_CONTEXT_ATTRIBUTES` キーの下に map を設定する。[コンテキスト属性](../../integration/protocol/agent-protocol.md#コンテキスト属性) を参照 |
+| `remoteContextAttributes` | なし | すべての送信で `context.attributes` として送られる静的な呼び出し側属性。呼び出しごとの値をマージするには、親の `RuntimeContext` の `AgentSpawnTool.CTX_REMOTE_CONTEXT_ATTRIBUTES` キーの下に map を設定する。[コンテキスト属性](/v2/ja/integration/protocol/agent-protocol#コンテキスト属性) を参照 |
 
 ### リモートストリーミングの詳細度
 
@@ -378,7 +378,7 @@ ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // recovery は自�
 
 リモートエージェントがツール確認のために一時停止すると(`awaiting_confirm`):
 
-- **ストリーミングする親 + `remoteAskPolicy=PROPAGATE`**: `RequireUserConfirmEvent` が、null でない `source` タグを付けて親の `streamEvents()` ストリームへ転送されます。リモートタスクを再開するには、Agent Protocol の [`POST /tasks/{id}/resume`](../../integration/protocol/agent-protocol.md) を `decisions[{toolCallId, approved}]` とともに呼び出します。
+- **ストリーミングする親 + `remoteAskPolicy=PROPAGATE`**: `RequireUserConfirmEvent` が、null でない `source` タグを付けて親の `streamEvents()` ストリームへ転送されます。リモートタスクを再開するには、Agent Protocol の [`POST /tasks/{id}/resume`](/v2/ja/integration/protocol/agent-protocol) を `decisions[{toolCallId, approved}]` とともに呼び出します。
 - **非ストリーミングの親(`call`)、または `remoteAskPolicy=DENY`(デフォルト)**: 保留中の確認は自動的に拒否されます。ツール結果には `remote tool confirmation(s) were auto-denied` という注記が含まれます。
 
 確認待ちの間、タスクのステータスは `RUNNING`(`awaitingConfirm=true`)のままです。そのため `wait_async_results` のようなバリアは、タスクが再開されて終端状態に達するまで待機し続けます。
@@ -397,7 +397,7 @@ ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // recovery は自�
 
 ## サブエージェントのストリーミング
 
-> 新しいコードでは `streamEvents()`(`Flux<AgentEvent>` を返す)を使用してください。従来の `stream()` 系列(`Flux<Event>`)は 2.0.0 以降 `@Deprecated(forRemoval = true)` です —— [Message & Event](../building-blocks/message-and-event.md) と [V1 移行ガイド B.4](../change-log.md) を参照してください。
+> 新しいコードでは `streamEvents()`(`Flux<AgentEvent>` を返す)を使用してください。従来の `stream()` 系列(`Flux<Event>`)は 2.0.0 以降 `@Deprecated(forRemoval = true)` です —— [Message & Event](/v2/ja/docs/building-blocks/message-and-event) と [V1 移行ガイド B.4](/v2/ja/docs/change-log) を参照してください。
 
 親が `agent_spawn` / `agent_send` 経由で同期的なサブエージェントを呼び出すと、子の中間イベントは親の `streamEvents()` ストリームへ**ライブで転送**されます。各子イベントは `source` フィールド(`"main/researcher"` のような `/` 区切りのパス)を持つため、親のイベント(`source == null`)と子のイベントを区別できます。リモートの Agent Protocol の子はさらに、`metadata.taskId`(`AgentEvent.METADATA_TASK_ID`)を harness のタスク ID に、`metadata.parentSessionId`(`AgentEvent.METADATA_PARENT_SESSION_ID`)を親セッションに設定します。これにより、同じリモートエージェントへの2つの並行/同一ターンの呼び出しが同じ `source` パスを共有していても区別可能になります。
 
@@ -499,10 +499,10 @@ public Flux<ServerSentEvent<String>> chat(@RequestParam String message,
 
 ## 関連ページ
 
-- [Channel](./channel.md) — `expose_to_user`、`SendOptions`、ユーザーからサブエージェントへの直接メッセージング
-- [Workspace](./workspace.md) — `subagents/` と `agents/<id>/tasks/` のレイアウト
-- [Plan Mode](./plan-mode.md) — プランフェーズ中のサブエージェントに対する制約
-- [Architecture](./architecture.md) — 親と子がどのように協調するか
-- [Agent Protocol](../../integration/protocol/agent-protocol.md) — リモートタスクのエンドポイント(SSE + HITL の再開)
-- [Message & Event](../building-blocks/message-and-event.md) — `AgentEvent` の階層(推奨)と、非推奨の `Event` / `EventType` / `StreamOptions` 型
-- [V1 移行ガイド B.4](../change-log.md) — `stream()` → `streamEvents()` の非推奨化タイムライン
+- [Channel](/v2/ja/docs/harness/channel) — `expose_to_user`、`SendOptions`、ユーザーからサブエージェントへの直接メッセージング
+- [Workspace](/v2/ja/docs/harness/workspace) — `subagents/` と `agents/<id>/tasks/` のレイアウト
+- [Plan Mode](/v2/ja/docs/harness/plan-mode) — プランフェーズ中のサブエージェントに対する制約
+- [Architecture](/v2/ja/docs/harness/architecture) — 親と子がどのように協調するか
+- [Agent Protocol](/v2/ja/integration/protocol/agent-protocol) — リモートタスクのエンドポイント(SSE + HITL の再開)
+- [Message & Event](/v2/ja/docs/building-blocks/message-and-event) — `AgentEvent` の階層(推奨)と、非推奨の `Event` / `EventType` / `StreamOptions` 型
+- [V1 移行ガイド B.4](/v2/ja/docs/change-log) — `stream()` → `streamEvents()` の非推奨化タイムライン

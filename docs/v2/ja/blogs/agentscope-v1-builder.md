@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: AgentScope Builder — OpenClaw の「自己進化」をチーム全体のプラットフォームへ
 ---
-
-# AgentScope Builder — OpenClaw の「自己進化」をチーム全体のプラットフォームへ
 
 AgentScope Java 1.1.0 では、OpenClaw と Coding Agent から得た「Workspace こそが真実 + 自己進化」という体験を、Harness エンジニアリングの基盤へと昇華させた: `HarnessAgent` + `AbstractFilesystem` に組み込みの compaction と階層化されたメモリを組み合わせたものである。その際、私たちは一つの約束をした: **Agent のロジックを一度だけ書き、デプロイの形は必要に応じて切り替える — 個人のノートパソコンからエンタープライズの分散デプロイまで**。
 
@@ -27,7 +25,7 @@ Claw はリポジトリの次の場所にある:
 agentscope-examples/agents/agentscope-claw/
 ```
 
-これはサンプルコードではなく、**完全な Spring Boot アプリケーション**である: JDK 17、`mvn package` を一回、`java -jar` を一回実行し、ブラウザで <http://localhost:8080> を開くだけでよい。すべての状態は `~/.agentscope/` の Workspace 配下に永続化され、これは `CLAW_HOME` 環境変数で上書きできる。初回起動時には組み込みの `default` agent が自動的に作られるので、コードを一行も書かずにチャットを始められる。
+これはサンプルコードではなく、**完全な Spring Boot アプリケーション**である: JDK 17、`mvn package` を一回、`java -jar` を一回実行し、ブラウザで [http://localhost:8080](http://localhost:8080) を開くだけでよい。すべての状態は `~/.agentscope/` の Workspace 配下に永続化され、これは `CLAW_HOME` 環境変数で上書きできる。初回起動時には組み込みの `default` agent が自動的に作られるので、コードを一行も書かずにチャットを始められる。
 
 ### 三つのコア機能
 
@@ -218,7 +216,7 @@ CompositeFilesystem の解決策は直接的である: **下位のストレー�
 - ユーザーの Workspace を管理する Web レイヤーも同じ `BaseStore` を使う — Web が見るものと agent が見るものは同じデータである
 - 分散 `Session`(典型的な実装: `RedisSession`)と組み合わせることで、Builder のプロセス自体を対等なレプリカとしてデプロイできる
 
-図の中の「名前空間ルーティングの上位レイヤー」はまったく変わらない — 名前空間のルーティングは CompositeFilesystem の内部で行われ、ストレージバックエンドがローカルディスクであれ、Docker コンテナであれ、Redis であれ、それについて何も知らない。**これはまさに、[Harness の記事](agentscope-v1-harness.md) の `AbstractFilesystem` が本当の力を発揮する場所である** — ビジネスコードは一行も変わらず、デプロイ側が Bean を一つ入れ替えるだけで、単一ノードから分散への移行が完了する。
+図の中の「名前空間ルーティングの上位レイヤー」はまったく変わらない — 名前空間のルーティングは CompositeFilesystem の内部で行われ、ストレージバックエンドがローカルディスクであれ、Docker コンテナであれ、Redis であれ、それについて何も知らない。**これはまさに、[Harness の記事](/v2/ja/blogs/agentscope-v1-harness) の `AbstractFilesystem` が本当の力を発揮する場所である** — ビジネスコードは一行も変わらず、デプロイ側が Bean を一つ入れ替えるだけで、単一ノードから分散への移行が完了する。
 
 ---
 
@@ -271,7 +269,7 @@ mvn -pl agentscope-examples/agents/agentscope-claw -am clean package -DskipTests
 java -jar agentscope-examples/agents/agentscope-claw/target/agentscope-claw-*.jar
 ```
 
-<http://localhost:8080> を開く。デフォルトのホームディレクトリは `~/.agentscope` である。DingTalk / WeCom / Feishu / その他のチャネルに接続するには、`~/.agentscope/agentscope.json` を編集し、対応するチャネルのエントリを追加する。詳細は [Claw README] を参照。
+[http://localhost:8080](http://localhost:8080) を開く。デフォルトのホームディレクトリは `~/.agentscope` である。DingTalk / WeCom / Feishu / その他のチャネルに接続するには、`~/.agentscope/agentscope.json` を編集し、対応するチャネルのエントリを追加する。詳細は [Claw README] を参照。
 
 ### Builder
 
@@ -307,7 +305,7 @@ java -jar agentscope-examples/agents/agentscope-builder/target/agentscope-builde
 
 ## まとめ
 
-[Harness の記事](agentscope-v1-harness.md) では、「自己進化する agent ランタイム」— `HarnessAgent` + Workspace の規約 + プラガブルなファイルシステム + hook パイプライン — を届けた。
+[Harness の記事](/v2/ja/blogs/agentscope-v1-harness) では、「自己進化する agent ランタイム」— `HarnessAgent` + Workspace の規約 + プラガブルなファイルシステム + hook パイプライン — を届けた。
 
 今日の記事は、そのランタイムを **二つの直接実行可能なプロダクト** に変える:
 

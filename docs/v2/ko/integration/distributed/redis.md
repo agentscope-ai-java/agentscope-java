@@ -1,4 +1,6 @@
-# Redis
+---
+title: Redis
+---
 
 `agentscope-extensions-redis`는 풀스택 Redis 분산 스토리지를 제공합니다 — 다중 레플리카 프로덕션 배포에 권장되는 스토어입니다.
 

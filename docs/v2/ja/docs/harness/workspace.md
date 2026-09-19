@@ -1,5 +1,5 @@
 ---
-title: "ワークスペース"
+title: ワークスペース
 description: "エージェント定義と進化の信頼できる唯一の情報源:ディレクトリレイアウト、ワークスペースと API の等価性、ネイティブなマルチテナント分離、ファイルシステムモード、主要な内容の詳細解説"
 ---
 
@@ -47,7 +47,7 @@ description: "エージェント定義と進化の信頼できる唯一の情報
 
 これらは、単にデプロイの利便性のために1つのツリーに存在しています(ディレクトリをコピーすれば、完全なエージェントが手に入ります)。フレームワーク内部では、それぞれ異なる読み書きの経路をたどります。
 
-> **`AgentState` はワークスペースのコンテンツではありません——両者を混同しないでください。** エージェントが会話の途中から再開するために必要な、進行中のコンテキスト(会話バッファ、ローリングサマリー、パーミッション/ツール/タスク/Plan-Mode のサブコンテキスト、加えてアクティブなプランファイルなどのワークスペース内の成果物を指す*メタデータ*)は、単一の `AgentState` ドキュメントとして、独立したサブシステムである**`AgentStateStore`**(デフォルトは `~/.agentscope/state/<agentId>/`。ワークスペースツリーの完全に外側)にシリアライズされます。この分離は意図的なものです:ワークスペースは永続的な*ファイル成果物*(決して圧縮されないセッションログ、プランの Markdown、タスクレコード、メモリ)を保持し、一方 `AgentState` は揮発性の*ランタイムコンテキスト + ワークスペースのメタデータ*を保持します。2つのストア、2つのライフサイクル——[Context](../building-blocks/context.md) を参照してください。
+> **`AgentState` はワークスペースのコンテンツではありません——両者を混同しないでください。** エージェントが会話の途中から再開するために必要な、進行中のコンテキスト(会話バッファ、ローリングサマリー、パーミッション/ツール/タスク/Plan-Mode のサブコンテキスト、加えてアクティブなプランファイルなどのワークスペース内の成果物を指す*メタデータ*)は、単一の `AgentState` ドキュメントとして、独立したサブシステムである**`AgentStateStore`**(デフォルトは `~/.agentscope/state/<agentId>/`。ワークスペースツリーの完全に外側)にシリアライズされます。この分離は意図的なものです:ワークスペースは永続的な*ファイル成果物*(決して圧縮されないセッションログ、プランの Markdown、タスクレコード、メモリ)を保持し、一方 `AgentState` は揮発性の*ランタイムコンテキスト + ワークスペースのメタデータ*を保持します。2つのストア、2つのライフサイクル——[Context](/v2/ja/docs/building-blocks/context) を参照してください。
 
 **3. ネイティブにマルチテナントであること。** ワークスペースのデータ(メモリ、セッション、タスク、スキル、サンドボックスの状態)は、単一の `IsolationScope` によってバケット化されます——アプリケーションレベルの分割コードは不要です。このスコープが、誰が1つのバケットを共有するかを決めます:
 
@@ -58,13 +58,13 @@ description: "エージェント定義と進化の信頼できる唯一の情報
 | `AGENT` | このエージェントのすべてのユーザー & セッション | 共有ナレッジベース型のエージェント |
 | `GLOBAL` | ストアインスタンス全体で1つのバケット | 慎重に使うこと——すべてのエージェント/ユーザーが同じスロットを奪い合う |
 
-選択したスコープは、ファイルシステムモードごとに異なる形で具体化されます(ローカルディスク上のパスプレフィックス、共有ストアの KV 名前空間、サンドボックスの状態スロット)。完全なセマンティクス、フォールバックルール、並行性に関する注意点は [Filesystem — IsolationScope](./filesystem.md#isolationscope-ユーザーとレプリカ間のバケット分け) を参照してください。
+選択したスコープは、ファイルシステムモードごとに異なる形で具体化されます(ローカルディスク上のパスプレフィックス、共有ストアの KV 名前空間、サンドボックスの状態スロット)。完全なセマンティクス、フォールバックルール、並行性に関する注意点は [Filesystem — IsolationScope](/v2/ja/docs/harness/filesystem#isolationscope--ユーザーとレプリカ間のバケット分け) を参照してください。
 
 > `IsolationScope` は、上記の**ワークスペース/ファイルシステム**のバケットを管理します。`AgentState` は独自の、直交するアドレッシングを持っています:スコープに関わらず、`AgentStateStore` の中では常に `(userId, sessionId)` によってキー付けされます。
 
 単一の `HarnessAgent` インスタンスで、ユーザー間のデータ漏洩を一切起こすことなく、数千の同時ユーザーに対応できます。
 
-**4. ワークスペースはファイルシステムから分離されている。** 同じディレクトリレイアウトは、ローカルディスク、共有 KV ストア(Redis / JDBC)、サンドボックスコンテナの3つの場所のいずれかに着地します。この分離こそが、エージェントのコードに触れることなくデプロイ形態を切り替えられる理由です。3つのモードについては [Filesystem](./filesystem.md) を参照してください。
+**4. ワークスペースはファイルシステムから分離されている。** 同じディレクトリレイアウトは、ローカルディスク、共有 KV ストア(Redis / JDBC)、サンドボックスコンテナの3つの場所のいずれかに着地します。この分離こそが、エージェントのコードに触れることなくデプロイ形態を切り替えられる理由です。3つのモードについては [Filesystem](/v2/ja/docs/harness/filesystem) を参照してください。
 
 ## ワークスペースのディレクトリレイアウト
 
@@ -92,7 +92,7 @@ description: "エージェント定義と進化の信頼できる唯一の情報
         └── <sessionId>.json
 ```
 
-> **このツリーは*論理的な*レイアウトであり、固定されたディスク上のパスではありません。** ここでは `.agentscope/workspace/...` として描かれていますが、それはあくまでデフォルトのローカル配置にすぎません。まったく同じレイアウトが、物理的には**ローカルディスク**、**リモートの分散ストア**(`RemoteFilesystemSpec` 経由の Redis / JDBC / OSS)、あるいは**サンドボックスコンテナへの投影**(`SandboxFilesystemSpec`)のいずれにも存在しえます——以下の相対パスは3つすべてで同一であり、変わるのはバックエンドのストアだけで、エージェントのコードは変わりません。バックエンドのストアは [Filesystem](./filesystem.md) で選択してください。本ドキュメントの内容はすべて、この論理レイアウトに基づいて書かれています。
+> **このツリーは*論理的な*レイアウトであり、固定されたディスク上のパスではありません。** ここでは `.agentscope/workspace/...` として描かれていますが、それはあくまでデフォルトのローカル配置にすぎません。まったく同じレイアウトが、物理的には**ローカルディスク**、**リモートの分散ストア**(`RemoteFilesystemSpec` 経由の Redis / JDBC / OSS)、あるいは**サンドボックスコンテナへの投影**(`SandboxFilesystemSpec`)のいずれにも存在しえます——以下の相対パスは3つすべてで同一であり、変わるのはバックエンドのストアだけで、エージェントのコードは変わりません。バックエンドのストアは [Filesystem](/v2/ja/docs/harness/filesystem) で選択してください。本ドキュメントの内容はすべて、この論理レイアウトに基づいて書かれています。
 
 **実際に書く必要があるのは `AGENTS.md` だけです**(省略してもエージェントは動作します——ペルソナの注入が失われるだけです)。それ以外はすべて、対応する機能を有効にすると現れます:
 
@@ -167,7 +167,7 @@ env:
 
 ## ワークスペースの内容がどう読み込まれるか
 
-ワークスペースは論理的なレイアウトであるため(上記のコールアウトを参照)、「読み込み」はプレーンなローカルディレクトリを前提にすることは決してありません——すべての読み取りは設定された `AbstractFilesystem` を経由するため、ファイルがローカルディスク、リモートストア、サンドボックスのいずれにあっても同じロジックが機能します。下記の[二層読み込み](#二層読み込みファイルシステム優先-ローカルフォールバック)が、このバックエンドストアからの独立性を具体化するものです。各モードが物理的にパスをどう解決するかは [Filesystem](./filesystem.md) が扱います。
+ワークスペースは論理的なレイアウトであるため(上記のコールアウトを参照)、「読み込み」はプレーンなローカルディレクトリを前提にすることは決してありません——すべての読み取りは設定された `AbstractFilesystem` を経由するため、ファイルがローカルディスク、リモートストア、サンドボックスのいずれにあっても同じロジックが機能します。下記の[二層読み込み](#二層読み込みファイルシステム優先--ローカルフォールバック)が、このバックエンドストアからの独立性を具体化するものです。各モードが物理的にパスをどう解決するかは [Filesystem](/v2/ja/docs/harness/filesystem) が扱います。
 
 ### ターンごとのシステムプロンプト組み立て
 
@@ -225,7 +225,7 @@ workspace/
         └── researcher.md             ← alice にのみ見える
 ```
 
-`RuntimeContext.userId="alice"` で呼び出されると、フレームワークはまず `alice/skills/code-reviewer/` を探し、`skills/code-reviewer/` にフォールバックします。下位層にしかないスキルは見え続けます。同名の衝突だけが上位層によって覆い隠されます。完全な優先順位の表は [Skills — 競合の解決](./skill.md#競合の解決) を参照してください。
+`RuntimeContext.userId="alice"` で呼び出されると、フレームワークはまず `alice/skills/code-reviewer/` を探し、`skills/code-reviewer/` にフォールバックします。下位層にしかないスキルは見え続けます。同名の衝突だけが上位層によって覆い隠されます。完全な優先順位の表は [Skills — 競合の解決](/v2/ja/docs/harness/skill#競合の解決) を参照してください。
 
 #### 1つのエージェントロジックをユーザーごとにカスタマイズする
 
@@ -243,7 +243,7 @@ workspace/
 
 ### 各ファイルシステムモードでの読み込みの振る舞い
 
-ワークスペースは論理的なレイアウトであり、物理的な配置は [Filesystem](./filesystem.md) 次第です。同じディレクトリでも、モードによって読み込まれ方が異なります——以下で説明します。
+ワークスペースは論理的なレイアウトであり、物理的な配置は [Filesystem](/v2/ja/docs/harness/filesystem) 次第です。同じディレクトリでも、モードによって読み込まれ方が異なります——以下で説明します。
 
 **モード1・共有ストア(`RemoteFilesystemSpec`)—— テンプレート + リモートオーバーライド**
 
@@ -259,7 +259,7 @@ HarnessAgent agent = HarnessAgent.builder()
 ```
 
 - **読み込み方**:各ターンで、`AGENTS.md` / `MEMORY.md` / `tools.json` は、リモートの KV を上位層、ワークスペースのテンプレートを読み取り専用の下位層とするオーバーレイによって提供されます。ローカルの `<workspace>/AGENTS.md` は**読み取り専用のシード**です——初回起動時、またはレプリカ間の同期に使われます。リモートの KV に同じキーの下でユーザーごとのコピーがあれば、リモートが優先されます。
-- **ルーティング**:`memory/` / `skills/` / `subagents/` / `knowledge/` / `agents/<id>/sessions/` / `agents/<id>/tasks/` は `IsolationScope` ごとに名前空間化されます(デフォルトは USER → `userId` ごとに1つの名前空間;[Filesystem — IsolationScope](./filesystem.md#isolationscope-ユーザーとレプリカ間のバケット分け) を参照)。
+- **ルーティング**:`memory/` / `skills/` / `subagents/` / `knowledge/` / `agents/<id>/sessions/` / `agents/<id>/tasks/` は `IsolationScope` ごとに名前空間化されます(デフォルトは USER → `userId` ごとに1つの名前空間;[Filesystem — IsolationScope](/v2/ja/docs/harness/filesystem#isolationscope--ユーザーとレプリカ間のバケット分け) を参照)。
 - **ベストプラクティス**:チームで合意した `AGENTS.md` / `knowledge/` / 共有 `skills/` を、テンプレートとして各レプリカのローカルディスクへ git 同期してください。ランタイムの出力(`MEMORY.md`、`memory/`、`agents/<id>/...`)は KV に蓄積させます。
 
 **モード2・サンドボックス(`DockerFilesystemSpec` / K8s / E2B / AgentRun)—— 投影 + ハイドレート**
@@ -308,7 +308,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 ### エージェントの状態 —— ワークスペースとは別の独立したストア
 
-`AgentState` は `(userId, sessionId)` ごとのランタイムコンテキストであり、意図的に**ワークスペースツリーの外側**に保たれています。`call()` が完了すると、それは JSON にシリアライズされ、設定された [`AgentStateStore`](../../integration/session/index.md) 経由で、その呼び出しの `(userId, sessionId)` をアドレスとして永続化されます。同じ `(userId, sessionId)` での次の `call()` がそれを読み戻します。
+`AgentState` は `(userId, sessionId)` ごとのランタイムコンテキストであり、意図的に**ワークスペースツリーの外側**に保たれています。`call()` が完了すると、それは JSON にシリアライズされ、設定された [`AgentStateStore`](/v2/ja/integration/session/index) 経由で、その呼び出しの `(userId, sessionId)` をアドレスとして永続化されます。同じ `(userId, sessionId)` での次の `call()` がそれを読み戻します。
 
 デフォルトでは `HarnessAgent` は、ワークスペースの**外側**の `~/.agentscope/state/<agentId>/` をルートとする `JsonFileAgentStateStore` を使用します(ベースは `agentscope.state.home` システムプロパティで上書き可能)。これにより、ランタイムの状態はワークスペースのデータから分離された状態に保たれます。別のストアを設定するには `.stateStore(...)` を使用してください。
 
@@ -321,7 +321,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 > デフォルトの `JsonFileAgentStateStore` は単一マシンのみに対応しています。マルチレプリカの本番環境では、分散ストア(`RedisAgentStateStore` / `MysqlAgentStateStore` / …)に切り替える必要があります。分散状態ストアに切り替えずに `filesystem(SandboxFilesystemSpec)` や `filesystem(RemoteFilesystemSpec)` を設定した場合、`build()` は `IllegalStateException` を送出します——ランタイムの状態を単一障害点にしないための、強制的なリマインダーです。
 
-完全な詳細(復旧フロー、ノードをまたいだ継続、`(userId, sessionId)` によるアドレッシング)は [Context](../building-blocks/context.md) にあります。
+完全な詳細(復旧フロー、ノードをまたいだ継続、`(userId, sessionId)` によるアドレッシング)は [Context](/v2/ja/docs/building-blocks/context) にあります。
 
 ### メモリ(長期記憶)
 
@@ -343,7 +343,7 @@ workspace/
 読み取りの経路:
 
 - フレームワークが `MEMORY.md` 自体を読み取ります(二層;ファイルシステムが優先)。
-- エージェントは、古いエントリについて `memory_search` / `memory_get` を能動的に呼び出せます。[Memory](./memory.md) を参照してください。
+- エージェントは、古いエントリについて `memory_search` / `memory_get` を能動的に呼び出せます。[Memory](/v2/ja/docs/harness/memory) を参照してください。
 
 ### 名前空間分離が物理的な場所にどう対応するか
 
@@ -365,11 +365,11 @@ workspace/
 
 | チャネル | 存在場所 | 有効化方法 | どう蓄積するか | 詳細 |
 |---------|----------------|------------|----------------|-----------|
-| **長期記憶** | `MEMORY.md` + `memory/YYYY-MM-DD.md` | `.compaction(...)` | 圧縮の前に `MemoryFlushMiddleware` が会話のプレフィックスから事実を抽出する → スロットルされたバックグラウンドタスクがそれらを `MEMORY.md` にマージ + 重複排除し、毎ターン再注入する | [Memory](./memory.md) |
-| **自己学習スキル** | `skills/`、`skills/_drafts/`、`skills/.archive/` | `.enableSkillManageTool(...)` | エージェントが `propose_skill` を呼び出し、うまくいったパターンからスキルを起草する → 任意の昇格ゲートがそれを承認する → バックグラウンドのキュレーターが未使用のスキルを stale とマークし(30日)、アーカイブする(90日) | [Skills — 自己学習ループ](./skill.md#自己学習ループオプション) |
-| **プラン** | `plans/PLAN.md` | `.enablePlanMode()` | 読み取り専用の計画フェーズが `plan_write` 経由でプランを書き込む;呼び出しをまたいで永続化され、実行フェーズを駆動し、意図と行動を切り離す | [Plan Mode](./plan-mode.md) |
-| **オフロードされたツール結果** | ワークスペース配下の退避ディレクトリ | `.toolResultEviction(...)` | 単一のツール結果が閾値(デフォルト 80K 文字)を超えると、完全な出力がディスクに書き込まれ、コンテキスト内のメッセージは head/tail プレビュー + `read_file` へのポインターに置き換えられる | [Compaction](./compaction.md) |
-| **セッションログ** | `agents/<agentId>/sessions/`(ワークスペース) | デフォルトで有効 | すべての `call()` が、決して圧縮されない JSONL ログに追記する;`session_search` / `session_history` がこれを問い合わせる | [Context](../building-blocks/context.md) |
+| **長期記憶** | `MEMORY.md` + `memory/YYYY-MM-DD.md` | `.compaction(...)` | 圧縮の前に `MemoryFlushMiddleware` が会話のプレフィックスから事実を抽出する → スロットルされたバックグラウンドタスクがそれらを `MEMORY.md` にマージ + 重複排除し、毎ターン再注入する | [Memory](/v2/ja/docs/harness/memory) |
+| **自己学習スキル** | `skills/`、`skills/_drafts/`、`skills/.archive/` | `.enableSkillManageTool(...)` | エージェントが `propose_skill` を呼び出し、うまくいったパターンからスキルを起草する → 任意の昇格ゲートがそれを承認する → バックグラウンドのキュレーターが未使用のスキルを stale とマークし(30日)、アーカイブする(90日) | [Skills — 自己学習ループ](/v2/ja/docs/harness/skill#自己学習ループオプション) |
+| **プラン** | `plans/PLAN.md` | `.enablePlanMode()` | 読み取り専用の計画フェーズが `plan_write` 経由でプランを書き込む;呼び出しをまたいで永続化され、実行フェーズを駆動し、意図と行動を切り離す | [Plan Mode](/v2/ja/docs/harness/plan-mode) |
+| **オフロードされたツール結果** | ワークスペース配下の退避ディレクトリ | `.toolResultEviction(...)` | 単一のツール結果が閾値(デフォルト 80K 文字)を超えると、完全な出力がディスクに書き込まれ、コンテキスト内のメッセージは head/tail プレビュー + `read_file` へのポインターに置き換えられる | [Compaction](/v2/ja/docs/harness/compaction) |
+| **セッションログ** | `agents/<agentId>/sessions/`(ワークスペース) | デフォルトで有効 | すべての `call()` が、決して圧縮されない JSONL ログに追記する;`session_search` / `session_history` がこれを問い合わせる | [Context](/v2/ja/docs/building-blocks/context) |
 
 統一的な考え方はこうです:**あなたが何もストレージを配線しなくても、エージェントは実行の合間に改善していきます。** メモリ、スキル、プラン、セッションログ、オフロードされた結果は、すべて単なるワークスペース内のファイルです——このページの他のすべてと同じテナントごとの分離、同じ二層読み込み、同じファイルシステムモードの移植性を得ます。(揮発性の `AgentState` ランタイムコンテキストだけが例外です——これは独立した `AgentStateStore` に存在し、ワークスペースには存在しません;[ランタイムデータとメモリはどのように保存されるか](#ランタイムデータとメモリはどのように保存されるか) を参照してください。)
 
@@ -393,7 +393,7 @@ skills/code-reviewer/
 3. `workspace/skills/` —— ワークスペース共有
 4. `<userId>/skills/` —— ユーザーごと(上記すべてを上書きする)
 
-下位層にしかない固有のスキルは見え続けます。同名のスキルは上位層によって覆い隠されます。毎ターン、`DynamicSkillMiddleware` が再マージし、`<available_skills>` ブロック(名前 + 説明のみ)をシステムプロンプトへレンダリングします。エージェントは、関連する場合に `load_skill_through_path` を呼び出して完全な詳細を取得します。完全な仕組みは [Skills](./skill.md) にあります。
+下位層にしかない固有のスキルは見え続けます。同名のスキルは上位層によって覆い隠されます。毎ターン、`DynamicSkillMiddleware` が再マージし、`<available_skills>` ブロック(名前 + 説明のみ)をシステムプロンプトへレンダリングします。エージェントは、関連する場合に `load_skill_through_path` を呼び出して完全な詳細を取得します。完全な仕組みは [Skills](/v2/ja/docs/harness/skill) にあります。
 
 ### `subagents/`
 
@@ -412,7 +412,7 @@ tools: [read_file, grep_files]   # 任意;継承したツールに対する許�
 ```
 
 読み込み:`AgentSpecLoader` はビルド時に `workspace/subagents/*.md` を**非再帰的に**スキャンし、`.subagent(SubagentDeclaration...)` でプログラムから登録した宣言とマージします。メインエージェントは `agent_spawn agent_id="reviewer" task="..."` 経由でこれらを呼び出します。
-完全な詳細(同期 vs バックグラウンド、リモートサブエージェント、ストリーム転送、タスクストレージ)は [Subagent](./subagent.md) にあります。
+完全な詳細(同期 vs バックグラウンド、リモートサブエージェント、ストリーム転送、タスクストレージ)は [Subagent](/v2/ja/docs/harness/subagent) にあります。
 
 ### `tools.json`
 
@@ -457,7 +457,7 @@ plans/
 └── PLAN.md           ← plan_write によって書かれた現在のプラン
 ```
 
-注:`PlanModeContext`(プランフェーズがアクティブかどうか、現在のプランファイルのパス)は `AgentState` に存在します——これは**ランタイムの状態**であり、`AgentStateStore`(デフォルトは `~/.agentscope/state/<agentId>/`、ワークスペースの外側)経由で永続化されます。`plans/` 配下のファイルは、Markdown のコンテンツそのものだけです。[Plan Mode](./plan-mode.md) を参照してください。
+注:`PlanModeContext`(プランフェーズがアクティブかどうか、現在のプランファイルのパス)は `AgentState` に存在します——これは**ランタイムの状態**であり、`AgentStateStore`(デフォルトは `~/.agentscope/state/<agentId>/`、ワークスペースの外側)経由で永続化されます。`plans/` 配下のファイルは、Markdown のコンテンツそのものだけです。[Plan Mode](/v2/ja/docs/harness/plan-mode) を参照してください。
 
 ### `agents/<agentId>/`
 
@@ -474,7 +474,7 @@ agents/<agentId>/
 
 > シリアライズされた `AgentState`(`agent_state`)は、デフォルトではワークスペースには**存在しません**——設定された `AgentStateStore`(デフォルトは `~/.agentscope/state/<agentId>/`)に存在します。ワークスペースに残るのは、上記の会話ログとタスクレコードだけです。
 
-ノードをまたいだ復旧/マルチレプリカのデプロイでは、このデータを共有する必要があります(`RedisAgentStateStore` + `RemoteFilesystemSpec`、または分散状態を持つサンドボックスのいずれか)。[Context](../building-blocks/context.md) と [Filesystem](./filesystem.md) を参照してください。
+ノードをまたいだ復旧/マルチレプリカのデプロイでは、このデータを共有する必要があります(`RedisAgentStateStore` + `RemoteFilesystemSpec`、または分散状態を持つサンドボックスのいずれか)。[Context](/v2/ja/docs/building-blocks/context) と [Filesystem](/v2/ja/docs/harness/filesystem) を参照してください。
 
 ### `knowledge/`
 
@@ -501,10 +501,10 @@ knowledge/
 
 ## 関連ページ
 
-- [Architecture](./architecture.md) — システムプロンプトがどのように組み立てられ、各機能がどう協調するか
-- [Filesystem](./filesystem.md) — ワークスペースが物理的にどこに存在するか(ローカル/サンドボックス/共有ストア)、`IsolationScope`、マルチユーザー分離
-- [Context](../building-blocks/context.md) — `AgentState` と `AgentStateStore` の永続化、ノードをまたいだ復旧
-- [Memory](./memory.md) — `MEMORY.md` / `memory/` がどのように生成・維持されるか、圧縮、退避
-- [Skills](./skill.md) — 四層構成、自己学習ループ、`<available_skills>` ブロック
-- [Subagent](./subagent.md) — `subagents/` の宣言、同期 vs バックグラウンド、ストリーム転送
-- [Plan Mode](./plan-mode.md) — `plans/` ファイル、読み取り専用フェーズ、HITL による離脱
+- [Architecture](/v2/ja/docs/harness/architecture) — システムプロンプトがどのように組み立てられ、各機能がどう協調するか
+- [Filesystem](/v2/ja/docs/harness/filesystem) — ワークスペースが物理的にどこに存在するか(ローカル/サンドボックス/共有ストア)、`IsolationScope`、マルチユーザー分離
+- [Context](/v2/ja/docs/building-blocks/context) — `AgentState` と `AgentStateStore` の永続化、ノードをまたいだ復旧
+- [Memory](/v2/ja/docs/harness/memory) — `MEMORY.md` / `memory/` がどのように生成・維持されるか、圧縮、退避
+- [Skills](/v2/ja/docs/harness/skill) — 四層構成、自己学習ループ、`<available_skills>` ブロック
+- [Subagent](/v2/ja/docs/harness/subagent) — `subagents/` の宣言、同期 vs バックグラウンド、ストリーム転送
+- [Plan Mode](/v2/ja/docs/harness/plan-mode) — `plans/` ファイル、読み取り専用フェーズ、HITL による離脱

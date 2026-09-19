@@ -1,4 +1,6 @@
-# WeCom 채널
+---
+title: WeCom 채널
+---
 
 `agentscope-extensions-channel-wecom`는 **암호화된 콜백** 메커니즘을 통해 Agent를 WeCom(企业微信 / WeChat Work)에 연결합니다. Spring `@RestController`가 메시지 콜백을 수신하고 복호화한 뒤 Gateway를 통해 전달합니다.
 

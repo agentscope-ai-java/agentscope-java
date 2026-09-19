@@ -1,8 +1,6 @@
 ---
-hide-toc: true
+title: "구성 주도에서 비즈니스 네이티브로: AgentScope를 활용한 엔터프라이즈급 Agent 개발 실천"
 ---
-
-# 구성 주도에서 비즈니스 네이티브로: AgentScope를 활용한 엔터프라이즈급 Agent 개발 실천
 
 ## 01 배경
 
@@ -918,7 +916,7 @@ HTTP Header(X-Temperature 등) > DB JSON 필드(modelParams) > DEFAULT 상수
 
 전체 생명주기 성능 프로파일 테이블은 각 단계의 지연 시간과 DB 작업을 요약합니다: `createAgent` → `hasMemory` → `onEnter` → `saveAgent` → `removeSession`.
 
-이 네 가지 메서드는 함께 finance agent의 경량 런타임을 구성합니다: `createAgent`는 경량 생성(<1ms, DB 없음)을 해결하고, `hasMemory`는 경량 프로빙(인덱스 히트)을 해결하며, `saveAgent`는 경량 영속화(증분 쓰기)를 해결하고, `removeSession`은 경량 정리(일괄 삭제)를 해결합니다.
+이 네 가지 메서드는 함께 finance agent의 경량 런타임을 구성합니다: `createAgent`는 경량 생성(&lt;1ms, DB 없음)을 해결하고, `hasMemory`는 경량 프로빙(인덱스 히트)을 해결하며, `saveAgent`는 경량 영속화(증분 쓰기)를 해결하고, `removeSession`은 경량 정리(일괄 삭제)를 해결합니다.
 
 ##### 5.1.4.3 엔지니어링급 Human in the Loop (SPI3)
 

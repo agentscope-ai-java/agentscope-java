@@ -1,6 +1,6 @@
 ---
-title: "서브에이전트(Subagent)"
-description: "서브에이전트 선언, 동기/백그라운드 호출, 자동 반향 통지, 원격 서브에이전트, 스트리밍 전달"
+title: 서브에이전트(Subagent)
+description: 서브에이전트 선언, 동기/백그라운드 호출, 자동 반향 통지, 원격 서브에이전트, 스트리밍 전달
 ---
 
 ## 역할
@@ -243,7 +243,7 @@ chat.sendStream(SendOptions.userId("user-1"), "Spawn a researcher to investigate
 chat.sendToSubagent(subagentId, "Focus on LLM agents specifically").block();
 ```
 
-이는 "분기(branch-off)" 시나리오에 유용하다: 부모가 전문가를 생성하고, 사용자는 그 전문가와 독립적으로 대화를 이어간다. 전체 Channel 쪽 API는 [Channel — Talking to exposed subagents](./channel.md#talking-to-exposed-subagents)를 참고하라.
+이는 "분기(branch-off)" 시나리오에 유용하다: 부모가 전문가를 생성하고, 사용자는 그 전문가와 독립적으로 대화를 이어간다. 전체 Channel 쪽 API는 [Channel — Talking to exposed subagents](/v2/ko/docs/harness/channel#노출된-서브에이전트와-대화하기)를 참고하라.
 
 ### 활성화 방법
 
@@ -259,7 +259,7 @@ HarnessAgent agent = HarnessAgent.builder()
 ChatUiChannel chat = agent.channel(ChatUiChannel.create());
 ```
 
-Channel 바인딩이 없으면, `agent_spawn`의 `expose_to_user=true`는 조용히 무시된다 — 서브에이전트는 여전히 정상적으로 동작하지만, 사용자에게 노출되지는 않는다. `GatewayBootstrap`을 사용하는 멀티에이전트 구성은 [Channel — Thread exposure with GatewayBootstrap](./channel.md#thread-exposure-with-gatewaybootstrap)을 참고하라.
+Channel 바인딩이 없으면, `agent_spawn`의 `expose_to_user=true`는 조용히 무시된다 — 서브에이전트는 여전히 정상적으로 동작하지만, 사용자에게 노출되지는 않는다. `GatewayBootstrap`을 사용하는 멀티에이전트 구성은 [Channel — Thread exposure with GatewayBootstrap](/v2/ko/docs/harness/channel#gatewaybootstrap으로-스레드-노출하기)을 참고하라.
 
 ### 코드에서 노출 제어하기
 
@@ -315,7 +315,7 @@ HarnessAgent agent = HarnessAgent.builder()
 ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // recovery wired automatically
 ```
 
-`subagentId`는 스토어에 영속화되며, 서브에이전트 자신의 대화는 세션 기준으로 분산 `AgentStateStore`에서 다시 로드된다 — 따라서 이후 메시지가 다른 노드에 도착하더라도 사용자는 계속 *동일한* 서브에이전트와 대화하게 된다. 멀티에이전트 `GatewayBootstrap`의 경우, `.distributedStore(...)`를 전달하라(그렇지 않으면 메인 에이전트의 것을 상속한다). 배포 가이드 — `subagentId`를 실제 살아있는 노드로 되돌려 라우팅하는 것(스티키 라우팅)을 포함 — 는 [Going to Production](../others/going-to-production.md)에 있다.
+`subagentId`는 스토어에 영속화되며, 서브에이전트 자신의 대화는 세션 기준으로 분산 `AgentStateStore`에서 다시 로드된다 — 따라서 이후 메시지가 다른 노드에 도착하더라도 사용자는 계속 *동일한* 서브에이전트와 대화하게 된다. 멀티에이전트 `GatewayBootstrap`의 경우, `.distributedStore(...)`를 전달하라(그렇지 않으면 메인 에이전트의 것을 상속한다). 배포 가이드 — `subagentId`를 실제 살아있는 노드로 되돌려 라우팅하는 것(스티키 라우팅)을 포함 — 는 [Going to Production](/v2/ko/docs/others/going-to-production)에 있다.
 
 ## 에이전트가 새로운 서브에이전트 spec을 직접 작성하게 하기
 
@@ -362,7 +362,7 @@ ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // recovery wired a
 | `remoteStreaming` | `true`(설정하지 않을 때) | 부모가 `streamEvents()`를 사용할 때, 원격 작업의 SSE 이벤트를 `source` 태그와 함께 `metadata.taskId` / `metadata.parentSessionId`(harness의 `TaskRecord` / 부모 세션과 동일한 id)를 붙여 부모 스트림으로 전달 |
 | `remoteStreamDetail` | `FULL` | 원격 이벤트 스트림 중 얼마만큼을 전달할지 — [원격 스트리밍 상세](#원격-스트리밍-상세) 참고 |
 | `remoteAskPolicy` | `DENY` | 원격 도구 확인(HITL) 요청을 어떻게 처리할지 — [원격 인가](#원격-인가) 참고 |
-| `remoteContextAttributes` | 없음 | 매 제출마다 `context.attributes`로 전송되는 정적 호출자 속성. 호출별 값을 병합하려면 부모의 `RuntimeContext`에 있는 `AgentSpawnTool.CTX_REMOTE_CONTEXT_ATTRIBUTES` 아래에 맵을 넣어라; [Context attributes](../../integration/protocol/agent-protocol.md#context-attributes) 참고 |
+| `remoteContextAttributes` | 없음 | 매 제출마다 `context.attributes`로 전송되는 정적 호출자 속성. 호출별 값을 병합하려면 부모의 `RuntimeContext`에 있는 `AgentSpawnTool.CTX_REMOTE_CONTEXT_ATTRIBUTES` 아래에 맵을 넣어라; [Context attributes](/v2/ko/integration/protocol/agent-protocol#컨텍스트-속성) 참고 |
 
 ### 원격 스트리밍 상세
 
@@ -384,7 +384,7 @@ ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // recovery wired a
 
 원격 에이전트가 도구 확인을 위해 일시 정지할 때(`awaiting_confirm`):
 
-- **스트리밍 부모 + `remoteAskPolicy=PROPAGATE`**: `RequireUserConfirmEvent`가 non-null `source` 태그와 함께 부모의 `streamEvents()` 스트림으로 전달된다. `decisions[{toolCallId, approved}]`와 함께 Agent Protocol [`POST /tasks/{id}/resume`](../../integration/protocol/agent-protocol.md)을 통해 원격 작업을 재개하라.
+- **스트리밍 부모 + `remoteAskPolicy=PROPAGATE`**: `RequireUserConfirmEvent`가 non-null `source` 태그와 함께 부모의 `streamEvents()` 스트림으로 전달된다. `decisions[{toolCallId, approved}]`와 함께 Agent Protocol [`POST /tasks/{id}/resume`](/v2/ko/integration/protocol/agent-protocol)을 통해 원격 작업을 재개하라.
 - **비스트리밍 부모(`call`) 또는 `remoteAskPolicy=DENY`(기본값)**: 대기 중인 확인은 자동으로 거부된다. 도구 결과에는 `remote tool confirmation(s) were auto-denied`라는 안내가 포함된다.
 
 확인을 기다리는 동안, 작업 상태는 `RUNNING`으로 유지된다(`awaitingConfirm=true`). 따라서 `wait_async_results` 같은 배리어는 작업이 재개되어 종료 상태에 도달할 때까지 계속 대기한다.
@@ -403,7 +403,7 @@ ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // recovery wired a
 
 ## 서브에이전트 스트리밍
 
-> 새 코드는 `streamEvents()`(`Flux<AgentEvent>`를 반환)를 사용해야 한다. 레거시 `stream()` 계열(`Flux<Event>`)은 2.0.0부터 `@Deprecated(forRemoval = true)`다 — [Message & Event](../building-blocks/message-and-event.md)와 [V1 Migration Guide B.4](../change-log.md)를 참고하라.
+> 새 코드는 `streamEvents()`(`Flux<AgentEvent>`를 반환)를 사용해야 한다. 레거시 `stream()` 계열(`Flux<Event>`)은 2.0.0부터 `@Deprecated(forRemoval = true)`다 — [Message & Event](/v2/ko/docs/building-blocks/message-and-event)와 [V1 Migration Guide B.4](/v2/ko/docs/change-log)를 참고하라.
 
 부모가 `agent_spawn` / `agent_send`를 통해 동기 서브에이전트를 호출하면, 자식의 중간 이벤트는 부모의 `streamEvents()` 스트림으로 **실시간 전달**된다. 각 자식 이벤트는 `source` 필드(`"main/researcher"`와 같은 `/`로 구분된 경로)를 담고 있어, 부모 이벤트(`source == null`)와 자식 이벤트를 구분할 수 있다. 원격 Agent Protocol 자식은 추가로 `metadata.taskId`(`AgentEvent.METADATA_TASK_ID`)를 harness 작업 id로, `metadata.parentSessionId`(`AgentEvent.METADATA_PARENT_SESSION_ID`)를 부모 세션으로 설정하므로, 같은 원격 에이전트에 대한 두 개의 동시/동일 턴 호출이 `source` 경로를 공유하더라도 여전히 구분 가능하다.
 
@@ -505,10 +505,10 @@ public Flux<ServerSentEvent<String>> chat(@RequestParam String message,
 
 ## 관련 문서
 
-- [Channel](./channel.md) — `expose_to_user`, `SendOptions`, 사용자-서브에이전트 직접 메시징
-- [워크스페이스](./workspace.md) — `subagents/`와 `agents/<id>/tasks/` 레이아웃
-- [플랜 모드](./plan-mode.md) — 플랜 단계 중 서브에이전트에 대한 제약
-- [아키텍처](./architecture.md) — 부모와 자식이 협력하는 방식
-- [Agent Protocol](../../integration/protocol/agent-protocol.md) — 원격 작업 엔드포인트(SSE + HITL 재개)
-- [Message & Event](../building-blocks/message-and-event.md) — `AgentEvent` 계층(권장)과 폐기 예정인 `Event` / `EventType` / `StreamOptions` 타입
-- [V1 Migration Guide B.4](../change-log.md) — `stream()` → `streamEvents()` 폐기 일정
+- [Channel](/v2/ko/docs/harness/channel) — `expose_to_user`, `SendOptions`, 사용자-서브에이전트 직접 메시징
+- [워크스페이스](/v2/ko/docs/harness/workspace) — `subagents/`와 `agents/<id>/tasks/` 레이아웃
+- [플랜 모드](/v2/ko/docs/harness/plan-mode) — 플랜 단계 중 서브에이전트에 대한 제약
+- [아키텍처](/v2/ko/docs/harness/architecture) — 부모와 자식이 협력하는 방식
+- [Agent Protocol](/v2/ko/integration/protocol/agent-protocol) — 원격 작업 엔드포인트(SSE + HITL 재개)
+- [Message & Event](/v2/ko/docs/building-blocks/message-and-event) — `AgentEvent` 계층(권장)과 폐기 예정인 `Event` / `EventType` / `StreamOptions` 타입
+- [V1 Migration Guide B.4](/v2/ko/docs/change-log) — `stream()` → `streamEvents()` 폐기 일정

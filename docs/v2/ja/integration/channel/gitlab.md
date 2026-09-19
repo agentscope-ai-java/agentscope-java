@@ -1,4 +1,6 @@
-# GitLab チャンネル
+---
+title: GitLab チャンネル
+---
 
 `agentscope-extensions-channel-gitlab` は Agent を GitLab の note(コメント)フックに接続します。誰かが issue やマージリクエストにコメントすると、Agent は新しい note として返信します。
 

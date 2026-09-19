@@ -1,5 +1,5 @@
 ---
-title: "플랜 모드(Plan Mode)"
+title: 플랜 모드(Plan Mode)
 description: "행동에 앞서 생각하기: 계획 파일을 작성하는 읽기 전용 단계, 실행 전에 HITL 승인이 필요함"
 ---
 
@@ -47,7 +47,7 @@ Builder 옵션:
 
 ## 워크플로
 
-```{mermaid}
+```mermaid
 sequenceDiagram
     autonumber
     participant U as User
@@ -112,7 +112,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 ## 런타임 권한 전환("우회" 탈출구)
 
-플랜 모드는 하나의 구체적인 단계 전환이다. 그 아래에서는 모든 세션이 권한 엔진이 평가하는 [`PermissionMode`](../building-blocks/context.md)를 가지고 있다. 이 모드를 런타임에 전환할 수 있다 — 예를 들어 (다른 코딩 도구의 YOLO / 위험 감수 스킵 스위치와 유사한) 의도적이고 사용자가 시작한 "모든 권한 프롬프트 건너뛰기" 토글을 부여하는 경우다.
+플랜 모드는 하나의 구체적인 단계 전환이다. 그 아래에서는 모든 세션이 권한 엔진이 평가하는 [`PermissionMode`](/v2/ko/docs/building-blocks/context)를 가지고 있다. 이 모드를 런타임에 전환할 수 있다 — 예를 들어 (다른 코딩 도구의 YOLO / 위험 감수 스킵 스위치와 유사한) 의도적이고 사용자가 시작한 "모든 권한 프롬프트 건너뛰기" 토글을 부여하는 경우다.
 
 ```java
 RuntimeContext ctx = RuntimeContext.builder().sessionId("my-session").build();
@@ -163,7 +163,7 @@ agent.isPlanModeActive(ctx);
 
 일반적인 워크플로: 계획 단계에서 `PLAN.md` 작성 → `plan_exit` → 실행 단계에서 `todo_write`를 사용해 PLAN을 5~8개의 todo로 쪼갬 → 하나씩 진행. 매 추론 스텝마다 에이전트에게 todo 리마인더를 보여줘 집중을 유지시킨다.
 
-⚠ 서브에이전트의 **백그라운드 작업**(`task_output` / `task_cancel` / `task_list`)과 혼동하지 말 것 — 이는 다른 개념이다; [서브에이전트](./subagent.md) 참고.
+⚠ 서브에이전트의 **백그라운드 작업**(`task_output` / `task_cancel` / `task_list`)과 혼동하지 말 것 — 이는 다른 개념이다; [서브에이전트](/v2/ko/docs/harness/subagent) 참고.
 
 ## 작업 목록 확인하기
 
@@ -205,6 +205,6 @@ agent.streamEvents(message)
 
 ## 관련 문서
 
-- [워크스페이스](./workspace.md) — `plans/` 디렉터리 위치
-- [서브에이전트](./subagent.md) — `todo_write` ≠ 서브에이전트 작업; 혼동하지 말 것
-- [아키텍처](./architecture.md) — 플랜 모드가 call() 타임라인 어디에 위치하는지
+- [워크스페이스](/v2/ko/docs/harness/workspace) — `plans/` 디렉터리 위치
+- [서브에이전트](/v2/ko/docs/harness/subagent) — `todo_write` ≠ 서브에이전트 작업; 혼동하지 말 것
+- [아키텍처](/v2/ko/docs/harness/architecture) — 플랜 모드가 call() 타임라인 어디에 위치하는지

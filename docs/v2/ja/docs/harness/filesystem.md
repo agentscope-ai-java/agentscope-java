@@ -1,5 +1,5 @@
 ---
-title: "Filesystem"
+title: Filesystem
 description: "3つのデプロイモード:ローカル+シェル / 共有ストア / サンドボックス;IsolationScope の各次元;マルチユーザー分離;各モードでのスキルとツールの振る舞い"
 ---
 
@@ -49,7 +49,7 @@ HarnessAgent agent = HarnessAgent.builder()
 
 | メソッド | 説明 | デフォルト |
 |--------|-------------|---------|
-| `isolationScope(IsolationScope)` | 名前空間の分離次元(下記の [IsolationScope](#isolationscope-ユーザーとレプリカ間のバケット分け) を参照) | `USER` |
+| `isolationScope(IsolationScope)` | 名前空間の分離次元(下記の [IsolationScope](#isolationscope--ユーザーとレプリカ間のバケット分け) を参照) | `USER` |
 | `anonymousUserId(String)` | `userId` が無い場合のフォールバック識別子 | `"_default"` |
 | `addSharedPrefix(String)` | 追加のワークスペース相対プレフィックスを KV へルーティングする(例:`"prompts/"`、`"configs/"`) | なし |
 | `workspaceIndex(WorkspaceIndex)` | リモートの ls/glob/grep を高速化する SQLite インデックス | なし(フォールバックとしてストア全体をスキャン) |
@@ -177,7 +177,7 @@ HarnessAgent agent = HarnessAgent.builder()
 | `kubernetesClient(KubernetesClient)` | カスタム fabric8 クライアント | kubeconfig を自動ロード |
 | `snapshotSpec(SandboxSnapshotSpec)` | スナップショット戦略(PVC のトレードオフについては sandbox のページを参照) | `NoopSnapshotSpec` |
 
-`apiUrl` も `gateway*` も設定されていない場合、`kubectl port-forward` によるローカルトンネルが使われます(開発向け)。ランタイムイメージは [ランタイムイメージの契約](./sandbox.md#ランタイムイメージの契約) を満たす必要があります。**ワークスペースの永続化はテンプレートで設定された PVC に依存します**――[Sandbox - Kubernetes の状態永続化](./sandbox.md#kubernetes-の状態永続化pvc-が第一層) を参照してください。
+`apiUrl` も `gateway*` も設定されていない場合、`kubectl port-forward` によるローカルトンネルが使われます(開発向け)。ランタイムイメージは [ランタイムイメージの契約](/v2/ja/docs/harness/sandbox#ランタイムイメージの契約) を満たす必要があります。**ワークスペースの永続化はテンプレートで設定された PVC に依存します**――[Sandbox - Kubernetes の状態永続化](/v2/ja/docs/harness/sandbox#kubernetes-の状態永続化pvc-が第一層) を参照してください。
 
 #### E2B サンドボックス
 
@@ -523,9 +523,9 @@ HarnessAgent.builder()
 
 ## 関連ページ
 
-- [Sandbox](./sandbox.md) — モード2の実行時の詳細(コンテナのライフサイクル、スナップショット復旧チェーン)
-- [Workspace](./workspace.md) — ディレクトリレイアウト、読み込みの仕組み、二層読み込みの「下層」
-- [Context](../building-blocks/context.md) — `AgentState` と `AgentStateStore`、`(userId, sessionId)` によるアドレス指定
-- [Skills](./skill.md) — 四層合成、自己学習ループ、`<available_skills>` ブロック
-- [Tools](../building-blocks/tool.md) — `read_file` / `write_file` / `execute` のパラメータ
-- [Architecture](./architecture.md) — ファイルシステムとランタイムコンテキストがどう協調するか
+- [Sandbox](/v2/ja/docs/harness/sandbox) — モード2の実行時の詳細(コンテナのライフサイクル、スナップショット復旧チェーン)
+- [Workspace](/v2/ja/docs/harness/workspace) — ディレクトリレイアウト、読み込みの仕組み、二層読み込みの「下層」
+- [Context](/v2/ja/docs/building-blocks/context) — `AgentState` と `AgentStateStore`、`(userId, sessionId)` によるアドレス指定
+- [Skills](/v2/ja/docs/harness/skill) — 四層合成、自己学習ループ、`<available_skills>` ブロック
+- [Tools](/v2/ja/docs/building-blocks/tool) — `read_file` / `write_file` / `execute` のパラメータ
+- [Architecture](/v2/ja/docs/harness/architecture) — ファイルシステムとランタイムコンテキストがどう協調するか

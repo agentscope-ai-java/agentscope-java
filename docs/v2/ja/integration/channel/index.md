@@ -1,14 +1,16 @@
-# チャンネルアダプター
+---
+title: チャンネルアダプター
+---
 
-これらの拡張機能は、Harness の [Channel](../../docs/harness/channel.md) インターフェースを通じて Agent を実世界のメッセージングプラットフォームに接続します。各アダプターはプラットフォーム固有の認証、webhook 検証、メッセージ解析、返信配信を処理するため、Agent のコードはプラットフォームに依存しないまま保たれます。
+これらの拡張機能は、Harness の [Channel](/v2/ja/docs/harness/channel) インターフェースを通じて Agent を実世界のメッセージングプラットフォームに接続します。各アダプターはプラットフォーム固有の認証、webhook 検証、メッセージ解析、返信配信を処理するため、Agent のコードはプラットフォームに依存しないまま保たれます。
 
 | 拡張機能 | プラットフォーム | トランスポート |
 | --- | --- | --- |
-| [DingTalk](dingtalk.md) | DingTalk (钉钉) | Stream プロトコル(永続 WebSocket) |
-| [Feishu](feishu.md) | Feishu / Lark (飞书) | イベント購読コールバック(HTTP) |
-| [GitHub](github.md) | GitHub | Webhook(HTTP) |
-| [GitLab](gitlab.md) | GitLab | Webhook(HTTP) |
-| [WeCom](wecom.md) | WeCom (企业微信) | 暗号化コールバック(HTTP) |
+| [DingTalk](/v2/ja/integration/channel/dingtalk) | DingTalk (钉钉) | Stream プロトコル(永続 WebSocket) |
+| [Feishu](/v2/ja/integration/channel/feishu) | Feishu / Lark (飞书) | イベント購読コールバック(HTTP) |
+| [GitHub](/v2/ja/integration/channel/github) | GitHub | Webhook(HTTP) |
+| [GitLab](/v2/ja/integration/channel/gitlab) | GitLab | Webhook(HTTP) |
+| [WeCom](/v2/ja/integration/channel/wecom) | WeCom (企业微信) | 暗号化コールバック(HTTP) |
 
 ## 仕組み
 

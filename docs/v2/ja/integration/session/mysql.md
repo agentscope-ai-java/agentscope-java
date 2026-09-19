@@ -1,8 +1,12 @@
-```{note}
-このページは [分散ストレージ — MySQL](../distributed/mysql.md) に統合されました。以下の内容は参考のために残しています。
-```
+---
+title: MySQL ステートストア
+---
 
-# MySQL ステートストア
+<Note>
+
+このページは [分散ストレージ — MySQL](/v2/ja/integration/distributed/mysql) に統合されました。以下の内容は参考のために残しています。
+
+</Note>
 
 `agentscope-extensions-mysql` は AgentScope のエージェント状態を MySQL に永続化します。既存の MySQL インフラがある場合や、トランザクション / SQL ベースでの状態データアクセスが必要な場合に適しています。
 
