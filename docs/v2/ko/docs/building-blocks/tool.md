@@ -76,6 +76,76 @@ toolkit.registerTool(new io.agentscope.core.tool.builtin.TodoTools());
 
 </Note>
 
+### `Toolkit`에 도구 등록하기
+
+에이전트가 호출할 수 있는 것은 모두 `Toolkit`에 등록한 뒤 에이전트 builder에 넘깁니다. 가장 흔한 것은 `registerTool(Object)`로, 객체에서 `@Tool` 메서드를 리플렉션으로 훑습니다. 그 밖에 toolkit은 미리 만들어 둔 도구 인스턴스, 스키마만 있는 외부 도구, MCP 클라이언트, tool group도 받습니다.
+
+```java
+import io.agentscope.core.tool.Toolkit;
+import io.agentscope.core.tool.builtin.TodoTools;
+import io.agentscope.core.tool.mcp.McpClientBuilder;
+import io.agentscope.core.tool.mcp.McpClientWrapper;
+import io.agentscope.harness.agent.HarnessAgent;
+
+Toolkit toolkit = new Toolkit();
+
+// 1. 객체의 애너테이션 메서드 — @Tool 하나당 도구 하나
+toolkit.registerTool(new MyDomainTools());
+toolkit.registerTool(new TodoTools());
+
+// 2. ToolBase 서브클래스를 단일 도구 인스턴스로 등록
+toolkit.registerAgentTool(new WebSearchTool());
+
+// 3. MCP 서버 — 서버가 노출하는 모든 도구를 등록
+McpClientWrapper amap =
+        McpClientBuilder.streamableHttp()
+                .name("amap")
+                .url("https://mcp.amap.com/mcp?key=" + System.getenv("AMAP_API_KEY"))
+                .build();
+toolkit.registerMcpClient(amap).block();
+
+HarnessAgent agent =
+        HarnessAgent.builder()
+                .name("assistant")
+                .sysPrompt("You are a helpful assistant.")
+                .model("dashscope:qwen-plus")
+                .toolkit(toolkit)
+                .build();
+```
+
+| 메서드 | 등록되는 것 |
+|--------|-------------|
+| `registerTool(Object)` | 객체에서 찾은 모든 `@Tool` 애너테이션 메서드 |
+| `registerAgentTool(AgentTool)` | `AgentTool` / `ToolBase` 인스턴스 하나를 직접 |
+| `registerSchema(ToolSchema)` | 스키마만 있는 외부 도구 하나 — 에이전트에는 보이고, 실행은 외부 워커를 기다리며 중단됨 |
+| `registerSchemas(List<ToolSchema>)` | 스키마만 있는 외부 도구를 한 번에 여러 개 |
+| `registerMcpClient(McpClientWrapper)` | MCP 서버가 노출하는 모든 도구. `Mono<Void>`를 반환하므로 `block()`하거나 체이닝 |
+| `registerMetaTool()` | 에이전트가 tool group을 관리하게 하는 `reset_tools` 메타 도구 |
+
+<Note>
+
+`registerMcpClient`는 비동기입니다. `block()`(또는 구독) 없이 호출하면 `build()` 시점에 MCP 도구가 등록되지 않은 상태가 되고, 에이전트는 그 도구들 없이 조용히 시작됩니다.
+
+</Note>
+
+#### 등록 이후의 도구 관리
+
+tool group을 쓰면 한 번에 toolkit의 일부만 노출할 수 있어 모델이 보는 스키마를 작게 유지할 수 있습니다. 등록은 단방향이 아니며, 에이전트가 도는 중에도 도구와 그룹을 추가·제거할 수 있습니다:
+
+| 메서드 | 효과 |
+|--------|------|
+| `createToolGroup(name, description)` | 그룹 생성(기본 활성) |
+| `createToolGroup(name, description, active)` | 초기 활성 상태를 명시해 그룹 생성 |
+| `registerToolGroup(ToolGroup)` | 미리 만든 `ToolGroup` 인스턴스나 서브클래스를 등록 |
+| `addToolToGroup(groupName, toolName)` | 이미 등록된 도구를 그룹으로 옮김 |
+| `setActiveGroups(List<String>)` | 현재 활성 그룹 집합을 교체 |
+| `removeToolGroups(List<String>)` | 그룹과 그 안의 모든 도구를 제거 |
+| `removeTool(String)` | 이름으로 도구 하나 제거 |
+| `removeToolIfSame(String, AgentTool)` | 등록된 인스턴스가 기대한 것일 때만 제거 — 여러 컴포넌트가 toolkit을 공유할 때의 안전한 형태 |
+| `removeMcpClient(String)` | MCP 서버와 그 모든 도구를 제거. `Mono<Void>` 반환 |
+
+에이전트가 스스로 그룹을 바꾸게 하려면 [자체 관리 도구](#자체-관리-도구)를 참고하세요.
+
 ### 커스텀 도구(애너테이션 기반)
 
 가장 가벼운 방법: 일반 메서드에 `@Tool`과 `@ToolParam`을 붙이고 `Toolkit#registerTool(Object)`를 호출한다. 프레임워크는 Java 타입으로부터 JSON schema를, `description`으로부터 agent용 설명을 도출한다.
@@ -118,6 +188,152 @@ toolkit.registerTool(new SimpleTools());
 | `stateInjected` | `boolean` | `AgentState`를 추가 파라미터로 주입할지 여부(기본값 `false`) |
 | `dangerousFiles` / `dangerousDirectories` | `String[]` | 커스텀 위험 경로 추가 |
 | `converter` | `Class<? extends ToolResultConverter>` | 반환 값을 `ToolResultBlock`으로 변환하는 커스텀 변환기 |
+
+### 파라미터 스키마(`@ToolParam`)
+
+도구의 JSON 스키마에 들어가는 것은 `@ToolParam`이 붙은 파라미터뿐입니다. 메서드 시그니처의 나머지 파라미터는 프레임워크가 주입하거나(`ToolEmitter`, `Agent`, `AgentState`, `RuntimeContext`) runtime context에서 해석되는 값이며, 모델에 전달되는 스키마에는 나타나지 않습니다. [컨텍스트 받기](#컨텍스트-받기)를 참고하세요.
+
+| 속성 | 타입 | 기본값 | 설명 |
+|------|------|--------|------|
+| `name` | `String` | *필수* | 스키마상의 프로퍼티 이름. Java가 런타임에 파라미터 이름을 보존하지 않으므로 필수이며, LLM 호환성을 위해 snake_case를 권장 |
+| `description` | `String` | `""` | 프로퍼티의 `description`에 기록됨. 비어 있으면 스키마에 포함되지 않음 |
+| `required` | `boolean` | `true` | 해당 프로퍼티를 스키마의 `required` 배열에 넣을지 여부 |
+
+#### Java 타입에서 JSON 스키마로
+
+스키마는 파라미터의 **제네릭** 타입(`Parameter#getParameterizedType()`)에서 생성되므로, 컬렉션의 타입 인자는 소거되지 않고 그대로 유지됩니다.
+
+| Java 파라미터 타입 | 생성되는 프로퍼티 스키마 |
+|--------------------|--------------------------|
+| `String` | `{"type": "string"}` |
+| `int`, `Integer`, `long`, `Long` | `{"type": "integer"}` |
+| `double`, `Double`, `float` | `{"type": "number"}` |
+| `boolean`, `Boolean` | `{"type": "boolean"}` |
+| `MyEnum` | `{"type": "string", "enum": ["A", "B"]}` — 열거 상수 이름 |
+| `String[]`, `List<String>`, `Set<String>` | `{"type": "array", "items": {"type": "string"}}` |
+| `List<Item>` | `{"type": "array", "items": {...}}`, 여기서 `items`는 `Item`의 객체 스키마 |
+| `List<List<String>>` | `items`가 다시 `string`의 `array`인 `array` |
+| `Map<String, Integer>` | `{"type": "object"}` — 아래 주의 사항 참고 |
+| `Item`(POJO) | `Item`의 필드로 구성한 `{"type": "object", "properties": { … }}` |
+
+`List<String>` 파라미터 두 개(하나는 필수, 하나는 선택)를 받는 도구:
+
+```java
+@Tool(name = "tag_files", description = "Attach tags to a set of files.")
+public String tagFiles(
+        @ToolParam(name = "paths", description = "Absolute file paths to tag")
+                List<String> paths,
+        @ToolParam(name = "tags", description = "Tags to attach", required = false)
+                List<String> tags) {
+    // Implementation
+}
+```
+
+은 다음을 생성합니다:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Absolute file paths to tag"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tags to attach"
+    }
+  },
+  "required": ["paths"]
+}
+```
+
+`description`은 `items`가 아니라 배열 프로퍼티 자체에 붙는다는 점에 유의하세요. 요소를 설명하려면 요소 타입의 필드 쪽에 설명을 두면 됩니다([POJO 필드의 `@ToolParam`](#pojo-필드의-toolparam) 참고).
+
+<Warning>
+
+`Map<K, V>` 파라미터는 아무 정보 없는 `{"type": "object"}`가 됩니다. 키와 값의 타입은 **기술되지 않으므로** 모델은 무엇을 담아야 할지 알 수 없고 검증도 이뤄지지 않습니다. 구조를 알고 있다면 `Map` 대신 POJO 파라미터나 작은 POJO의 `List`를 받으세요.
+
+</Warning>
+
+#### 중첩 타입과 `$defs`
+
+중첩된 POJO는 프로퍼티 스키마 안에 인라인으로 펼쳐집니다. 두 번 이상 참조되는 타입이나 재귀 타입은 대신 `$defs` 항목으로 생성되고, 프로퍼티는 `$ref`로 이를 가리킵니다. 각 파라미터의 스키마는 독립적으로 생성되므로, AgentScope는 이 정의들을 파라미터 수준에서 도구 스키마의 루트로 끌어올려 `#/$defs/TypeName` 포인터가 문서 루트를 기준으로 해석되도록 합니다:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "recipe": {
+      "type": "object",
+      "properties": {
+        "materials": { "type": "array", "items": { "$ref": "#/$defs/Material" } },
+        "substitutes": { "type": "array", "items": { "$ref": "#/$defs/Material" } }
+      }
+    }
+  },
+  "required": ["recipe"],
+  "$defs": {
+    "Material": { "type": "object", "properties": { "name": { "type": "string" } } }
+  }
+}
+```
+
+정의 키는 단순 타입 이름이므로, 단순 이름이 같은 **서로 다른** 클래스(예: 서로 다른 패키지의 `Material`)가 같은 도구 메서드에 등장하면 충돌이 나고 스키마 생성이 `IllegalStateException: Conflicting schema definition found for key: Material`로 실패합니다. 둘 중 하나의 이름을 바꾸거나, 둘을 하나의 POJO 파라미터로 묶으세요.
+
+#### `required`가 스키마에 미치는 영향
+
+`required`는 파라미터가 스키마에 나타날지를 결정하지 **않습니다**. `@ToolParam`이 붙은 파라미터는 언제나 `properties`에 나열되며, `required`는 스키마 최상위 `required` 배열에 포함되는지만 결정합니다:
+
+- `required = true`(기본값) — 프로퍼티 이름이 `required`에 추가됩니다.
+- `required = false` — 프로퍼티는 `properties`에 남지만 `required`에는 빠지므로, 모델이 생략할 수 있습니다.
+- 필수 파라미터가 하나도 없으면 `required` 키는 빈 배열이 아니라 **아예 생략**됩니다.
+
+호출 시 `ToolExecutor`는 메서드를 실행하기 전에 모델이 준 인자를 이 스키마로 검증합니다. 필수 프로퍼티가 빠진 호출은 거부되고 검증 오류가 모델에 반환되어 재시도로 이어지므로, 메서드는 아예 진입하지 않습니다. 선택 프로퍼티에 명시적으로 전달된 `null`은 생략한 것과 동일하게 처리됩니다.
+
+<Warning>
+
+생략된 선택 파라미터는 메서드에 `null`로 전달됩니다. 선택 파라미터는 원시 타입이 아니라 **박싱된** 타입(`Integer`, `Double`, `Boolean`)으로 선언하세요. `required = false`가 붙은 원시 타입 파라미터는 모델이 이를 생략하면 호출 시점에 실패합니다. `null`을 `int`나 `double`에 전달할 수 없기 때문입니다.
+
+</Warning>
+
+#### POJO 필드의 `@ToolParam`
+
+`@ToolParam`은 POJO 파라미터의 필드에도 적용되어 프로퍼티 이름을 바꾸고, 설명을 붙이고, 필수 여부를 지정합니다:
+
+```java
+public class Location {
+
+    @ToolParam(name = "city_name", description = "The city name")
+    private String city;
+
+    @ToolParam(name = "zip_code", description = "The zip code", required = false)
+    private String zip;
+
+    private String country; // 애너테이션 없음 → 선택, 필드 이름 그대로
+}
+```
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "city_name": { "type": "string", "description": "The city name" },
+    "zip_code": { "type": "string", "description": "The zip code" },
+    "country": { "type": "string" }
+  },
+  "required": ["city_name"]
+}
+```
+
+메서드 파라미터와 다른 점이 둘 있습니다:
+
+- `@ToolParam`이 없는 필드도 스키마에 포함되며, Java 필드 이름 그대로 **선택** 프로퍼티가 됩니다. 반면 `@ToolParam`이 없는 메서드 파라미터는 스키마에서 완전히 제외됩니다.
+- `name`이 비어 있으면 Java 필드 이름으로 대체되고, `description`이 비어 있으면 스키마에 기록되지 않습니다.
+
+필드에서는 Jackson의 `@JsonPropertyDescription`과 `@JsonProperty(required = true)`도 존중되므로, 기존 Jackson 애너테이션 모델을 다시 표기하지 않고 그대로 도구 파라미터로 쓸 수 있습니다.
 
 ### 커스텀 도구(`ToolBase` 확장)
 

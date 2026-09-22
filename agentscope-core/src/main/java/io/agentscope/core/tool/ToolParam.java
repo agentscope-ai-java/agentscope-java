@@ -53,6 +53,15 @@ import java.lang.annotation.Target;
  *   <li>{@link ToolEmitter} parameters do not need this annotation (they are framework-injected)</li>
  * </ul>
  *
+ * <p><b>Generic types:</b> the schema is derived from the parameter's <i>generic</i> type
+ * ({@link java.lang.reflect.Parameter#getParameterizedType()}), so type arguments on collections
+ * are preserved rather than erased. A {@code List<String>} parameter becomes
+ * {@code {"type": "array", "items": {"type": "string"}}}, a {@code List<Item>} becomes an array
+ * whose {@code items} is the object schema of {@code Item}, and the {@code description} above is
+ * attached to the array property itself rather than to its {@code items}. {@code Map<K, V>} is the
+ * exception: it generates a bare {@code {"type": "object"}} with the key and value types left
+ * undescribed, so prefer a POJO parameter when the shape is known.
+ *
  * @see Tool
  * @see ToolEmitter
  */
@@ -78,9 +87,24 @@ public @interface ToolParam {
     /**
      * Whether this parameter is required.
      *
-     * <p>Required parameters must be provided by the LLM when invoking the tool. Optional
-     * parameters can be omitted, and the method will receive null (for objects) or default values
-     * (for primitives).
+     * <p>This flag does <b>not</b> control whether the parameter appears in the generated schema:
+     * every {@code @ToolParam} parameter is always listed under {@code "properties"}. It only
+     * controls whether the parameter name is added to the schema's top-level {@code "required"}
+     * array. When no parameter is required, the {@code "required"} key is omitted from the schema
+     * entirely rather than emitted as an empty array.
+     *
+     * <p>Arguments are validated against the generated schema before the method is invoked, so a
+     * missing required parameter is reported back to the LLM and the method is never entered.
+     *
+     * <p>An optional parameter that the LLM omits is passed to the method as {@code null}. Declare
+     * optional parameters with boxed types ({@code Integer}, {@code Double}, {@code Boolean})
+     * rather than primitives: {@code null} cannot be passed to an {@code int} or {@code double},
+     * so a primitive parameter marked {@code required = false} fails at invocation time when the
+     * LLM omits it.
+     *
+     * <p>On the fields of a POJO parameter this flag behaves the same way, except that a field
+     * <i>without</i> {@code @ToolParam} is still part of the schema as an optional property, while
+     * a method parameter without {@code @ToolParam} is excluded from the schema altogether.
      *
      * @return true if required (default), false if optional
      */

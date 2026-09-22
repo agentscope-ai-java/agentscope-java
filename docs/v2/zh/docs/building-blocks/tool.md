@@ -78,6 +78,76 @@ Toolkit 在出现额外 tool group 或 skill 时会自动注册 `reset_tools` me
 </Note>
 
 
+### 在 `Toolkit` 上注册工具
+
+Agent 能调用的一切都注册在 `Toolkit` 上，再把它交给 Agent builder。最常见的是 `registerTool(Object)`——它会反射扫描对象上的 `@Tool` 方法——此外 toolkit 也接受预先构建好的工具实例、仅有 Schema 的外部工具、MCP 客户端以及 tool group。
+
+```java
+import io.agentscope.core.tool.Toolkit;
+import io.agentscope.core.tool.builtin.TodoTools;
+import io.agentscope.core.tool.mcp.McpClientBuilder;
+import io.agentscope.core.tool.mcp.McpClientWrapper;
+import io.agentscope.harness.agent.HarnessAgent;
+
+Toolkit toolkit = new Toolkit();
+
+// 1. 对象上的注解方法——每个 @Tool 方法对应一个工具
+toolkit.registerTool(new MyDomainTools());
+toolkit.registerTool(new TodoTools());
+
+// 2. ToolBase 子类，作为单个工具实例注册
+toolkit.registerAgentTool(new WebSearchTool());
+
+// 3. MCP Server——注册该 Server 暴露的全部工具
+McpClientWrapper amap =
+        McpClientBuilder.streamableHttp()
+                .name("amap")
+                .url("https://mcp.amap.com/mcp?key=" + System.getenv("AMAP_API_KEY"))
+                .build();
+toolkit.registerMcpClient(amap).block();
+
+HarnessAgent agent =
+        HarnessAgent.builder()
+                .name("assistant")
+                .sysPrompt("You are a helpful assistant.")
+                .model("dashscope:qwen-plus")
+                .toolkit(toolkit)
+                .build();
+```
+
+| 方法 | 注册内容 |
+|------|----------|
+| `registerTool(Object)` | 在对象上找到的每个 `@Tool` 注解方法 |
+| `registerAgentTool(AgentTool)` | 直接注册一个 `AgentTool` / `ToolBase` 实例 |
+| `registerSchema(ToolSchema)` | 一个仅有 Schema 的外部工具——Agent 能看到它，执行时挂起交由外部 worker 完成 |
+| `registerSchemas(List<ToolSchema>)` | 一次注册多个仅有 Schema 的外部工具 |
+| `registerMcpClient(McpClientWrapper)` | MCP Server 暴露的全部工具；返回 `Mono<Void>`，需 `block()` 或串联订阅 |
+| `registerMetaTool()` | 用于 Agent 自管理 tool group 的 `reset_tools` 元工具 |
+
+<Note>
+
+`registerMcpClient` 是异步的。不调用 `block()`（也不订阅）就会导致 `build()` 执行时 MCP 工具尚未注册，Agent 会在没有这些工具的情况下静默启动。
+
+</Note>
+
+#### 注册之后的工具管理
+
+Tool group 让你每次只暴露 toolkit 的一个子集，从而压缩模型看到的 Schema。注册并非单向操作——工具和分组都可以在 Agent 运行期间增删：
+
+| 方法 | 效果 |
+|------|------|
+| `createToolGroup(name, description)` | 创建分组，默认激活 |
+| `createToolGroup(name, description, active)` | 创建分组并显式指定初始激活状态 |
+| `registerToolGroup(ToolGroup)` | 注册预先构建的 `ToolGroup` 实例或其子类 |
+| `addToolToGroup(groupName, toolName)` | 把已注册的工具移入某个分组 |
+| `setActiveGroups(List<String>)` | 替换当前激活的分组集合 |
+| `removeToolGroups(List<String>)` | 移除分组及其中的全部工具 |
+| `removeTool(String)` | 按名称移除一个工具 |
+| `removeToolIfSame(String, AgentTool)` | 仅当注册的实例与预期一致时才移除——多个组件共用一个 toolkit 时的安全形式 |
+| `removeMcpClient(String)` | 移除一个 MCP Server 及其全部工具；返回 `Mono<Void>` |
+
+让 Agent 自行切换分组的方式参见[自我管理 Tool](#自我管理-tool)。
+
 ### 自定义 Tool（注解式）
 
 最轻量的写法：在普通类的方法上标注 `@Tool` 与 `@ToolParam`，然后通过 `Toolkit#registerTool(Object)` 反射注册。框架自动从 Java 类型推导 JSON schema，从 `description` 取面向 agent 的说明。
@@ -120,6 +190,152 @@ toolkit.registerTool(new SimpleTools());
 | `stateInjected` | `boolean` | 是否在调用时注入 `AgentState` 作为额外参数（默认 `false`） |
 | `dangerousFiles` / `dangerousDirectories` | `String[]` | 追加自定义危险路径列表 |
 | `converter` | `Class<? extends ToolResultConverter>` | 自定义返回值到 `ToolResultBlock` 的转换器 |
+
+### 参数 Schema（`@ToolParam`）
+
+只有标注了 `@ToolParam` 的参数才会进入 Tool 的 JSON Schema。方法签名上的其他参数要么由框架自动注入（`ToolEmitter`、`Agent`、`AgentState`、`RuntimeContext`），要么从 runtime context 解析而来，它们不会出现在发送给模型的 Schema 中——参见[接收 Context](#接收-context)。
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `name` | `String` | *必填* | Schema 中的属性名。之所以必填，是因为 Java 运行时不保留参数名；建议使用 snake_case 以兼容各家 LLM |
+| `description` | `String` | `""` | 写入属性的 `description`。为空时不会出现在 Schema 中 |
+| `required` | `boolean` | `true` | 该属性是否列入 Schema 的 `required` 数组 |
+
+#### Java 类型到 JSON Schema 的映射
+
+Schema 基于参数的**泛型**类型生成（`Parameter#getParameterizedType()`），因此集合上的类型参数会被保留，而不会被擦除：
+
+| Java 参数类型 | 生成的属性 Schema |
+|---------------|-------------------|
+| `String` | `{"type": "string"}` |
+| `int`、`Integer`、`long`、`Long` | `{"type": "integer"}` |
+| `double`、`Double`、`float` | `{"type": "number"}` |
+| `boolean`、`Boolean` | `{"type": "boolean"}` |
+| `MyEnum` | `{"type": "string", "enum": ["A", "B"]}`——取枚举常量名 |
+| `String[]`、`List<String>`、`Set<String>` | `{"type": "array", "items": {"type": "string"}}` |
+| `List<Item>` | `{"type": "array", "items": {...}}`，其中 `items` 为 `Item` 的对象 Schema |
+| `List<List<String>>` | 一个 `array`，其 `items` 本身又是 `string` 的 `array` |
+| `Map<String, Integer>` | `{"type": "object"}`——参见下方注意事项 |
+| `Item`（POJO） | 由 `Item` 的字段构建的 `{"type": "object", "properties": { … }}` |
+
+一个接收两个 `List<String>` 参数（一个必填、一个可选）的 Tool：
+
+```java
+@Tool(name = "tag_files", description = "Attach tags to a set of files.")
+public String tagFiles(
+        @ToolParam(name = "paths", description = "Absolute file paths to tag")
+                List<String> paths,
+        @ToolParam(name = "tags", description = "Tags to attach", required = false)
+                List<String> tags) {
+    // Implementation
+}
+```
+
+会生成：
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Absolute file paths to tag"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tags to attach"
+    }
+  },
+  "required": ["paths"]
+}
+```
+
+注意 `description` 落在数组属性本身，而不是 `items` 上。若要描述元素，请把描述写在元素类型的字段上（参见 [POJO 字段上的 `@ToolParam`](#pojo-字段上的-toolparam)）。
+
+<Warning>
+
+`Map<K, V>` 参数只会生成一个裸的 `{"type": "object"}`：键和值的类型**不会**被描述，模型得不到任何关于内容的提示，也不会有任何校验。当结构已知时，请改用 POJO 参数，或一个由小型 POJO 组成的 `List`，而不是 `Map`。
+
+</Warning>
+
+#### 嵌套类型与 `$defs`
+
+嵌套的 POJO 会被内联到属性 Schema 中。被多次引用的类型，或递归类型，则会作为 `$defs` 条目输出，并由属性通过 `$ref` 指向。由于每个参数的 Schema 是独立生成的，AgentScope 会把这些定义从参数层级上提到 Tool Schema 的根部，使 `#/$defs/TypeName` 指针能够相对文档根正确解析：
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "recipe": {
+      "type": "object",
+      "properties": {
+        "materials": { "type": "array", "items": { "$ref": "#/$defs/Material" } },
+        "substitutes": { "type": "array", "items": { "$ref": "#/$defs/Material" } }
+      }
+    }
+  },
+  "required": ["recipe"],
+  "$defs": {
+    "Material": { "type": "object", "properties": { "name": { "type": "string" } } }
+  }
+}
+```
+
+定义的键是类型简单名，因此两个**不同**但简单名相同的类（例如来自两个不同包的 `Material`）出现在同一个 Tool 方法中时会发生冲突，Schema 生成将抛出 `IllegalStateException: Conflicting schema definition found for key: Material`。此时请重命名其中一个，或把两者收拢到同一个 POJO 参数中。
+
+#### `required` 如何影响 Schema
+
+`required` **并不**决定参数是否出现在 Schema 中。每个 `@ToolParam` 参数都始终列在 `properties` 下；`required` 只决定它是否进入 Schema 顶层的 `required` 数组：
+
+- `required = true`（默认）——属性名会被加入 `required`。
+- `required = false`——属性仍在 `properties` 中，但不在 `required` 里，因此模型可以省略它。
+- 当没有任何参数是必填时，`required` 这个键会被**完全省略**，而不是输出一个空数组。
+
+调用时，`ToolExecutor` 会先用该 Schema 校验模型给出的参数，再调用你的方法。缺少必填属性的调用会被拒绝，校验错误会回传给模型重试，方法根本不会被执行。可选属性上显式传入的 `null` 与省略等同处理。
+
+<Warning>
+
+被省略的可选参数会以 `null` 传入你的方法。请用**装箱**类型（`Integer`、`Double`、`Boolean`）而非基本类型声明可选参数：标注了 `required = false` 的基本类型参数在模型省略它时会在调用阶段失败，因为 `null` 无法传给 `int` 或 `double`。
+
+</Warning>
+
+#### POJO 字段上的 `@ToolParam`
+
+`@ToolParam` 同样适用于 POJO 参数的字段，用于重命名属性、提供描述以及设置是否必填：
+
+```java
+public class Location {
+
+    @ToolParam(name = "city_name", description = "The city name")
+    private String city;
+
+    @ToolParam(name = "zip_code", description = "The zip code", required = false)
+    private String zip;
+
+    private String country; // 无注解 → 可选，沿用字段名
+}
+```
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "city_name": { "type": "string", "description": "The city name" },
+    "zip_code": { "type": "string", "description": "The zip code" },
+    "country": { "type": "string" }
+  },
+  "required": ["city_name"]
+}
+```
+
+有两点与方法参数不同，值得记住：
+
+- 未标注 `@ToolParam` 的字段**仍会**进入 Schema，作为**可选**属性，并沿用其 Java 字段名。而未标注 `@ToolParam` 的方法参数则完全不会出现在 Schema 中。
+- `name` 为空时回退到 Java 字段名，`description` 为空时不写入 Schema。
+
+字段上同样支持 Jackson 的 `@JsonPropertyDescription` 和 `@JsonProperty(required = true)`，因此已有的 Jackson 注解模型无需重新标注即可直接用作 Tool 参数。
 
 ### 自定义 Tool（继承 `ToolBase`）
 

@@ -25,7 +25,7 @@ Key modules:
 
 - [Agent](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/agent.md): `ReActAgent` builder API, `call` / `streamEvents` / `observe`, HITL
 - [Model](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/model.md): `ModelRegistry`, provider string ids, API-key env vars, custom model builders
-- [Tool](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/tool.md): `@Tool` / `@ToolParam`, `Toolkit`, `ToolBase`, tool groups
+- [Tool](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/tool.md): `@Tool` / `@ToolParam`, registering tools on a `Toolkit`, parameter schema generation (generics, `required`, `$defs`), `ToolBase`, tool groups
 - [Message and Event](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/message-and-event.md): `ContentBlock`, `Msg`, the 31 typed events, structured output
 - [Permission System](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/permission-system.md): `PermissionMode`, `PermissionContextState`, allow/ask/deny rules, HITL approval
 - [Middleware](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/building-blocks/middleware.md): `onAgent` / `onReasoning` / `onActing` / `onModelCall` / `onSystemPrompt` hooks
@@ -34,6 +34,7 @@ Key modules:
 ## Harness (HarnessAgent)
 
 - [Harness Architecture](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/architecture.md): how `HarnessAgent` composes workspace/memory/subagents on top of `ReActAgent`
+- [Configuration](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/configuration.md): complete `HarnessAgent.builder()` reference — identity, model, tools, workspace, filesystem, state, subagents, skills, plan mode, and every switch that disables a built-in
 - [Workspace](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/workspace.md): `AGENTS.md` / `MEMORY.md` / `skills/` / `subagents/` / `tools.json` layout
 - [Memory](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/memory.md): layered memory, `MEMORY.md`, on-disk fact log
 - [Subagent](https://github.com/agentscope-ai/agentscope-java/blob/main/docs/v2/en/docs/harness/subagent.md): `SubagentDeclaration`, `agent_spawn` / `agent_send`, sync vs. background delegation

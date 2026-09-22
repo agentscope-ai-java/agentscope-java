@@ -78,6 +78,76 @@ The `Toolkit` automatically registers the `reset_tools` meta tool and the `load_
 </Note>
 
 
+### Registering tools on a `Toolkit`
+
+Everything an agent can call is registered on a `Toolkit`, which is then handed to the agent builder. `registerTool(Object)` is the common case — it reflectively scans the object for `@Tool` methods — but the toolkit also accepts pre-built tool instances, schema-only external tools, MCP clients, and tool groups.
+
+```java
+import io.agentscope.core.tool.Toolkit;
+import io.agentscope.core.tool.builtin.TodoTools;
+import io.agentscope.core.tool.mcp.McpClientBuilder;
+import io.agentscope.core.tool.mcp.McpClientWrapper;
+import io.agentscope.harness.agent.HarnessAgent;
+
+Toolkit toolkit = new Toolkit();
+
+// 1. Annotated methods on a plain object — one tool per @Tool method
+toolkit.registerTool(new MyDomainTools());
+toolkit.registerTool(new TodoTools());
+
+// 2. A ToolBase subclass, registered as a single tool instance
+toolkit.registerAgentTool(new WebSearchTool());
+
+// 3. An MCP server — registers every tool the server exposes
+McpClientWrapper amap =
+        McpClientBuilder.streamableHttp()
+                .name("amap")
+                .url("https://mcp.amap.com/mcp?key=" + System.getenv("AMAP_API_KEY"))
+                .build();
+toolkit.registerMcpClient(amap).block();
+
+HarnessAgent agent =
+        HarnessAgent.builder()
+                .name("assistant")
+                .sysPrompt("You are a helpful assistant.")
+                .model("dashscope:qwen-plus")
+                .toolkit(toolkit)
+                .build();
+```
+
+| Method | Registers |
+|--------|-----------|
+| `registerTool(Object)` | Every `@Tool`-annotated method found on the object |
+| `registerAgentTool(AgentTool)` | One `AgentTool` / `ToolBase` instance directly |
+| `registerSchema(ToolSchema)` | One schema-only external tool — the agent sees it, execution suspends for an external worker |
+| `registerSchemas(List<ToolSchema>)` | Several schema-only external tools at once |
+| `registerMcpClient(McpClientWrapper)` | Every tool exposed by an MCP server; returns `Mono<Void>`, so `block()` or chain it |
+| `registerMetaTool()` | The `reset_tools` meta tool for agent-managed tool groups |
+
+<Note>
+
+`registerMcpClient` is asynchronous. Calling it without `block()` (or subscribing) leaves the MCP tools unregistered when `build()` runs, and the agent silently starts without them.
+
+</Note>
+
+#### Managing tools after registration
+
+Tool groups let you expose a subset of the toolkit at a time, which keeps the schema the model sees small. Registration is not one-way — tools and groups can be added and removed while the agent is running:
+
+| Method | Effect |
+|--------|--------|
+| `createToolGroup(name, description)` | Create a group, active by default |
+| `createToolGroup(name, description, active)` | Create a group with an explicit initial activation state |
+| `registerToolGroup(ToolGroup)` | Register a pre-built `ToolGroup` instance or subclass |
+| `addToolToGroup(groupName, toolName)` | Move an already-registered tool into a group |
+| `setActiveGroups(List<String>)` | Replace the set of currently active groups |
+| `removeToolGroups(List<String>)` | Remove groups and every tool inside them |
+| `removeTool(String)` | Remove one tool by name |
+| `removeToolIfSame(String, AgentTool)` | Remove only if the registered instance is the expected one — the safe form when several components share a toolkit |
+| `removeMcpClient(String)` | Remove an MCP server and all of its tools; returns `Mono<Void>` |
+
+See [self-managed tools](#self-managed-tools) for letting the agent switch groups itself.
+
 ### Custom tools (annotation-based)
 
 The lightest-weight way: annotate plain methods with `@Tool` and `@ToolParam`, then call `Toolkit#registerTool(Object)`. The framework derives the JSON schema from Java types and the `description` for the agent.
@@ -120,6 +190,152 @@ Common `@Tool` attributes:
 | `stateInjected` | `boolean` | Inject `AgentState` as an extra parameter (default `false`) |
 | `dangerousFiles` / `dangerousDirectories` | `String[]` | Append custom dangerous paths |
 | `converter` | `Class<? extends ToolResultConverter>` | Custom conversion of return values into `ToolResultBlock` |
+
+### Parameter schemas (`@ToolParam`)
+
+Only parameters annotated with `@ToolParam` become part of a tool's JSON schema. Every other parameter on the method signature is either framework-injected (`ToolEmitter`, `Agent`, `AgentState`, `RuntimeContext`) or resolved from the runtime context, and never reaches the model — see [receiving context](#receiving-context).
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `name` | `String` | *mandatory* | Property name in the schema. Mandatory because Java does not preserve parameter names at runtime; use snake_case for LLM compatibility |
+| `description` | `String` | `""` | Written to the property's `description`. Left out of the schema when empty |
+| `required` | `boolean` | `true` | Whether the property is listed in the schema's `required` array |
+
+#### Java types to JSON Schema
+
+Schemas are derived from the parameter's **generic** type (`Parameter#getParameterizedType()`), so type arguments on collections are preserved rather than erased:
+
+| Java parameter type | Generated property schema |
+|---------------------|---------------------------|
+| `String` | `{"type": "string"}` |
+| `int`, `Integer`, `long`, `Long` | `{"type": "integer"}` |
+| `double`, `Double`, `float` | `{"type": "number"}` |
+| `boolean`, `Boolean` | `{"type": "boolean"}` |
+| `MyEnum` | `{"type": "string", "enum": ["A", "B"]}` — the constant names |
+| `String[]`, `List<String>`, `Set<String>` | `{"type": "array", "items": {"type": "string"}}` |
+| `List<Item>` | `{"type": "array", "items": {...}}`, where `items` is the object schema of `Item` |
+| `List<List<String>>` | an `array` whose `items` are themselves an `array` of `string` |
+| `Map<String, Integer>` | `{"type": "object"}` — see the caveat below |
+| `Item` (POJO) | `{"type": "object", "properties": { … }}` built from `Item`'s fields |
+
+A tool taking two `List<String>` parameters, one required and one not:
+
+```java
+@Tool(name = "tag_files", description = "Attach tags to a set of files.")
+public String tagFiles(
+        @ToolParam(name = "paths", description = "Absolute file paths to tag")
+                List<String> paths,
+        @ToolParam(name = "tags", description = "Tags to attach", required = false)
+                List<String> tags) {
+    // Implementation
+}
+```
+
+generates:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Absolute file paths to tag"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tags to attach"
+    }
+  },
+  "required": ["paths"]
+}
+```
+
+Note that `description` lands on the array property itself, never on `items`. To describe the elements, put the description on the fields of the element type instead (see [`@ToolParam` on POJO fields](#toolparam-on-pojo-fields)).
+
+<Warning>
+
+`Map<K, V>` parameters generate a bare `{"type": "object"}`: the key and value types are **not** described, so the model gets no guidance about what belongs inside and nothing is validated. When the shape is known, take a POJO parameter — or a `List` of small POJOs — instead of a `Map`.
+
+</Warning>
+
+#### Nested types and `$defs`
+
+Nested POJOs are inlined into the property schema. A type referenced more than once, or a recursive type, is instead emitted as a `$defs` entry that the property points at with `$ref`. Because each parameter's schema is generated independently, AgentScope hoists those definitions from the parameter level up to the root of the tool schema, so that `#/$defs/TypeName` pointers resolve against the document root:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "recipe": {
+      "type": "object",
+      "properties": {
+        "materials": { "type": "array", "items": { "$ref": "#/$defs/Material" } },
+        "substitutes": { "type": "array", "items": { "$ref": "#/$defs/Material" } }
+      }
+    }
+  },
+  "required": ["recipe"],
+  "$defs": {
+    "Material": { "type": "object", "properties": { "name": { "type": "string" } } }
+  }
+}
+```
+
+Definition keys are plain type names, so two *different* classes with the same simple name (for example a `Material` from two different packages) reaching the same tool method collide, and schema generation fails with `IllegalStateException: Conflicting schema definition found for key: Material`. Rename one of them, or funnel both through a single POJO parameter.
+
+#### How `required` affects the schema
+
+`required` does **not** control whether a parameter appears in the schema. Every `@ToolParam` parameter is always listed under `properties`; `required` only controls membership in the schema's top-level `required` array:
+
+- `required = true` (the default) — the property name is added to `required`.
+- `required = false` — the property stays in `properties` but is left out of `required`, so the model may omit it.
+- When no parameter is required, the `required` key is **omitted entirely** rather than emitted as an empty array.
+
+At call time `ToolExecutor` validates the model's arguments against this schema before invoking your method. A missing required property is rejected and the validation error is handed back to the model to retry, so the method is never entered. An explicit `null` for an optional property is treated the same as omitting it.
+
+<Warning>
+
+An omitted optional parameter is passed to your method as `null`. Declare optional parameters with **boxed** types (`Integer`, `Double`, `Boolean`) rather than primitives: a primitive parameter marked `required = false` fails at invocation when the model omits it, because `null` cannot be passed to an `int` or a `double`.
+
+</Warning>
+
+#### `@ToolParam` on POJO fields
+
+`@ToolParam` also applies to the fields of a POJO parameter, where it renames the property, supplies its description and sets whether it is required:
+
+```java
+public class Location {
+
+    @ToolParam(name = "city_name", description = "The city name")
+    private String city;
+
+    @ToolParam(name = "zip_code", description = "The zip code", required = false)
+    private String zip;
+
+    private String country; // no annotation → optional, keeps the field name
+}
+```
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "city_name": { "type": "string", "description": "The city name" },
+    "zip_code": { "type": "string", "description": "The zip code" },
+    "country": { "type": "string" }
+  },
+  "required": ["city_name"]
+}
+```
+
+Two differences from method parameters are worth remembering:
+
+- A field without `@ToolParam` is still part of the schema, as an **optional** property under its own Java field name. A method parameter without `@ToolParam` is excluded from the schema altogether.
+- A blank `name` falls back to the Java field name, and a blank `description` is left out of the schema.
+
+Jackson's `@JsonPropertyDescription` and `@JsonProperty(required = true)` are honored on fields as well, so existing Jackson-annotated models can be used as tool parameters without re-annotating them.
 
 ### Custom tools (extending `ToolBase`)
 

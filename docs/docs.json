@@ -66,6 +66,7 @@
                     "group": "Harness",
                     "pages": [
                       "v2/en/docs/harness/architecture",
+                      "v2/en/docs/harness/configuration",
                       "v2/en/docs/harness/compaction",
                       "v2/en/docs/harness/workspace",
                       "v2/en/docs/harness/memory",
@@ -559,6 +560,7 @@
                     "group": "Harness",
                     "pages": [
                       "v2/zh/docs/harness/architecture",
+                      "v2/zh/docs/harness/configuration",
                       "v2/zh/docs/harness/compaction",
                       "v2/zh/docs/harness/workspace",
                       "v2/zh/docs/harness/memory",
@@ -1055,6 +1057,7 @@
                     "group": "Harness",
                     "pages": [
                       "v2/ja/docs/harness/architecture",
+                      "v2/ja/docs/harness/configuration",
                       "v2/ja/docs/harness/compaction",
                       "v2/ja/docs/harness/workspace",
                       "v2/ja/docs/harness/memory",
@@ -1275,6 +1278,7 @@
                     "group": "Harness",
                     "pages": [
                       "v2/ko/docs/harness/architecture",
+                      "v2/ko/docs/harness/configuration",
                       "v2/ko/docs/harness/compaction",
                       "v2/ko/docs/harness/workspace",
                       "v2/ko/docs/harness/memory",
