@@ -57,26 +57,58 @@ Methods that integrate with the execution flow and the permission system:
 
 ### Built-in tools
 
-AgentScope currently ships these built-in tools:
+Two families ship with AgentScope, and they reach the agent differently.
 
-| Tool | Description | Read-only |
-|------|-------------|-----------|
-| `TodoTools.todoWrite` | Maintain a structured task list for the current session (full-list-replace semantics) | no |
+**Core built-ins** live in `agentscope-core` and are registered by you:
 
-Usage:
+| Tool | Parameters | Read-only |
+|------|------------|-----------|
+| `todo_write` | `todos` (`List<TodoItem>`, required) — the **complete** updated list; it replaces the existing one | no |
 
 ```java
 Toolkit toolkit = new Toolkit();
 toolkit.registerTool(new io.agentscope.core.tool.builtin.TodoTools());
 ```
 
+**Harness built-ins** live in `agentscope-harness` and `HarnessAgent` registers them automatically — you turn them *off* rather than on (see [Configuration](/v2/en/docs/harness/configuration#turning-built-ins-off)).
+
+Filesystem tools, from `FilesystemTool`, removed with `disableFilesystemTools()`:
+
+| Tool | Parameters | Read-only |
+|------|------------|-----------|
+| `read_file` | `path` (required) · `offset` (`Integer`, default `0`) · `limit` (`Integer`, default `0` = all lines) | yes |
+| `write_file` | `path` (required) · `content` (required) — creates parent directories | no |
+| `edit_file` | `path` · `old_string` · `new_string` (all required) · `replace_all` (`Boolean`, default `false`) — `old_string` must be unique unless `replace_all` | no |
+| `list_files` | `path` (required) | yes |
+| `glob_files` | `pattern` (required, e.g. `**/*.java`) · `path` (base dir) · `limit` (`Integer`, default 200) | yes |
+| `grep_files` | `pattern` (required, literal text) · `path` · `glob` (e.g. `*.java`) · `limit` (`Integer`, default 100) | yes |
+
+Shell tool, from `ShellExecuteTool`, removed with `disableShellTool()`:
+
+| Tool | Parameters | Read-only |
+|------|------------|-----------|
+| `execute` | `command` (required) · `working_directory` (relative to workspace root) · `timeout` (`Integer`, seconds, default `30`) | no |
+
+Web tools, from `WebTools`, removed with `disableWebTools()`:
+
+| Tool | Parameters | Read-only |
+|------|------------|-----------|
+| `web_fetch` | `url` (required) · `max_chars` (`Integer`, default `20000`) | yes |
+| `web_search` | `query` (required) · `max_results` (`Integer`, default `5`) | yes |
+
+Memory tools, removed with `disableMemoryTools()`: `memory_search`, `memory_get`, `memory_save`, `session_search` — see [Memory](/v2/en/docs/harness/memory).
+
+<Note>
+
+The shell tool is named `execute`, not `execute_shell_command` — its `@Tool` annotation sets no `name`, so the tool name falls back to the Java method name. This is the name to use in permission rules and in `tools.json` allow/deny lists.
+
+</Note>
 
 <Note>
 
 The `Toolkit` automatically registers the `reset_tools` meta tool and the `load_skill_through_path` skill viewer tool when extra tool groups or skills are present — you don't need to instantiate them manually. See [self-managed tools](#self-managed-tools) and [Skill](#skill).
 
 </Note>
-
 
 ### Registering tools on a `Toolkit`
 
@@ -147,6 +179,50 @@ Tool groups let you expose a subset of the toolkit at a time, which keeps the sc
 | `removeMcpClient(String)` | Remove an MCP server and all of its tools; returns `Mono<Void>` |
 
 See [self-managed tools](#self-managed-tools) for letting the agent switch groups itself.
+
+#### Inspecting what is registered
+
+To see what the agent will actually be offered — for a health check, a startup assertion, or a test — read the toolkit back:
+
+```java
+import io.agentscope.core.model.ToolSchema;
+import io.agentscope.core.tool.AgentTool;
+import java.util.List;
+import java.util.Set;
+
+Set<String> names = toolkit.getToolNames();
+System.out.println("registered: " + names);
+
+// The exact schemas the model will receive, honoring active tool groups
+List<ToolSchema> schemas = toolkit.getToolSchemas();
+for (ToolSchema schema : schemas) {
+    System.out.println(schema.getName() + " -> " + schema.getParameters());
+}
+
+// Fail fast at startup if an expected tool never registered
+// (a common symptom of an un-blocked registerMcpClient call)
+if (!names.contains("amap_maps_geo")) {
+    throw new IllegalStateException("MCP tools missing: " + names);
+}
+
+AgentTool tool = toolkit.getTool("read_file");
+```
+
+| Method | Returns |
+|--------|---------|
+| `getToolNames()` | `Set<String>` — names of every registered tool |
+| `getTool(String)` | `AgentTool` — one tool by name |
+| `getToolSchemas()` | `List<ToolSchema>` — the schemas sent to the model, filtered by the toolkit's currently active groups |
+| `getToolSchemas(Collection<String>)` | `List<ToolSchema>` — same, but filtered by an explicitly supplied group set; the stateless per-call variant, so it ignores the toolkit's shared activation flags |
+| `getActiveGroups()` | `List<String>` — names of the currently active tool groups |
+
+Each `ToolSchema` exposes `getName()`, `getDescription()`, `getParameters()` (the JSON Schema map), `getOutputSchema()`, and `getStrict()`.
+
+<Tip>
+
+`getToolSchemas()` is the ground truth for what the model sees. When a tool is registered but never called, print it and compare against the [parameter schema rules](#parameter-schemas-toolparam) — a `Map` parameter or a missing `@ToolParam` is the usual cause.
+
+</Tip>
 
 ### Custom tools (annotation-based)
 

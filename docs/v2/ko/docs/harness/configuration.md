@@ -85,10 +85,16 @@ HarnessAgent agent =
 |--------|--------|---------|
 | `name(String)` | 필수 | 메시지와 로그에 쓰이는 에이전트 식별자이자 네임스페이스 키의 폴백 |
 | `sysPrompt(String)` | 필수 | 워크스페이스 내용이 얹히기 전의 기본 시스템 프롬프트 |
-| `description(String)` | `null` | 사람이 읽는 설명. 이 에이전트를 서브에이전트로 쓸 때 오케스트레이터에 노출됨 |
+| `description(String)` | `"Agent(<agentId>) <name>"` | 이 에이전트 자신에게는 메타데이터일 뿐. 부모에게 노출될 때 **도구 설명**이 됨 — 아래 참고 |
 | `agentId(String)` | `name`으로 폴백 | 저장 상태의 안정적인 네임스페이스 키(`[agents, <agentId>, users, <userId>, …]`). 명시하면 이름을 바꿔도 상태가 끊기지 않음 |
 | `environmentMemory(String)` | `null` | 시스템 프롬프트의 세션 환경 블록에 session id와 나란히 덧붙는 텍스트 |
 | `environment(String)` | `"prod"` | Skill `EnvironmentFilter`가 읽는 배포 환경 라벨 |
+
+<Note>
+
+**`description`이 실제로 하는 일.** 이 에이전트 자신의 시스템 프롬프트에 주입되지 *않으며* 도구 동작에도 영향을 주지 않습니다. 이 에이전트가 *부모* 에이전트에게 도구로 노출될 때만 의미가 있습니다. `SubAgentTool`은 그 도구의 설명을 `SubagentDeclaration.description` → 이 에이전트의 `description(...)` → `"Call <name> to complete tasks"` 순서로 첫 번째 비어 있지 않은 값으로 결정합니다. 설정하지 않으면 `description`은 `"Agent(<agentId>) <name>"`이 되어 부모 오케스트레이터에게 아무 정보도 주지 못합니다. 위임 대상으로 삼을 에이전트에는 반드시 설정하세요.
+
+</Note>
 
 <Tip>
 

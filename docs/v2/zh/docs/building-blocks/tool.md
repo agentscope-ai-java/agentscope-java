@@ -57,26 +57,58 @@ Java tool 是任意满足 `AgentTool` 契约的对象。AgentScope 同时提供�
 
 ### 使用内置 Tool
 
-AgentScope 当前提供以下内置 tool：
+AgentScope 自带两类内置工具，它们抵达 Agent 的方式不同。
 
-| Tool | 说明 | 只读 |
+**Core 内置工具**位于 `agentscope-core`，由你自己注册：
+
+| Tool | 参数 | 只读 |
 |------|------|------|
-| `TodoTools.todoWrite` | 维护当前会话的结构化任务列表（全列表替换语义） | 否 |
-
-使用方式：
+| `todo_write` | `todos`（`List<TodoItem>`，必填）——**完整**的更新后列表，会整体替换现有列表 | 否 |
 
 ```java
 Toolkit toolkit = new Toolkit();
 toolkit.registerTool(new io.agentscope.core.tool.builtin.TodoTools());
 ```
 
+**Harness 内置工具**位于 `agentscope-harness`，由 `HarnessAgent` 自动注册——你只需要关闭它们，而不是开启（参见[配置](/v2/zh/docs/harness/configuration#关闭内置能力)）。
+
+文件系统工具，来自 `FilesystemTool`，用 `disableFilesystemTools()` 移除：
+
+| Tool | 参数 | 只读 |
+|------|------|------|
+| `read_file` | `path`（必填）· `offset`（`Integer`，默认 `0`）· `limit`（`Integer`，默认 `0` 表示全部行） | 是 |
+| `write_file` | `path`（必填）· `content`（必填）——自动创建父目录 | 否 |
+| `edit_file` | `path` · `old_string` · `new_string`（均必填）· `replace_all`（`Boolean`，默认 `false`）——除非 `replace_all`，否则 `old_string` 必须唯一 | 否 |
+| `list_files` | `path`（必填） | 是 |
+| `glob_files` | `pattern`（必填，如 `**/*.java`）· `path`（基准目录）· `limit`（`Integer`，默认 200） | 是 |
+| `grep_files` | `pattern`（必填，字面文本）· `path` · `glob`（如 `*.java`）· `limit`（`Integer`，默认 100） | 是 |
+
+Shell 工具，来自 `ShellExecuteTool`，用 `disableShellTool()` 移除：
+
+| Tool | 参数 | 只读 |
+|------|------|------|
+| `execute` | `command`（必填）· `working_directory`（相对工作区根目录）· `timeout`（`Integer`，秒，默认 `30`） | 否 |
+
+Web 工具，来自 `WebTools`，用 `disableWebTools()` 移除：
+
+| Tool | 参数 | 只读 |
+|------|------|------|
+| `web_fetch` | `url`（必填）· `max_chars`（`Integer`，默认 `20000`） | 是 |
+| `web_search` | `query`（必填）· `max_results`（`Integer`，默认 `5`） | 是 |
+
+记忆工具，用 `disableMemoryTools()` 移除：`memory_search`、`memory_get`、`memory_save`、`session_search`——参见[记忆](/v2/zh/docs/harness/memory)。
 
 <Note>
 
-Toolkit 在出现额外 tool group 或 skill 时会自动注册 `reset_tools` meta tool 与 skill 查看器工具 `load_skill_through_path`，开发者无需手动实例化。详见 [自我管理 Tool](#自我管理-tool) 与 [Skill](#skill)。
+Shell 工具的名字是 `execute`，而不是 `execute_shell_command`——它的 `@Tool` 注解没有设置 `name`，因此工具名回退为 Java 方法名。在权限规则和 `tools.json` 的允许/拒绝列表中应使用这个名字。
 
 </Note>
 
+<Note>
+
+当存在额外的 tool group 或 Skill 时，`Toolkit` 会自动注册 `reset_tools` 元工具和 `load_skill_through_path` Skill 查看工具——无需手动实例化。参见[自我管理 Tool](#自我管理-tool)与 [Skill](#skill)。
+
+</Note>
 
 ### 在 `Toolkit` 上注册工具
 
@@ -147,6 +179,50 @@ Tool group 让你每次只暴露 toolkit 的一个子集，从而压缩模型看
 | `removeMcpClient(String)` | 移除一个 MCP Server 及其全部工具；返回 `Mono<Void>` |
 
 让 Agent 自行切换分组的方式参见[自我管理 Tool](#自我管理-tool)。
+
+#### 查看已注册的内容
+
+想确认 Agent 实际会拿到哪些工具——做健康检查、启动断言或写测试时——可以把 toolkit 读回来：
+
+```java
+import io.agentscope.core.model.ToolSchema;
+import io.agentscope.core.tool.AgentTool;
+import java.util.List;
+import java.util.Set;
+
+Set<String> names = toolkit.getToolNames();
+System.out.println("registered: " + names);
+
+// 模型实际会收到的 Schema，已按激活的 tool group 过滤
+List<ToolSchema> schemas = toolkit.getToolSchemas();
+for (ToolSchema schema : schemas) {
+    System.out.println(schema.getName() + " -> " + schema.getParameters());
+}
+
+// 预期的工具没注册上时在启动阶段就失败
+//（registerMcpClient 忘记 block() 的典型症状）
+if (!names.contains("amap_maps_geo")) {
+    throw new IllegalStateException("MCP tools missing: " + names);
+}
+
+AgentTool tool = toolkit.getTool("read_file");
+```
+
+| 方法 | 返回值 |
+|------|--------|
+| `getToolNames()` | `Set<String>`——所有已注册工具的名称 |
+| `getTool(String)` | `AgentTool`——按名称取出单个工具 |
+| `getToolSchemas()` | `List<ToolSchema>`——发送给模型的 Schema，按 toolkit 当前激活的分组过滤 |
+| `getToolSchemas(Collection<String>)` | `List<ToolSchema>`——同上，但按显式传入的分组集合过滤；这是无状态的单次调用变体，忽略 toolkit 共享的激活标志 |
+| `getActiveGroups()` | `List<String>`——当前激活的 tool group 名称 |
+
+每个 `ToolSchema` 提供 `getName()`、`getDescription()`、`getParameters()`（JSON Schema map）、`getOutputSchema()` 和 `getStrict()`。
+
+<Tip>
+
+`getToolSchemas()` 是「模型究竟看到了什么」的唯一真相。当某个工具注册了却从未被调用时，把它打印出来，对照[参数 Schema 规则](#参数-schema-toolparam)检查——通常原因是用了 `Map` 参数，或漏写了 `@ToolParam`。
+
+</Tip>
 
 ### 自定义 Tool（注解式）
 

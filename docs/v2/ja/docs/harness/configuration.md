@@ -85,10 +85,16 @@ HarnessAgent agent =
 |----------|--------|------|
 | `name(String)` | 必須 | メッセージとログで使うエージェント識別子。名前空間キーのフォールバックにもなる |
 | `sysPrompt(String)` | 必須 | ワークスペース内容が重なる前のベースシステムプロンプト |
-| `description(String)` | `null` | 人間可読の説明。サブエージェントとして使われるときオーケストレータに提示される |
+| `description(String)` | `"Agent(<agentId>) <name>"` | このエージェント自身にとってはメタデータのみ。親に公開されるとき**ツールの説明**になる — 下記参照 |
 | `agentId(String)` | `name` にフォールバック | 保存される状態の安定した名前空間キー(`[agents, <agentId>, users, <userId>, …]`)。明示設定すればリネームで状態が迷子にならない |
 | `environmentMemory(String)` | `null` | システムプロンプトのセッション環境ブロックに、session id と並べて追記されるテキスト |
 | `environment(String)` | `"prod"` | スキルの `EnvironmentFilter` が読むデプロイ環境ラベル |
+
+<Note>
+
+**`description` が実際にすること。** このエージェント自身のシステムプロンプトに注入されることは*なく*、ツールの挙動にも影響しません。効くのは、このエージェントが*親*エージェントにツールとして公開されるときだけです。`SubAgentTool` はそのツールの説明を `SubagentDeclaration.description` → このエージェントの `description(...)` → `"Call <name> to complete tasks"` の順で、最初の非空値として解決します。未設定なら `description` は `"Agent(<agentId>) <name>"` になり、親のオーケストレータには何の情報も与えません。委譲先にするエージェントには必ず設定してください。
+
+</Note>
 
 <Tip>
 

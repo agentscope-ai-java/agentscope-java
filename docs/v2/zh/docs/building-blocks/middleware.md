@@ -348,6 +348,7 @@ onAgent
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.AgentEvent;
 import io.agentscope.core.middleware.MiddlewareBase;
 import io.agentscope.core.middleware.ModelCallInput;
@@ -357,7 +358,8 @@ import reactor.core.publisher.Flux;
 public class TimingMiddleware implements MiddlewareBase {
     @Override
     public Flux<AgentEvent> onModelCall(
-            Agent agent, ModelCallInput input, Function<ModelCallInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, ModelCallInput input,
+            Function<ModelCallInput, Flux<AgentEvent>> next) {
         long start = System.nanoTime();
         return next.apply(input)
                 .doFinally(sig -> {
@@ -375,6 +377,7 @@ public class TimingMiddleware implements MiddlewareBase {
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.AgentEvent;
 import io.agentscope.core.middleware.MiddlewareBase;
 import io.agentscope.core.middleware.ModelCallInput;
@@ -395,7 +398,8 @@ public class RateLimitMiddleware implements MiddlewareBase {
 
     @Override
     public Flux<AgentEvent> onModelCall(
-            Agent agent, ModelCallInput input, Function<ModelCallInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, ModelCallInput input,
+            Function<ModelCallInput, Flux<AgentEvent>> next) {
         long now = System.currentTimeMillis();
         long wait = minIntervalMs - (now - lastCall.get());
         Mono<Void> delay = wait > 0 ? Mono.delay(Duration.ofMillis(wait)).then() : Mono.empty();
@@ -411,6 +415,7 @@ public class RateLimitMiddleware implements MiddlewareBase {
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.middleware.MiddlewareBase;
 import java.time.Instant;
 import java.util.function.Supplier;
@@ -425,7 +430,7 @@ public class DynamicContextMiddleware implements MiddlewareBase {
     }
 
     @Override
-    public Mono<String> onSystemPrompt(Agent agent, String currentPrompt) {
+    public Mono<String> onSystemPrompt(Agent agent, RuntimeContext ctx, String currentPrompt) {
         return Mono.just(currentPrompt + "\n\n## Current Context\n" + contextFn.get());
     }
 }
@@ -440,6 +445,7 @@ public class DynamicContextMiddleware implements MiddlewareBase {
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.AgentEvent;
 import io.agentscope.core.middleware.MiddlewareBase;
 import io.agentscope.core.middleware.ModelCallInput;
@@ -457,7 +463,8 @@ public class ModelFallbackMiddleware implements MiddlewareBase {
 
     @Override
     public Flux<AgentEvent> onModelCall(
-            Agent agent, ModelCallInput input, Function<ModelCallInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, ModelCallInput input,
+            Function<ModelCallInput, Flux<AgentEvent>> next) {
         return next.apply(input)
                 .onErrorResume(err -> {
                     System.err.println("Primary model failed: " + err.getMessage()

@@ -43,7 +43,7 @@ onAgent/
 
 ## Equipping middleware
 
-AgentScope packs a set of hooks into a single `MiddlewareBase` implementation — one middleware class can implement any subset of the 5 hooks (the rest default to `next.apply(input)`). Pass the instances to the builder's `middlewares(...)`:
+AgentScope packs a set of hooks into a single `MiddlewareBase` implementation — one middleware class can implement any subset of the 5 hooks (`onAgent`, `onReasoning`, `onActing`, `onModelCall`, `onSystemPrompt`); the rest default to `next.apply(input)`. Pass the instances to the builder's `middlewares(...)`:
 
 ```java
 import io.agentscope.core.ReActAgent;
@@ -64,6 +64,16 @@ ReActAgent agent =
 `middleware(...)` (singular) adds one; `middlewares(...)` accepts `List<? extends MiddlewareBase>`. Hooks not implemented by a middleware are skipped at zero cost.
 
 ## Built-in middlewares
+
+AgentScope ships five built-in middlewares. **No built-in overrides `order()`** — every one of them runs at the default order of `1`, so a custom middleware with `order() > 1` wraps outside all of them and `order() < 1` runs inside all of them. The one exception is `GracefulShutdownMiddleware`, which is always outermost regardless of `order()` (see [Built-ins vs. your middleware](#built-ins-vs-your-middleware)).
+
+| Middleware | Package | Hooks | `order()` | How it is registered |
+|---|---|---|---|---|
+| `GracefulShutdownMiddleware` | `io.agentscope.core.shutdown` | `onReasoning`, `onActing` | `1` (but always outermost) | Automatic — always, prepended by the `ReActAgent` constructor |
+| `OtelTracingMiddleware` | `io.agentscope.core.tracing` | `onAgent`, `onModelCall`, `onActing` | `1` | Manual — `.middleware(new OtelTracingMiddleware())` |
+| `FinalAnswerFilterMiddleware` | `io.agentscope.core.middleware` | `onReasoning` | `1` | Manual — `.middleware(new FinalAnswerFilterMiddleware())` |
+| `TaskReminderMiddleware` | `io.agentscope.core.middleware` | `onSystemPrompt`, `onReasoning` | `1` | Automatic — appended when `.enableTaskList(true)` is set |
+| `DynamicSkillMiddleware` | `io.agentscope.core.skill` | `onSystemPrompt` | `1` | Automatic — appended when skill repositories are configured and dynamic skills are enabled |
 
 ### OtelTracingMiddleware
 
@@ -193,6 +203,74 @@ ReActAgent agent =
 
 The middleware buffers each round's text until the model call ends, because it cannot know whether the round is final until no tool call is observed.
 
+### GracefulShutdownMiddleware
+
+`GracefulShutdownMiddleware` (`io.agentscope.core.shutdown`) integrates graceful shutdown into the agent lifecycle. You never register it — every `ReActAgent` gets one automatically, and it is always the outermost middleware in the chain.
+
+It checkpoints after `onReasoning` and after `onActing` completes. When the system is in the `SHUTTING_DOWN` state the agent is interrupted at these safe points, so the current reasoning or acting phase is allowed to finish rather than wasting output tokens mid-generation. Only when the global shutdown timeout is reached is the agent force-interrupted mid-phase.
+
+Because it wraps everything, a custom `onReasoning` / `onActing` middleware always runs *inside* the shutdown checkpoint — your post-processing completes before the checkpoint decides whether to interrupt.
+
+### DynamicSkillMiddleware
+
+`DynamicSkillMiddleware` (`io.agentscope.core.skill`) rebuilds the agent's skill listing on every call and injects it through `onSystemPrompt`, replacing the static skill section of the prompt with one filtered for the current call.
+
+It is added automatically when the builder has skill repositories configured and dynamic skills enabled — you do not construct it yourself. Since it is appended during `build()`, it runs *after* any `onSystemPrompt` middleware you registered, so it sees (and appends to) your transformed prompt rather than the original.
+
+## Built-ins vs. your middleware
+
+Two rules decide where a built-in sits relative to your own middleware.
+
+**1. `GracefulShutdownMiddleware` is always outermost.** It is prepended by the `ReActAgent` constructor, which runs *after* the builder has sorted by `order()`. No `order()` value can place a middleware outside it:
+
+```
+GracefulShutdownMiddleware        ← always first, not sortable
+  └── your middleware (sorted by order(), descending)
+        └── auto-registered built-ins
+              └── core agent logic
+```
+
+**2. Every other built-in is an ordinary list member at order `1`.** Manually registered built-ins (`OtelTracingMiddleware`, `FinalAnswerFilterMiddleware`) take the position you register them in. Auto-registered built-ins (`TaskReminderMiddleware`, `DynamicSkillMiddleware`) are appended during `build()`, after everything you registered — so at equal order they land *innermost*, closest to the core logic.
+
+To position a custom middleware deliberately against a built-in, override `order()`:
+
+```java
+public class AuthMiddleware implements MiddlewareBase {
+    @Override
+    public int order() {
+        return 10;  // outside every built-in except GracefulShutdownMiddleware
+    }
+    // ...
+}
+```
+
+| Goal | `order()` |
+|---|---|
+| Wrap the built-ins (auth, global rate limit, a span that includes tracing overhead) | `> 1` |
+| Interleave with built-ins by registration position | `1` (default) |
+| Run inside the built-ins (per-call timing measured without tracing overhead) | `< 1` |
+
+## Error handling
+
+Middleware does not add any error-handling layer of its own. The chain is a plain composition of Reactor operators, so an error raised by the core logic or by any middleware propagates outward through `next.apply(input)` exactly as a Reactor error signal — each enclosing middleware sees it, and it surfaces to the caller of `call()` / `stream()` unless something handles it.
+
+This has three practical consequences:
+
+- **An exception thrown directly in a hook body** (before returning the `Flux`) propagates synchronously and aborts the reply. Wrap risky work in `Mono.fromCallable(...)` / `Flux.defer(...)` so it becomes a Reactor error signal instead.
+- **A middleware can swallow or substitute errors** with `onErrorResume` / `onErrorReturn`, which is exactly how the [model-fallback example](#model-fallback-middleware) retries against a backup model. Only middlewares *outside* that one see the recovered stream.
+- **Cleanup belongs in `doFinally`, not after `next.apply(input)`.** The hook body returns immediately; `doFinally` is the only place guaranteed to run on success, error *and* cancellation — cancellation matters here, because a shutdown interrupt cancels the stream rather than erroring it.
+
+```java
+@Override
+public Flux<AgentEvent> onModelCall(
+        Agent agent, RuntimeContext ctx, ModelCallInput input,
+        Function<ModelCallInput, Flux<AgentEvent>> next) {
+    return next.apply(input)
+            .doOnError(err -> log.warn("model call failed: {}", err.getMessage()))
+            .doFinally(signal -> releaseResources());  // runs on complete, error and cancel
+}
+```
+
 ## Custom middleware
 
 Implement `MiddlewareBase` (`io.agentscope.core.middleware`) and override only the hooks you need.
@@ -305,6 +383,8 @@ middlewares = [mw1(order=2), mw2(order=1)]
 // mw1 pre → mw2 pre → inner → mw2 post → mw1 post
 ```
 
+Built-in middlewares also run at the default order of `1` — none of them override `order()` — so `order() > 1` wraps outside every built-in and `order() < 1` runs inside them. `GracefulShutdownMiddleware` is the exception and is always outermost; see [Built-ins vs. your middleware](#built-ins-vs-your-middleware).
+
 Override `order()` to move a custom middleware relative to the default order. For example, an order of `0` runs inside middleware that keeps the default order of `1`:
 
 ```java
@@ -348,6 +428,7 @@ The middleware below records the wall-clock time of each model call:
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.AgentEvent;
 import io.agentscope.core.middleware.MiddlewareBase;
 import io.agentscope.core.middleware.ModelCallInput;
@@ -357,7 +438,8 @@ import reactor.core.publisher.Flux;
 public class TimingMiddleware implements MiddlewareBase {
     @Override
     public Flux<AgentEvent> onModelCall(
-            Agent agent, ModelCallInput input, Function<ModelCallInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, ModelCallInput input,
+            Function<ModelCallInput, Flux<AgentEvent>> next) {
         long start = System.nanoTime();
         return next.apply(input)
                 .doFinally(sig -> {
@@ -375,6 +457,7 @@ Enforce a minimum interval between two model calls:
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.AgentEvent;
 import io.agentscope.core.middleware.MiddlewareBase;
 import io.agentscope.core.middleware.ModelCallInput;
@@ -395,7 +478,8 @@ public class RateLimitMiddleware implements MiddlewareBase {
 
     @Override
     public Flux<AgentEvent> onModelCall(
-            Agent agent, ModelCallInput input, Function<ModelCallInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, ModelCallInput input,
+            Function<ModelCallInput, Flux<AgentEvent>> next) {
         long now = System.currentTimeMillis();
         long wait = minIntervalMs - (now - lastCall.get());
         Mono<Void> delay = wait > 0 ? Mono.delay(Duration.ofMillis(wait)).then() : Mono.empty();
@@ -411,6 +495,7 @@ Inject runtime context into the system prompt. Or reuse the example `middleware/
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.middleware.MiddlewareBase;
 import java.time.Instant;
 import java.util.function.Supplier;
@@ -425,7 +510,7 @@ public class DynamicContextMiddleware implements MiddlewareBase {
     }
 
     @Override
-    public Mono<String> onSystemPrompt(Agent agent, String currentPrompt) {
+    public Mono<String> onSystemPrompt(Agent agent, RuntimeContext ctx, String currentPrompt) {
         return Mono.just(currentPrompt + "\n\n## Current Context\n" + contextFn.get());
     }
 }
@@ -440,6 +525,7 @@ Swap to a backup model if the primary fails:
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.AgentEvent;
 import io.agentscope.core.middleware.MiddlewareBase;
 import io.agentscope.core.middleware.ModelCallInput;
@@ -457,7 +543,8 @@ public class ModelFallbackMiddleware implements MiddlewareBase {
 
     @Override
     public Flux<AgentEvent> onModelCall(
-            Agent agent, ModelCallInput input, Function<ModelCallInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, ModelCallInput input,
+            Function<ModelCallInput, Flux<AgentEvent>> next) {
         return next.apply(input)
                 .onErrorResume(err -> {
                     System.err.println("Primary model failed: " + err.getMessage()

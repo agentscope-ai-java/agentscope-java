@@ -57,22 +57,56 @@ Java ツールとは、`AgentTool` 契約を満たす任意のオブジェクト
 
 ### 組み込みツール
 
-AgentScope は現在、次の組み込みツールを同梱しています:
+AgentScope には 2 系統の組み込みツールがあり、エージェントへの届き方が異なります。
 
-| ツール | 説明 | 読み取り専用 |
-|------|-------------|-----------|
-| `TodoTools.todoWrite` | 現在のセッションの構造化されたタスクリストを維持する(リスト全体を置き換えるセマンティクス) | いいえ |
+**コア組み込み**は `agentscope-core` にあり、自分で登録します:
 
-使用方法:
+| ツール | パラメータ | 読み取り専用 |
+|--------|------------|--------------|
+| `todo_write` | `todos`(`List<TodoItem>`、必須) — **完全な**更新後リスト。既存のリストを丸ごと置き換える | いいえ |
 
 ```java
 Toolkit toolkit = new Toolkit();
 toolkit.registerTool(new io.agentscope.core.tool.builtin.TodoTools());
 ```
 
+**Harness 組み込み**は `agentscope-harness` にあり、`HarnessAgent` が自動で登録します。有効化ではなく無効化する対象です([設定](/v2/ja/docs/harness/configuration#組み込み機能を切る)を参照)。
+
+ファイルシステムツール(`FilesystemTool`、`disableFilesystemTools()` で除去):
+
+| ツール | パラメータ | 読み取り専用 |
+|--------|------------|--------------|
+| `read_file` | `path`(必須)· `offset`(`Integer`、既定 `0`)· `limit`(`Integer`、既定 `0` = 全行) | はい |
+| `write_file` | `path`(必須)· `content`(必須) — 親ディレクトリを自動作成 | いいえ |
+| `edit_file` | `path` · `old_string` · `new_string`(すべて必須)· `replace_all`(`Boolean`、既定 `false`) — `replace_all` でない限り `old_string` は一意である必要がある | いいえ |
+| `list_files` | `path`(必須) | はい |
+| `glob_files` | `pattern`(必須、例 `**/*.java`)· `path`(基準ディレクトリ)· `limit`(`Integer`、既定 200) | はい |
+| `grep_files` | `pattern`(必須、リテラル文字列)· `path` · `glob`(例 `*.java`)· `limit`(`Integer`、既定 100) | はい |
+
+シェルツール(`ShellExecuteTool`、`disableShellTool()` で除去):
+
+| ツール | パラメータ | 読み取り専用 |
+|--------|------------|--------------|
+| `execute` | `command`(必須)· `working_directory`(ワークスペースルートからの相対)· `timeout`(`Integer`、秒、既定 `30`) | いいえ |
+
+Web ツール(`WebTools`、`disableWebTools()` で除去):
+
+| ツール | パラメータ | 読み取り専用 |
+|--------|------------|--------------|
+| `web_fetch` | `url`(必須)· `max_chars`(`Integer`、既定 `20000`) | はい |
+| `web_search` | `query`(必須)· `max_results`(`Integer`、既定 `5`) | はい |
+
+メモリツール(`disableMemoryTools()` で除去): `memory_search`、`memory_get`、`memory_save`、`session_search` — [メモリ](/v2/ja/docs/harness/memory)を参照。
+
 <Note>
 
-追加のツールグループやスキルが存在する場合、`Toolkit` は `reset_tools` メタツールと `load_skill_through_path` スキルビューアツールを自動的に登録します——手動でインスタンス化する必要はありません。[自己管理型ツール](#自己管理型ツール) と [スキル](#スキル) を参照してください。
+シェルツールの名前は `execute_shell_command` ではなく `execute` です。`@Tool` アノテーションが `name` を設定していないため、ツール名が Java のメソッド名にフォールバックします。権限ルールや `tools.json` の許可/拒否リストではこの名前を使ってください。
+
+</Note>
+
+<Note>
+
+追加のツールグループやスキルがある場合、`Toolkit` は `reset_tools` メタツールと `load_skill_through_path` スキルビューアツールを自動登録します。手動でインスタンス化する必要はありません。[自己管理型ツール](#自己管理型ツール)と [Skill](#スキル)を参照してください。
 
 </Note>
 
@@ -145,6 +179,50 @@ HarnessAgent agent =
 | `removeMcpClient(String)` | MCP サーバーとその全ツールを削除。`Mono<Void>` を返す |
 
 エージェント自身にグループを切り替えさせる方法は[自己管理型ツール](#自己管理型ツール)を参照してください。
+
+#### 登録内容を確認する
+
+エージェントに実際に何が渡るのかを確かめたいとき — ヘルスチェック、起動時アサーション、テスト — toolkit を読み戻せます:
+
+```java
+import io.agentscope.core.model.ToolSchema;
+import io.agentscope.core.tool.AgentTool;
+import java.util.List;
+import java.util.Set;
+
+Set<String> names = toolkit.getToolNames();
+System.out.println("registered: " + names);
+
+// モデルが実際に受け取るスキーマ。有効なツールグループで絞り込まれる
+List<ToolSchema> schemas = toolkit.getToolSchemas();
+for (ToolSchema schema : schemas) {
+    System.out.println(schema.getName() + " -> " + schema.getParameters());
+}
+
+// 期待したツールが登録されていなければ起動時に落とす
+// (registerMcpClient の block() 忘れでよく起きる)
+if (!names.contains("amap_maps_geo")) {
+    throw new IllegalStateException("MCP tools missing: " + names);
+}
+
+AgentTool tool = toolkit.getTool("read_file");
+```
+
+| メソッド | 戻り値 |
+|----------|--------|
+| `getToolNames()` | `Set<String>` — 登録済みツールすべての名前 |
+| `getTool(String)` | `AgentTool` — 名前で 1 つ取得 |
+| `getToolSchemas()` | `List<ToolSchema>` — モデルへ送られるスキーマ。toolkit の現在有効なグループで絞り込まれる |
+| `getToolSchemas(Collection<String>)` | `List<ToolSchema>` — 同じだが、明示的に渡したグループ集合で絞り込む。toolkit の共有有効フラグを無視するステートレスな呼び出し単位の版 |
+| `getActiveGroups()` | `List<String>` — 現在有効なツールグループ名 |
+
+各 `ToolSchema` は `getName()`、`getDescription()`、`getParameters()`(JSON Schema の map)、`getOutputSchema()`、`getStrict()` を公開します。
+
+<Tip>
+
+`getToolSchemas()` は「モデルが何を見ているか」の唯一の真実です。登録したのに一度も呼ばれないツールがあれば、これを出力して[パラメータスキーマの規則](#パラメータスキーマtoolparam)と突き合わせてください。原因はたいてい `Map` パラメータか `@ToolParam` の付け忘れです。
+
+</Tip>
 
 ### カスタムツール(アノテーションベース)
 

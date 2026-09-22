@@ -92,10 +92,16 @@ HarnessAgent agent =
 |--------|---------|--------------|
 | `name(String)` | required | Agent identifier, used in messages and logs, and as the fallback namespace key |
 | `sysPrompt(String)` | required | Base system prompt, before workspace content is layered on |
-| `description(String)` | `null` | Human-readable description; shown to an orchestrator when this agent is used as a subagent |
+| `description(String)` | `"Agent(<agentId>) <name>"` | Metadata only for this agent; it becomes the **tool description** when this agent is exposed to a parent — see below |
 | `agentId(String)` | falls back to `name` | Stable namespace key for stored state (`[agents, <agentId>, users, <userId>, …]`). Set it explicitly so renaming the agent does not orphan its state |
 | `environmentMemory(String)` | `null` | Extra text appended to the per-session environment block of the system prompt, next to the session id |
 | `environment(String)` | `"prod"` | Deployment environment label read by the skill `EnvironmentFilter` |
+
+<Note>
+
+**What `description` actually does.** It is *not* injected into this agent's own system prompt and does not affect its tool behavior. It matters only when the agent is exposed to a *parent* agent as a tool: `SubAgentTool` resolves that tool's description as `SubagentDeclaration.description` → this agent's `description(...)` → `"Call <name> to complete tasks"`, taking the first non-empty value. Left unset, `description` defaults to `"Agent(<agentId>) <name>"`, which tells a parent orchestrator nothing useful — so set it on any agent you intend to delegate to.
+
+</Note>
 
 <Tip>
 

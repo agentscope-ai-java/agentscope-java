@@ -84,10 +84,16 @@ HarnessAgent agent =
 |------|--------|------|
 | `name(String)` | 必填 | Agent 标识，用于消息和日志，也是命名空间键的兜底值 |
 | `sysPrompt(String)` | 必填 | 基础系统提示词，工作区内容会叠加在其之上 |
-| `description(String)` | `null` | 人类可读描述；当该 Agent 作为子智能体时展示给编排方 |
+| `description(String)` | `"Agent(<agentId>) <name>"` | 对本 Agent 而言只是元数据；当它被暴露给父 Agent 时会成为**工具描述**——见下方说明 |
 | `agentId(String)` | 回退到 `name` | 存储状态的稳定命名空间键（`[agents, <agentId>, users, <userId>, …]`）。显式设置可避免重命名导致状态失联 |
 | `environmentMemory(String)` | `null` | 追加到系统提示词中每会话环境块的额外文本，位于 session id 旁 |
 | `environment(String)` | `"prod"` | 供 Skill `EnvironmentFilter` 读取的部署环境标签 |
+
+<Note>
+
+**`description` 究竟做了什么。** 它*不会*注入本 Agent 自己的系统提示词，也不影响它的工具行为。它只在该 Agent 作为工具暴露给*父* Agent 时才起作用：`SubAgentTool` 按 `SubagentDeclaration.description` → 本 Agent 的 `description(...)` → `"Call <name> to complete tasks"` 的顺序取第一个非空值作为该工具的描述。不设置时，`description` 默认为 `"Agent(<agentId>) <name>"`，这对父编排方毫无信息量——所以凡是打算被委派的 Agent 都应当设置它。
+
+</Note>
 
 <Tip>
 

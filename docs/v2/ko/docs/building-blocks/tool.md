@@ -57,22 +57,56 @@ agent와 런타임에 노출되는 속성:
 
 ### 내장 도구
 
-AgentScope는 현재 다음의 내장 도구를 제공한다.
+AgentScope에는 두 갈래의 내장 도구가 있고, 에이전트에 닿는 경로가 서로 다릅니다.
 
-| Tool | 설명 | 읽기 전용 |
-|------|-------------|-----------|
-| `TodoTools.todoWrite` | 현재 세션을 위한 구조화된 작업 목록을 유지(전체 목록 교체 방식) | 아니요 |
+**코어 내장 도구**는 `agentscope-core`에 있고 직접 등록합니다:
 
-사용 방법:
+| 도구 | 파라미터 | 읽기 전용 |
+|------|----------|-----------|
+| `todo_write` | `todos`(`List<TodoItem>`, 필수) — **전체** 갱신 목록. 기존 목록을 통째로 교체 | 아니요 |
 
 ```java
 Toolkit toolkit = new Toolkit();
 toolkit.registerTool(new io.agentscope.core.tool.builtin.TodoTools());
 ```
 
+**Harness 내장 도구**는 `agentscope-harness`에 있고 `HarnessAgent`가 자동으로 등록합니다. 켜는 것이 아니라 끄는 대상입니다([설정](/v2/ko/docs/harness/configuration#내장-기능-끄기) 참고).
+
+파일시스템 도구(`FilesystemTool`, `disableFilesystemTools()`로 제거):
+
+| 도구 | 파라미터 | 읽기 전용 |
+|------|----------|-----------|
+| `read_file` | `path`(필수) · `offset`(`Integer`, 기본 `0`) · `limit`(`Integer`, 기본 `0` = 전체 줄) | 예 |
+| `write_file` | `path`(필수) · `content`(필수) — 상위 디렉터리 자동 생성 | 아니요 |
+| `edit_file` | `path` · `old_string` · `new_string`(모두 필수) · `replace_all`(`Boolean`, 기본 `false`) — `replace_all`이 아니면 `old_string`은 고유해야 함 | 아니요 |
+| `list_files` | `path`(필수) | 예 |
+| `glob_files` | `pattern`(필수, 예 `**/*.java`) · `path`(기준 디렉터리) · `limit`(`Integer`, 기본 200) | 예 |
+| `grep_files` | `pattern`(필수, 리터럴 텍스트) · `path` · `glob`(예 `*.java`) · `limit`(`Integer`, 기본 100) | 예 |
+
+셸 도구(`ShellExecuteTool`, `disableShellTool()`로 제거):
+
+| 도구 | 파라미터 | 읽기 전용 |
+|------|----------|-----------|
+| `execute` | `command`(필수) · `working_directory`(워크스페이스 루트 기준 상대 경로) · `timeout`(`Integer`, 초, 기본 `30`) | 아니요 |
+
+웹 도구(`WebTools`, `disableWebTools()`로 제거):
+
+| 도구 | 파라미터 | 읽기 전용 |
+|------|----------|-----------|
+| `web_fetch` | `url`(필수) · `max_chars`(`Integer`, 기본 `20000`) | 예 |
+| `web_search` | `query`(필수) · `max_results`(`Integer`, 기본 `5`) | 예 |
+
+메모리 도구(`disableMemoryTools()`로 제거): `memory_search`, `memory_get`, `memory_save`, `session_search` — [메모리](/v2/ko/docs/harness/memory) 참고.
+
 <Note>
 
-`Toolkit`은 추가 tool group이나 skill이 존재할 때 `reset_tools` meta tool과 skill 뷰어 도구인 `load_skill_through_path`를 자동으로 등록한다 — 직접 인스턴스화할 필요가 없다. [자체 관리 도구](#자체-관리-도구)와 [Skill](#skill)을 참고한다.
+셸 도구의 이름은 `execute_shell_command`가 아니라 `execute`입니다. `@Tool` 애너테이션이 `name`을 설정하지 않아 도구 이름이 Java 메서드 이름으로 폴백하기 때문입니다. 권한 규칙과 `tools.json` 허용/차단 목록에서는 이 이름을 쓰세요.
+
+</Note>
+
+<Note>
+
+추가 tool group이나 Skill이 있으면 `Toolkit`이 `reset_tools` 메타 도구와 `load_skill_through_path` Skill 뷰어 도구를 자동으로 등록합니다. 직접 인스턴스화할 필요가 없습니다. [자체 관리 도구](#자체-관리-도구)와 [Skill](#skill)을 참고하세요.
 
 </Note>
 
@@ -145,6 +179,50 @@ tool group을 쓰면 한 번에 toolkit의 일부만 노출할 수 있어 모델
 | `removeMcpClient(String)` | MCP 서버와 그 모든 도구를 제거. `Mono<Void>` 반환 |
 
 에이전트가 스스로 그룹을 바꾸게 하려면 [자체 관리 도구](#자체-관리-도구)를 참고하세요.
+
+#### 등록된 내용 들여다보기
+
+에이전트가 실제로 무엇을 받게 되는지 확인할 때 — 헬스 체크, 기동 시 단언, 테스트 — toolkit을 되읽을 수 있습니다:
+
+```java
+import io.agentscope.core.model.ToolSchema;
+import io.agentscope.core.tool.AgentTool;
+import java.util.List;
+import java.util.Set;
+
+Set<String> names = toolkit.getToolNames();
+System.out.println("registered: " + names);
+
+// 모델이 실제로 받는 스키마. 활성 tool group으로 필터링됨
+List<ToolSchema> schemas = toolkit.getToolSchemas();
+for (ToolSchema schema : schemas) {
+    System.out.println(schema.getName() + " -> " + schema.getParameters());
+}
+
+// 기대한 도구가 등록되지 않았다면 기동 단계에서 실패시킴
+// (registerMcpClient에 block()을 빠뜨렸을 때 흔한 증상)
+if (!names.contains("amap_maps_geo")) {
+    throw new IllegalStateException("MCP tools missing: " + names);
+}
+
+AgentTool tool = toolkit.getTool("read_file");
+```
+
+| 메서드 | 반환값 |
+|--------|--------|
+| `getToolNames()` | `Set<String>` — 등록된 모든 도구의 이름 |
+| `getTool(String)` | `AgentTool` — 이름으로 도구 하나 |
+| `getToolSchemas()` | `List<ToolSchema>` — 모델에 전달되는 스키마. toolkit의 현재 활성 그룹으로 필터링 |
+| `getToolSchemas(Collection<String>)` | `List<ToolSchema>` — 같되 명시적으로 전달한 그룹 집합으로 필터링. toolkit의 공유 활성 플래그를 무시하는 무상태 호출 단위 변형 |
+| `getActiveGroups()` | `List<String>` — 현재 활성 tool group 이름 |
+
+각 `ToolSchema`는 `getName()`, `getDescription()`, `getParameters()`(JSON Schema 맵), `getOutputSchema()`, `getStrict()`를 제공합니다.
+
+<Tip>
+
+`getToolSchemas()`는 모델이 무엇을 보는지에 대한 유일한 진실입니다. 도구가 등록됐는데 한 번도 호출되지 않는다면 이것을 출력해 [파라미터 스키마 규칙](#파라미터-스키마toolparam)과 대조해 보세요. 원인은 대개 `Map` 파라미터이거나 `@ToolParam` 누락입니다.
+
+</Tip>
 
 ### 커스텀 도구(애너테이션 기반)
 
